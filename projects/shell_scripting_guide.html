@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shell Scripting Basics - Complete Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #555;
+        }
+        .rule-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .example-box {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .mistake-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .correct-box {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        table th {
+            background-color: #3498db;
+            color: white;
+        }
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .page-break {
+            page-break-after: always;
+            margin-top: 40px;
+        }
+        @media print {
+            body {
+                background-color: white;
+            }
+            .rule-box, .example-box, .mistake-box, .correct-box {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>📖 Shell Scripting Basics - Complete Guide</h1>
+    <p><strong>Date:</strong> 2026-08-11</p>
+    <p><strong>Level:</strong> Beginner</p>
+
+    <hr>
+
+    <h2>Table of Contents</h2>
+    <ol>
+        <li>Your First Script</li>
+        <li>Variables & Input</li>
+        <li>Syntax Rules & Formatting</li>
+        <li>Conditionals (if/else)</li>
+        <li>For Loops</li>
+        <li>While Loops</li>
+        <li>Common Brackets & Syntax</li>
+        <li>Quick Reference</li>
+    </ol>
+
+    <hr>
+
+    <h2>1. Your First Script</h2>
+
+    <h3>Creating a Script</h3>
+    <p>A shell script is a text file with commands that bash executes line by line.</p>
+
+    <div class="example-box">
+        <strong>Example: hello.sh</strong><br><br>
+        #!/bin/bash<br>
+        echo "Hello, World!"
+    </div>
+
+    <div class="rule-box">
+        <strong>Rules:</strong>
+        <ul>
+            <li><code>#!/bin/bash</code> must be the FIRST line (shebang)</li>
+            <li>Tells the system to use bash to run this file</li>
+            <li>Each new line = one command</li>
+        </ul>
+    </div>
+
+    <h3>Running a Script</h3>
+    <div class="example-box">
+        chmod +x hello.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Make it executable<br>
+        ./hello.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Run it<br>
+        <br>
+        Output:<br>
+        Hello, World!
+    </div>
+
+    <hr>
+
+    <h2>2. Variables & Input</h2>
+
+    <h3>Creating Variables</h3>
+    <div class="rule-box">
+        <strong>Syntax:</strong> <code>variablename=value</code><br><br>
+        <strong>Important:</strong> NO SPACES around <code>=</code>
+    </div>
+
+    <div class="example-box">
+        <strong>Example:</strong><br><br>
+        name="Alice"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Create a variable<br>
+        echo "Hello, $name"&nbsp;&nbsp;&nbsp;# Use $ to get the value<br>
+        <br>
+        Output:<br>
+        Hello, Alice
+    </div>
+
+    <h3>Using Arguments ($1, $2, etc.)</h3>
+    <div class="rule-box">
+        <strong>What are arguments?</strong><br>
+        Values you pass when running the script<br><br>
+        <code>$1</code> = First argument<br>
+        <code>$2</code> = Second argument<br>
+        <code>$@</code> = All arguments
+    </div>
+
+    <div class="example-box">
+        <strong>Example: greet.sh</strong><br><br>
+        #!/bin/bash<br>
+        name=$1<br>
+        age=$2<br>
+        echo "Hello $name, you are $age years old"<br>
+        <br>
+        <strong>Running it:</strong><br>
+        ./greet.sh Bob 25<br>
+        <br>
+        Output:<br>
+        Hello Bob, you are 25 years old
+    </div>
+
+    <hr>
+
+    <h2>3. Syntax Rules & Formatting</h2>
+
+    <h3>Spaces Around = (Assignment vs Comparison)</h3>
+
+    <div class="correct-box">
+        <strong>✅ CORRECT</strong><br><br>
+        name=bob&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# NO spaces (assigning)<br>
+        if [ $name = "bob" ]; then&nbsp;&nbsp;&nbsp;# SPACES around = (comparing)
+    </div>
+
+    <div class="mistake-box">
+        <strong>❌ WRONG</strong><br><br>
+        name = bob&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Spaces break assignment<br>
+        if [ $name="bob" ]; then&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# No spaces breaks comparison
+    </div>
+
+    <div class="rule-box">
+        <strong>Rule:</strong>
+        <ul>
+            <li><strong>Assigning a variable:</strong> <code>name=value</code> (NO spaces)</li>
+            <li><strong>Comparing in if:</strong> <code>[ $name = "value" ]</code> (SPACES required)</li>
+        </ul>
+    </div>
+
+    <h3>The [ ] Bracket</h3>
+
+    <div class="rule-box">
+        <strong>Always use spaces inside brackets:</strong><br><br>
+        <code>[ condition ]</code>&nbsp;&nbsp;&nbsp;✅ CORRECT<br>
+        <code>[condition]</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;❌ WRONG
+    </div>
+
+    <h3>The $ Symbol</h3>
+
+    <div class="rule-box">
+        <strong>Use $ to GET a value from a variable</strong><br><br>
+        <code>name="Alice"</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Store "Alice"<br>
+        <code>echo $name</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Prints: Alice<br>
+        <code>echo name</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Prints: name (the word)
+    </div>
+
+    <h3>Semicolons</h3>
+
+    <div class="rule-box">
+        <strong>Use ; to end a command on the same line:</strong><br><br>
+        <code>if [ $x = 5 ]; then</code><br>
+        The <code>;</code> separates the condition from <code>then</code>
+    </div>
+
+    <hr>
+
+    <h2>4. Conditionals (if/else)</h2>
+
+    <h3>Basic Structure</h3>
+    <div class="example-box">
+        <strong>Example:</strong><br><br>
+        #!/bin/bash<br>
+        age=$1<br>
+        <br>
+        if [ $age -ge 18 ]; then<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo "You are an adult"<br>
+        else<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo "You are a minor"<br>
+        fi
+    </div>
+
+    <h3>Comparison Operators</h3>
+
+    <table>
+        <tr>
+            <th>Operator</th>
+            <th>Meaning</th>
+            <th>Example</th>
+        </tr>
+        <tr>
+            <td><code>-eq</code></td>
+            <td>Equal</td>
+            <td><code>[ $x -eq 5 ]</code></td>
+        </tr>
+        <tr>
+            <td><code>-ne</code></td>
+            <td>Not equal</td>
+            <td><code>[ $x -ne 5 ]</code></td>
+        </tr>
+        <tr>
+            <td><code>-gt</code></td>
+            <td>Greater than</td>
+            <td><code>[ $x -gt 5 ]</code></td>
+        </tr>
+        <tr>
+            <td><code>-ge</code></td>
+            <td>Greater or equal</td>
+            <td><code>[ $x -ge 5 ]</code></td>
+        </tr>
+        <tr>
+            <td><code>-lt</code></td>
+            <td>Less than</td>
+            <td><code>[ $x -lt 5 ]</code></td>
+        </tr>
+        <tr>
+            <td><code>-le</code></td>
+            <td>Less or equal</td>
+            <td><code>[ $x -le 5 ]</code></td>
+        </tr>
+        <tr>
+            <td><code>=</code></td>
+            <td>String equal</td>
+            <td><code>[ $name = "Bob" ]</code></td>
+        </tr>
+        <tr>
+            <td><code>!=</code></td>
+            <td>String not equal</td>
+            <td><code>[ $name != "Bob" ]</code></td>
+        </tr>
+    </table>
+
+    <h3>File Checks</h3>
+    <table>
+        <tr>
+            <th>Check</th>
+            <th>Meaning</th>
+        </tr>
+        <tr>
+            <td><code>[ -f file ]</code></td>
+            <td>File exists</td>
+        </tr>
+        <tr>
+            <td><code>[ -d dir ]</code></td>
+            <td>Directory exists</td>
+        </tr>
+        <tr>
+            <td><code>[ -z string ]</code></td>
+            <td>String is empty</td>
+        </tr>
+        <tr>
+            <td><code>[ -n string ]</code></td>
+            <td>String is not empty</td>
+        </tr>
+    </table>
+
+    <h3>Combining Conditions</h3>
+    <div class="example-box">
+        <strong>AND:</strong><br>
+        if [ $age -ge 18 ] && [ $country = "USA" ]; then<br>
+        <br>
+        <strong>OR:</strong><br>
+        if [ $age -lt 18 ] || [ $age -gt 65 ]; then
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2>5. For Loops</h2>
+
+    <h3>Basic For Loop</h3>
+    <div class="example-box">
+        <strong>Example:</strong><br><br>
+        #!/bin/bash<br>
+        for i in 1 2 3 4 5; do<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo "Number: $i"<br>
+        done<br>
+        <br>
+        Output:<br>
+        Number: 1<br>
+        Number: 2<br>
+        Number: 3<br>
+        Number: 4<br>
+        Number: 5
+    </div>
+
+    <h3>For Loop with Range</h3>
+    <div class="rule-box">
+        <strong>Syntax:</strong> <code>for i in {START..END}; do</code><br><br>
+        Bash automatically generates all numbers from START to END
+    </div>
+
+    <div class="example-box">
+        <strong>Example: Count 1 to 10</strong><br><br>
+        #!/bin/bash<br>
+        for i in {1..10}; do<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo "Count: $i"<br>
+        done
+    </div>
+
+    <div class="example-box">
+        <strong>Example: Count backward 20 to 10</strong><br><br>
+        #!/bin/bash<br>
+        for i in {20..10}; do<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo "Number: $i"<br>
+        done<br>
+        <br>
+        Bash automatically counts backward!
+    </div>
+
+    <h3>For Loop with Variable Range</h3>
+    <div class="rule-box">
+        <strong>Problem:</strong> <code>{$n..10}</code> does NOT work<br>
+        Variables don't expand inside <code>{..}</code><br><br>
+        <strong>Solution:</strong> Use <code>seq</code> command with <code>$()</code>
+    </div>
+
+    <div class="example-box">
+        <strong>Example:</strong><br><br>
+        #!/bin/bash<br>
+        n=$1<br>
+        for i in $(seq 1 $n); do<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo "Number: $i"<br>
+        done<br>
+        <br>
+        ./script.sh 5<br>
+        Output: 1, 2, 3, 4, 5
+    </div>
+
+    <h3>Practical Example: Print Stars</h3>
+    <div class="example-box">
+        <strong>Print 5 stars on one line: *****</strong><br><br>
+        #!/bin/bash<br>
+        no=$1<br>
+        for i in $(seq 1 $no); do<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo -n "*"<br>
+        done<br>
+        echo ""&nbsp;&nbsp;&nbsp;&nbsp;# New line after<br>
+        <br>
+        ./stars.sh 5<br>
+        Output: *****
+    </div>
+
+    <div class="rule-box">
+        <strong>Key points:</strong>
+        <ul>
+            <li><code>echo -n</code> prints without a newline</li>
+            <li>Without <code>-n</code>, each star would be on its own line</li>
+            <li><code>echo ""</code> at the end moves to the next line</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <h2>6. While Loops</h2>
+
+    <h3>Basic While Loop</h3>
+    <div class="example-box">
+        <strong>Example: Count down from 5 to 1</strong><br><br>
+        #!/bin/bash<br>
+        count=5<br>
+        while [ $count -gt 0 ]; do<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo $count<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;count=$((count - 1))<br>
+        done<br>
+        echo "Blast off!"<br>
+        <br>
+        Output:<br>
+        5<br>
+        4<br>
+        3<br>
+        2<br>
+        1<br>
+        Blast off!
+    </div>
+
+    <h3>How While Works</h3>
+    <div class="rule-box">
+        <strong>Syntax:</strong> <code>while [ condition ]; do</code><br><br>
+        1. Check condition<br>
+        2. If TRUE, run commands inside<br>
+        3. Go back to step 1<br>
+        4. If FALSE, skip to after <code>done</code>
+    </div>
+
+    <h3>Counting Up with While</h3>
+    <div class="example-box">
+        <strong>Example: Count 1 to 5</strong><br><br>
+        #!/bin/bash<br>
+        count=1<br>
+        no=$1<br>
+        while [ $count -le $no ]; do<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo $count<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;count=$((count + 1))<br>
+        done<br>
+        <br>
+        ./countup.sh 5<br>
+        Output:<br>
+        1<br>
+        2<br>
+        3<br>
+        4<br>
+        5
+    </div>
+
+    <div class="rule-box">
+        <strong>Key points:</strong>
+        <ul>
+            <li><code>-le</code> means "less than or equal"</li>
+            <li><code>count=$((count + 1))</code> adds 1 each time</li>
+            <li>Without incrementing, the loop runs forever!</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <h2>7. Common Brackets & Syntax</h2>
+
+    <h3>Different Types of Brackets</h3>
+
+    <table>
+        <tr>
+            <th>Syntax</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+        <tr>
+            <td><code>[ ]</code></td>
+            <td>Test/condition</td>
+            <td><code>if [ $x -gt 5 ]; then</code></td>
+        </tr>
+        <tr>
+            <td><code>$( )</code></td>
+            <td>Run command, capture output</td>
+            <td><code>for i in $(seq 1 5); do</code></td>
+        </tr>
+        <tr>
+            <td><code>$(( ))</code></td>
+            <td>Do math</td>
+            <td><code>count=$((count + 1))</code></td>
+        </tr>
+        <tr>
+            <td><code>{ }</code></td>
+            <td>Generate range</td>
+            <td><code>for i in {1..10}; do</code></td>
+        </tr>
+    </table>
+
+    <h3>Understanding $( ) - Command Substitution</h3>
+
+    <div class="rule-box">
+        <strong>$( ) means:</strong><br>
+        "Run the command inside and use its output"
+    </div>
+
+    <div class="example-box">
+        <strong>Example:</strong><br><br>
+        seq 1 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# This command outputs: 1 2 3 4 5<br>
+        $(seq 1 5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Captures that output<br>
+        <br>
+        for i in $(seq 1 5); do&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Same as: for i in 1 2 3 4 5; do
+    </div>
+
+    <h3>Understanding $(( )) - Arithmetic</h3>
+
+    <div class="rule-box">
+        <strong>$(( )) means:</strong><br>
+        "Do math inside these parentheses"
+    </div>
+
+    <div class="example-box">
+        <strong>Examples:</strong><br><br>
+        count=$((count + 1))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Add 1<br>
+        total=$((5 + 3))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# total = 8<br>
+        result=$((count - 1))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Subtract 1<br>
+        product=$((10 * 5))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Multiply<br>
+        divided=$((20 / 4))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Divide
+    </div>
+
+    <h3>When Spaces Matter</h3>
+
+    <div class="example-box">
+        <strong>Variable assignment (NO spaces):</strong><br>
+        name=bob&nbsp;&nbsp;&nbsp;&nbsp;✅<br>
+        name = bob&nbsp;&nbsp;&nbsp;&nbsp;❌<br>
+        <br>
+        <strong>Conditionals (spaces required):</strong><br>
+        [ $x = 5 ]&nbsp;&nbsp;&nbsp;&nbsp;✅<br>
+        [$x=5]&nbsp;&nbsp;&nbsp;&nbsp;❌<br>
+        <br>
+        <strong>Math (spaces optional but clearer):</strong><br>
+        $((x + 1))&nbsp;&nbsp;&nbsp;&nbsp;✅<br>
+        $((x+1))&nbsp;&nbsp;&nbsp;&nbsp;✅ (also works)
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2>8. Quick Reference</h2>
+
+    <h3>Template for Common Scripts</h3>
+
+    <div class="example-box">
+        <strong>Simple Script Template:</strong><br><br>
+        #!/bin/bash<br>
+        <br>
+        # Get arguments<br>
+        variable=$1<br>
+        <br>
+        # Check something<br>
+        if [ condition ]; then<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo "Do something"<br>
+        else<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo "Do something else"<br>
+        fi<br>
+        <br>
+        # Loop<br>
+        for i in $(seq 1 10); do<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;echo $i<br>
+        done
+    </div>
+
+    <h3>Cheat Sheet</h3>
+
+    <table>
+        <tr>
+            <th>Task</th>
+            <th>Syntax</th>
+        </tr>
+        <tr>
+            <td>Create variable</td>
+            <td><code>name=value</code></td>
+        </tr>
+        <tr>
+            <td>Use variable</td>
+            <td><code>echo $name</code></td>
+        </tr>
+        <tr>
+            <td>Get first argument</td>
+            <td><code>$1</code></td>
+        </tr>
+        <tr>
+            <td>Print text</td>
+            <td><code>echo "text"</code></td>
+        </tr>
+        <tr>
+            <td>Print without newline</td>
+            <td><code>echo -n "text"</code></td>
+        </tr>
+        <tr>
+            <td>If-else</td>
+            <td><code>if [ condition ]; then ... else ... fi</code></td>
+        </tr>
+        <tr>
+            <td>For loop</td>
+            <td><code>for i in {1..10}; do ... done</code></td>
+        </tr>
+        <tr>
+            <td>While loop</td>
+            <td><code>while [ condition ]; do ... done</code></td>
+        </tr>
+        <tr>
+            <td>Add 1</td>
+            <td><code>count=$((count + 1))</code></td>
+        </tr>
+        <tr>
+            <td>Check if greater than</td>
+            <td><code>[ $x -gt 5 ]</code></td>
+        </tr>
+    </table>
+
+    <h3>Common Mistakes & Fixes</h3>
+
+    <table>
+        <tr>
+            <th>Mistake</th>
+            <th>Fix</th>
+            <th>Why</th>
+        </tr>
+        <tr>
+            <td><code>name = value</code></td>
+            <td><code>name=value</code></td>
+            <td>No spaces in assignment</td>
+        </tr>
+        <tr>
+            <td><code>if [$x=5]</code></td>
+            <td><code>if [ $x = 5 ]</code></td>
+            <td>Spaces required in [ ]</td>
+        </tr>
+        <tr>
+            <td><code>count=$(count+1)</code></td>
+            <td><code>count=$((count + 1))</code></td>
+            <td>Double (( )) for math</td>
+        </tr>
+        <tr>
+            <td><code>for i in {$n..10}</code></td>
+            <td><code>for i in $(seq 1 $n)</code></td>
+            <td>Variables don't expand in { }</td>
+        </tr>
+        <tr>
+            <td><code>echo $name</code> (without "$")</td>
+            <td><code>echo $name</code></td>
+            <td>Use $ to get variable value</td>
+        </tr>
+    </table>
+
+    <h3>Helpful Commands</h3>
+
+    <table>
+        <tr>
+            <th>Command</th>
+            <th>Purpose</th>
+        </tr>
+        <tr>
+            <td><code>seq 1 10</code></td>
+            <td>Generate numbers 1 to 10</td>
+        </tr>
+        <tr>
+            <td><code>echo "text"</code></td>
+            <td>Print text</td>
+        </tr>
+        <tr>
+            <td><code>chmod +x script.sh</code></td>
+            <td>Make script executable</td>
+        </tr>
+        <tr>
+            <td><code>./script.sh</code></td>
+            <td>Run script</td>
+        </tr>
+        <tr>
+            <td><code>cat script.sh</code></td>
+            <td>View script contents</td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <h2>Practice Exercises</h2>
+
+    <div class="rule-box">
+        <strong>Exercise 1:</strong> Create a script that prints "Hello [name]" when you pass a name as argument<br><br>
+        <strong>Exercise 2:</strong> Write a script that counts from 1 to the number you provide as argument<br><br>
+        <strong>Exercise 3:</strong> Write a script that prints stars based on input (5 → *****)<br><br>
+        <strong>Exercise 4:</strong> Write a script that counts down from input number to 1<br><br>
+        <strong>Exercise 5:</strong> Write a script that checks if a number is greater than 10
+    </div>
+
+    <hr>
+
+    <p style="text-align: center; color: #666; margin-top: 40px;">
+        <strong>Happy scripting! 🚀</strong><br>
+        Keep practicing with these exercises and you'll master shell scripting.
+    </p>
+
+</body>
+</html>

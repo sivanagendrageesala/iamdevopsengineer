@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS EC2 Explained - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #ff9900;
+            --aws-blue: #0066cc;
+            --success-green: #10b981;
+            --warning-red: #ef4444;
+            --bg-light: #f8f7f5;
+            --bg-dark: #1a1a1a;
+            --text-light: #1a1a1a;
+            --text-dark: #f8f7f5;
+            --border-light: #e5e4e0;
+            --border-dark: #333333;
+            --accent-orange: #ff9900;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-light: #1a1a1a;
+                --text-light: #f8f7f5;
+                --border-light: #333333;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg-light: #1a1a1a;
+            --text-light: #f8f7f5;
+            --border-light: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-orange), #ff6b35);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--accent-orange);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            background: rgba(255, 153, 0, 0.05);
+            border-left: 4px solid var(--accent-orange);
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(255, 153, 0, 0.1);
+        }
+
+        .feature-card h4 {
+            color: var(--accent-orange);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .instance-demo {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(255, 153, 0, 0.08);
+            border-radius: 12px;
+            border: 2px dashed var(--accent-orange);
+        }
+
+        .instance-box {
+            padding: 1.5rem;
+            background: var(--accent-orange);
+            color: white;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            animation: slideIn 0.5s ease-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .instance-status {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .status-running { background: var(--success-green); }
+        .status-stopped { background: var(--warning-red); }
+        .status-pending { background: #fbbf24; color: #1a1a1a; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toggle-btn {
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .toggle-btn:hover {
+            background: #ff8c00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+        }
+
+        .toggle-btn.active {
+            background: var(--success-green);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-card {
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+        }
+
+        .comparison-card h4 {
+            margin-bottom: 1rem;
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .check { color: var(--success-green); font-weight: bold; }
+        .cross { color: var(--warning-red); font-weight: bold; }
+
+        .info-box {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .troubleshooting-step {
+            padding: 1.5rem;
+            background: rgba(255, 153, 0, 0.05);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--accent-orange);
+        }
+
+        .troubleshooting-step h4 {
+            color: var(--accent-orange);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .troubleshooting-step ul {
+            margin-left: 1.5rem;
+            margin-bottom: 0;
+        }
+
+        .lifecycle-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .lifecycle-stage {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem;
+            text-align: center;
+            border: 2px solid var(--accent-orange);
+            border-radius: 8px;
+            background: rgba(255, 153, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .lifecycle-arrow {
+            font-size: 1.5rem;
+            color: var(--accent-orange);
+        }
+
+        .security-item {
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-green);
+            margin: 0.75rem 0;
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #7a7a7a;
+            border-top: 1px solid var(--border-light);
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            h2 { font-size: 1.5rem; }
+            .feature-list { grid-template-columns: 1fr; }
+            .lifecycle-diagram { flex-direction: column; }
+            .lifecycle-arrow { transform: rotate(90deg); }
+            .instance-box { flex-direction: column; gap: 1rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AWS EC2 Explained</h1>
+        <p>Elastic Compute Cloud — Interactive Learning Guide</p>
+    </header>
+
+    <div class="container">
+        <!-- Section 1: What is EC2? -->
+        <section class="section">
+            <h2>🖥️ What is EC2?</h2>
+            <p><strong>EC2 = Elastic Compute Cloud</strong> — Virtual computers (servers) that you can launch on-demand in AWS. You control the OS, applications, and configurations.</p>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Virtual Servers</h4>
+                    <p>Launch computers in minutes instead of days</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Elastic (Scalable)</h4>
+                    <p>Increase or decrease computing capacity on demand</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Pay-As-You-Go</h4>
+                    <p>Only pay for the capacity you actually use</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Full Control</h4>
+                    <p>Root/administrator access to your instances</p>
+                </div>
+            </div>
+
+            <h3>What Can You Do with EC2?</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>✅ Common Uses:</h4>
+                    <p><span class="check">✓</span> Host web applications</p>
+                    <p><span class="check">✓</span> Run databases</p>
+                    <p><span class="check">✓</span> Run batch processing jobs</p>
+                    <p><span class="check">✓</span> Host game servers</p>
+                    <p><span class="check">✓</span> Perform data analysis</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>📊 Instance Types:</h4>
+                    <p><span class="check">✓</span> <strong>General:</strong> Balanced compute, memory, networking</p>
+                    <p><span class="check">✓</span> <strong>Compute:</strong> High performance processors</p>
+                    <p><span class="check">✓</span> <strong>Memory:</strong> Large RAM capacity</p>
+                    <p><span class="check">✓</span> <strong>Storage:</strong> High I/O performance</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Instance Lifecycle -->
+        <section class="section">
+            <h2>🔄 Instance Lifecycle</h2>
+            <p>Every EC2 instance goes through distinct states from creation to termination.</p>
+
+            <h3>Instance States</h3>
+            <div class="lifecycle-diagram">
+                <div class="lifecycle-stage" style="background: rgba(251, 191, 36, 0.1); border-color: #fbbf24;">
+                    <span style="color: #fbbf24;">⏳</span><br>Pending
+                </div>
+                <div class="lifecycle-arrow">→</div>
+                <div class="lifecycle-stage" style="background: rgba(16, 185, 129, 0.1); border-color: var(--success-green);">
+                    <span style="color: var(--success-green);">✓</span><br>Running
+                </div>
+                <div class="lifecycle-arrow">→</div>
+                <div class="lifecycle-stage" style="background: rgba(239, 68, 68, 0.1); border-color: var(--warning-red);">
+                    <span style="color: var(--warning-red);">⏹</span><br>Stopped
+                </div>
+                <div class="lifecycle-arrow">→</div>
+                <div class="lifecycle-stage" style="background: rgba(107, 114, 128, 0.1); border-color: #7a7a7a;">
+                    <span style="color: #7a7a7a;">✕</span><br>Terminated
+                </div>
+            </div>
+
+            <h3>Instance Demo</h3>
+            <div class="instance-demo">
+                <p style="margin-bottom: 1rem; font-weight: 600;">My Instances:</p>
+                <div id="instancesContainer">
+                    <div class="instance-box">
+                        <span>web-server-01 (t3.medium)</span>
+                        <span class="instance-status status-running">Running</span>
+                    </div>
+                </div>
+                <button class="toggle-btn" onclick="launchInstance()">🚀 Launch Instance</button>
+                <button class="toggle-btn" onclick="stopInstance()" style="background: var(--warning-red);">⏹ Stop Instance</button>
+                <button class="toggle-btn" onclick="terminateInstance()" style="background: #7a7a7a;">✕ Terminate Instance</button>
+            </div>
+
+            <h3>State Transitions</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>🟢 Running → Stopped</h4>
+                    <p><span class="check">✓</span> Data preserved on EBS volumes</p>
+                    <p><span class="check">✓</span> You still pay for EBS storage</p>
+                    <p><span class="check">✓</span> Can restart the instance</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>🟢 Running → Terminated</h4>
+                    <p><span class="cross">✗</span> Instance is permanently deleted</p>
+                    <p><span class="cross">✗</span> Instance store volumes are lost</p>
+                    <p><span class="cross">✓</span> EBS volumes can be retained</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Storage -->
+        <section class="section">
+            <h2>💾 Instance Storage</h2>
+            <p>EC2 instances use different types of storage for different purposes.</p>
+
+            <h3>Storage Types</h3>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>EBS (Elastic Block Store)</h4>
+                    <p>Persistent block storage that survives instance termination. Used for OS and data.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Instance Store (Ephemeral)</h4>
+                    <p>Temporary storage tied to instance hardware. Lost when instance stops/terminates.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>EFS (Elastic File System)</h4>
+                    <p>Network file system accessible across multiple instances</p>
+                </div>
+                <div class="feature-card">
+                    <h4>S3 Integration</h4>
+                    <p>Access object storage for backups, data, and media files</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Best Practice:</strong> Use EBS volumes for data you want to keep, and configure snapshots for backup and disaster recovery.
+            </div>
+        </section>
+
+        <!-- Section 4: Security & Networking -->
+        <section class="section">
+            <h2>🔐 Security & Networking</h2>
+
+            <h3>Security Groups</h3>
+            <p>Act as virtual firewalls that control inbound and outbound traffic to your instances.</p>
+            <div class="security-item">
+                <strong>Inbound Rules:</strong> Control who can connect TO your instance
+            </div>
+            <div class="security-item">
+                <strong>Outbound Rules:</strong> Control what your instance can connect TO
+            </div>
+
+            <h3>Key Pairs</h3>
+            <p>Used for SSH access to Linux/Unix instances or RDP access to Windows instances.</p>
+            <ul style="margin-left: 2rem; margin-bottom: 1.5rem;">
+                <li><strong>Private Key:</strong> Kept securely on your local machine</li>
+                <li><strong>Public Key:</strong> Installed on the EC2 instance</li>
+                <li>Never share or lose your private key</li>
+            </ul>
+
+            <h3>IAM Roles</h3>
+            <p>Attach IAM roles to instances to give them permissions to access other AWS services securely.</p>
+        </section>
+
+        <!-- Section 5: Troubleshooting -->
+        <section class="section">
+            <h2>🔧 Troubleshooting Guide</h2>
+
+            <h3>Cannot Connect to Instance (SSH/RDP Fails)</h3>
+            <div class="troubleshooting-step">
+                <h4>Step 1: Verify Instance is Running</h4>
+                <ul>
+                    <li>Check instance state is "running" in AWS Console</li>
+                    <li>Check that status checks show "2/2 checks passed"</li>
+                    <li>Wait 2-3 minutes for the instance to fully initialize</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 2: Verify Security Group Rules</h4>
+                <ul>
+                    <li>Check Security Group allows inbound SSH (port 22) or RDP (port 3389)</li>
+                    <li>Your source IP should be in the allowed range (use 0.0.0.0/0 only for testing)</li>
+                    <li>Rule should allow your protocol (TCP for SSH/RDP)</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 3: Verify Key Pair</h4>
+                <ul>
+                    <li>Ensure you're using the correct private key file</li>
+                    <li>Key file permissions must be 400 (chmod 400 on Linux/Mac)</li>
+                    <li>Verify key pair was used when launching the instance</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 4: Verify Network Configuration</h4>
+                <ul>
+                    <li>Instance has a public IP or Elastic IP address</li>
+                    <li>Subnet auto-assigns public IPs (or assign manually)</li>
+                    <li>Internet Gateway is attached to VPC</li>
+                    <li>Route table has route to Internet Gateway</li>
+                </ul>
+            </div>
+
+            <h3>High CPU or Memory Usage</h3>
+            <div class="troubleshooting-step">
+                <h4>Step 1: Monitor with CloudWatch</h4>
+                <ul>
+                    <li>Check CloudWatch metrics for CPU, network, disk I/O</li>
+                    <li>Identify if usage spike is normal or abnormal</li>
+                    <li>Check for runaway processes</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 2: SSH Into Instance</h4>
+                <ul>
+                    <li>Use <code>top</code> or <code>htop</code> to see CPU/memory hogs</li>
+                    <li>Check application logs for errors</li>
+                    <li>Identify which process is consuming resources</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 3: Take Action</h4>
+                <ul>
+                    <li>Kill the offending process if it's unwanted</li>
+                    <li>Restart the service/application</li>
+                    <li>Scale up to a larger instance type if legitimate traffic</li>
+                    <li>Add load balancer to distribute traffic</li>
+                </ul>
+            </div>
+
+            <h3>Instance Won't Start</h3>
+            <div class="troubleshooting-step">
+                <h4>Common Causes & Solutions:</h4>
+                <ul>
+                    <li><strong>Insufficient capacity:</strong> Try different AZ or instance type</li>
+                    <li><strong>Account limits:</strong> Request limit increase from AWS Support</li>
+                    <li><strong>Subnet full:</strong> Use different subnet or VPC</li>
+                    <li><strong>AMI deleted:</strong> Use different AMI or restore from snapshot</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 6: Cost Optimization -->
+        <section class="section">
+            <h2>💰 Cost Optimization Tips</h2>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Right-Sizing</h4>
+                    <p>Choose instance type matching your actual needs, not max capacity</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Reserved Instances</h4>
+                    <p>Get 30-70% discount for 1-3 year commitments</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Spot Instances</h4>
+                    <p>Up to 90% cheaper for non-critical, flexible workloads</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Stop Unused Instances</h4>
+                    <p>Stop development/test instances when not in use</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Key Takeaways -->
+        <section class="section">
+            <h2>✨ Key Takeaways</h2>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Flexible Computing</h4>
+                    <p>Launch servers in minutes and scale instantly</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Multiple Storage Options</h4>
+                    <p>EBS, Instance Store, EFS, and S3 for different needs</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Security First</h4>
+                    <p>Security Groups, Key Pairs, and IAM control access</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Cost Control</h4>
+                    <p>Stop/terminate unused instances to save money</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Interactive guide to AWS EC2 • Made for learning • 2024</p>
+    </footer>
+
+    <script>
+        let instanceCount = 1;
+
+        function launchInstance() {
+            const container = document.getElementById('instancesContainer');
+            instanceCount++;
+            const status = ['Running', 'Pending'][Math.floor(Math.random() * 2)];
+            const statusClass = status === 'Running' ? 'status-running' : 'status-pending';
+
+            const newInstance = document.createElement('div');
+            newInstance.className = 'instance-box';
+            newInstance.innerHTML = `
+                <span>web-server-0${instanceCount} (t3.medium)</span>
+                <span class="instance-status ${statusClass}">${status}</span>
+            `;
+            container.appendChild(newInstance);
+        }
+
+        function stopInstance() {
+            const instances = document.querySelectorAll('.instance-box');
+            if (instances.length > 0) {
+                const lastInstance = instances[instances.length - 1];
+                const status = lastInstance.querySelector('.instance-status');
+                status.textContent = 'Stopped';
+                status.className = 'instance-status status-stopped';
+            }
+        }
+
+        function terminateInstance() {
+            const instances = document.querySelectorAll('.instance-box');
+            if (instances.length > 0) {
+                instances[instances.length - 1].remove();
+                instanceCount--;
+            }
+        }
+
+        document.querySelectorAll('.section').forEach((section, index) => {
+            section.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>

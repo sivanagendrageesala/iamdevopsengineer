@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Practice Guide: All 7 Scenarios on AWS EC2 Free Tier</title>
+<style>
+:root {
+  --primary: #ffffff;
+  --accent: #d32f2f;
+  --success: #388e3c;
+  --warning: #f57c00;
+  --info: #1976d2;
+  --bg-light: #f5f5f5;
+  --text-dark: #1a1a1a;
+  --text-light: #424242;
+  --border: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #1e1e1e;
+    --accent: #ff6b6b;
+    --success: #51cf66;
+    --warning: #ffd43b;
+    --info: #4dabf7;
+    --bg-light: #2d2d2d;
+    --text-dark: #ffffff;
+    --text-light: #e0e0e0;
+    --border: #404040;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--primary);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.8;
+  color: var(--text-dark);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: var(--primary);
+  padding: 30px;
+  border-radius: 8px;
+}
+
+h1 {
+  color: var(--accent);
+  border-bottom: 4px solid var(--accent);
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+  text-align: center;
+}
+
+h2 {
+  color: var(--accent);
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-left: 15px;
+  border-left: 5px solid var(--accent);
+  font-size: 1.6em;
+}
+
+h3 {
+  color: var(--text-dark);
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.step {
+  background: var(--bg-light);
+  border-left: 5px solid var(--accent);
+  padding: 25px;
+  margin: 25px 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.step-number {
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 1.15em;
+}
+
+.command {
+  background: #1a1a1a;
+  color: #00ff00;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.output {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  border-left: 5px solid var(--success);
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.critical {
+  background: rgba(211, 47, 47, 0.15);
+  border-left: 5px solid var(--accent);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--accent);
+}
+
+.critical strong {
+  color: var(--accent);
+  font-size: 1.05em;
+}
+
+.success {
+  background: rgba(56, 142, 60, 0.15);
+  border-left: 5px solid var(--success);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--success);
+}
+
+.success strong {
+  color: var(--success);
+  font-size: 1.05em;
+}
+
+.scenario-box {
+  background: var(--bg-light);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  border-left: 5px solid var(--warning);
+  color: var(--text-dark);
+  border: 1px solid var(--border);
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.timeline-item {
+  background: var(--bg-light);
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 5px solid var(--info);
+  text-align: center;
+}
+
+.timeline-item strong {
+  display: block;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.timeline-item .time {
+  font-size: 0.85em;
+  color: var(--text-light);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-light);
+  margin: 25px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th {
+  background: var(--accent);
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-weight: bold;
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dark);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+code {
+  background: var(--bg-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+ul, ol {
+  margin-left: 25px;
+  margin-top: 12px;
+  color: var(--text-dark);
+}
+
+li {
+  margin: 10px 0;
+  line-height: 1.7;
+}
+
+p {
+  margin: 12px 0;
+  color: var(--text-dark);
+}
+
+strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.warning-box {
+  background: rgba(245, 127, 23, 0.1);
+  border: 2px solid var(--warning);
+  padding: 15px;
+  border-radius: 6px;
+  margin: 15px 0;
+  color: var(--text-dark);
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🚀 Complete DevOps Practice Guide: All 7 Scenarios on AWS Free Tier</h1>
+
+  <div class="scenario-box">
+    <strong style="color: var(--accent); font-size: 1.05em;">📊 Your Learning Path:</strong>
+    <br><br>
+    <strong style="color: var(--success); font-size: 1.05em;">✅ Setup AWS EC2 (5 minutes)</strong>
+    <br>
+    <strong style="color: var(--success); font-size: 1.05em;">✅ Connect via SSH (2 minutes)</strong>
+    <br>
+    <strong style="color: var(--success); font-size: 1.05em;">✅ Install Services (10 minutes)</strong>
+    <br>
+    <strong style="color: var(--success); font-size: 1.05em;">✅ Practice 7 Scenarios (120 minutes)</strong>
+    <br><br>
+    <strong>Total: ~2.5 hours of hands-on learning! 🎓</strong>
+  </div>
+
+  <h2>⭐ PART 1: Setup AWS EC2 Instance (5 minutes)</h2>
+
+  <div class="step">
+    <div class="step-number">Step 1: Go to AWS Console</div>
+
+    <p><strong>1. Open your browser and go to:</strong></p>
+    <div class="command">https://console.aws.amazon.com/</div>
+
+    <p><strong>2. Sign in with your AWS account</strong></p>
+
+    <p><strong>3. Search for "EC2" in the search bar at the top</strong></p>
+    <div class="output">AWS Console → Services → EC2</div>
+
+    <p><strong>What you'll see:</strong> EC2 Dashboard with instance options</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Step 2: Launch New Instance</div>
+
+    <p><strong>Click: "Launch instances" (big orange button)</strong></p>
+
+    <p><strong>Choose AMI (Amazon Machine Image):</strong></p>
+    <table>
+      <tr>
+        <th>Option</th>
+        <th>Details</th>
+        <th>Free Tier</th>
+      </tr>
+      <tr>
+        <td><strong>Ubuntu 20.04 LTS</strong></td>
+        <td>Latest, most popular for DevOps</td>
+        <td>✅ Free</td>
+      </tr>
+      <tr>
+        <td><strong>Amazon Linux 2</strong></td>
+        <td>AWS-native, CentOS-based</td>
+        <td>✅ Free</td>
+      </tr>
+    </table>
+
+    <p><strong>👉 SELECT: Ubuntu 20.04 LTS (x86)</strong></p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Step 3: Instance Type</div>
+
+    <p><strong>Select: t2.micro (Free Tier eligible)</strong></p>
+    <div class="output">t2.micro - 1 GB RAM, 1 CPU (More than enough for practice)</div>
+
+    <p><strong>Click: "Next: Configure Instance Details"</strong></p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Step 4: Configure Security Group</div>
+
+    <p><strong>Skip to "Step 6: Configure Security Group"</strong></p>
+
+    <p><strong>Add these inbound rules:</strong></p>
+
+    <table>
+      <tr>
+        <th>Type</th>
+        <th>Protocol</th>
+        <th>Port</th>
+        <th>Source</th>
+        <th>Why</th>
+      </tr>
+      <tr>
+        <td>SSH</td>
+        <td>TCP</td>
+        <td>22</td>
+        <td>0.0.0.0/0 (Anywhere)</td>
+        <td>Connect from PuTTY</td>
+      </tr>
+      <tr>
+        <td>HTTP</td>
+        <td>TCP</td>
+        <td>80</td>
+        <td>0.0.0.0/0</td>
+        <td>Web server traffic</td>
+      </tr>
+      <tr>
+        <td>HTTPS</td>
+        <td>TCP</td>
+        <td>443</td>
+        <td>0.0.0.0/0</td>
+        <td>Secure web traffic</td>
+      </tr>
+      <tr>
+        <td>MySQL</td>
+        <td>TCP</td>
+        <td>3306</td>
+        <td>0.0.0.0/0</td>
+        <td>Database access</td>
+      </tr>
+    </table>
+
+    <div class="warning-box">
+      <strong>⚠️ WARNING:</strong> Setting source to 0.0.0.0/0 is NOT secure for production! Only use on free tier practice instances.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Step 5: Create Key Pair</div>
+
+    <p><strong>When prompted for key pair:</strong></p>
+
+    <p><strong>1. Click: "Create new key pair"</strong></p>
+    <p><strong>2. Name: devops-practice</strong></p>
+    <p><strong>3. Format: .pem</strong></p>
+    <p><strong>4. Click: "Create key pair"</strong></p>
+
+    <div class="success">
+      ✅ File "devops-practice.pem" will download<br>
+      ✅ SAVE THIS FILE - you'll need it to connect!<br>
+      ✅ Never share this file!
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Step 6: Launch & Wait</div>
+
+    <p><strong>Click: "Launch instances"</strong></p>
+
+    <p><strong>Wait for:</strong></p>
+    <div class="output">Instance State: Running (green)
+Status Checks: 2/2 passed (green)</div>
+
+    <p><strong>Note: This takes 2-3 minutes</strong></p>
+
+    <div class="success">
+      ✅ Instance is running<br>
+      ✅ Ready to connect!
+    </div>
+  </div>
+
+  <h2>🔌 PART 2: Connect via SSH from PuTTY (2 minutes)</h2>
+
+  <div class="step">
+    <div class="step-number">Step 1: Get Instance Details</div>
+
+    <p><strong>In AWS Console, find your instance and note:</strong></p>
+
+    <table>
+      <tr>
+        <th>Detail</th>
+        <th>Where to Find</th>
+        <th>Example</th>
+      </tr>
+      <tr>
+        <td><strong>Public IP</strong></td>
+        <td>Instances list (last column)</td>
+        <td>54.123.45.67</td>
+      </tr>
+      <tr>
+        <td><strong>Instance ID</strong></td>
+        <td>Instances list</td>
+        <td>i-0abc123def456</td>
+      </tr>
+    </table>
+
+    <p><strong>Copy the Public IP address</strong></p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Step 2: Convert PEM to PPK (For PuTTY)</div>
+
+    <p><strong>PuTTY needs PPK format, not PEM. Here's how to convert:</strong></p>
+
+    <p><strong>Option A: Use PuTTYgen (Graphical)</strong></p>
+    <ol>
+      <li>Download: PuTTYgen (puttygen.exe)</li>
+      <li>Open PuTTYgen</li>
+      <li>Click: "Load" → Select devops-practice.pem</li>
+      <li>Click: "Save private key" → Name: devops-practice.ppk</li>
+    </ol>
+
+    <p><strong>Option B: Use Command Line (Easier)</strong></p>
+    <div class="command">puttygen devops-practice.pem -O private -o devops-practice.ppk</div>
+
+    <div class="success">
+      ✅ You now have devops-practice.ppk<br>
+      ✅ Ready to use in PuTTY!
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Step 3: Open PuTTY and Connect</div>
+
+    <p><strong>1. Open PuTTY</strong></p>
+
+    <p><strong>2. In "Host Name":</strong></p>
+    <div class="command">ubuntu@54.123.45.67</div>
+    <p>(Replace 54.123.45.67 with your Public IP)</p>
+
+    <p><strong>3. Go to: Connection → SSH → Auth</strong></p>
+    <p><strong>4. Click: "Browse" → Select devops-practice.ppk</strong></p>
+
+    <p><strong>5. Click: "Open"</strong></p>
+
+    <p><strong>6. Accept warning about server key (click "Yes")</strong></p>
+
+    <div class="output">Welcome to Ubuntu 20.04.1 LTS
+ubuntu@ip-172-31-0-123:~$</div>
+
+    <div class="success">
+      ✅ Connected to your EC2 instance!<br>
+      ✅ Ready to install services!
+    </div>
+  </div>
+
+  <h2>📦 PART 3: Install Services (10 minutes)</h2>
+
+  <p><strong>Copy-paste these commands one at a time in your PuTTY terminal:</strong></p>
+
+  <div class="step">
+    <div class="step-number">Update System</div>
+
+    <div class="command">sudo apt update && sudo apt upgrade -y</div>
+
+    <p><strong>What it does:</strong> Updates package lists and system packages</p>
+    <p><strong>Wait time:</strong> 2-3 minutes</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Install Nginx (Web Server)</div>
+
+    <div class="command">sudo apt install -y nginx</div>
+
+    <p><strong>Start it:</strong></p>
+    <div class="command">sudo systemctl start nginx
+sudo systemctl enable nginx</div>
+
+    <p><strong>Verify:</strong></p>
+    <div class="command">sudo systemctl status nginx</div>
+
+    <p><strong>Expected output:</strong></p>
+    <div class="output">● nginx.service - A high performance web server
+   Active: active (running)</div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Install MySQL (Database)</div>
+
+    <div class="command">sudo apt install -y mysql-server</div>
+
+    <p><strong>Start it:</strong></p>
+    <div class="command">sudo systemctl start mysql
+sudo systemctl enable mysql</div>
+
+    <p><strong>Verify:</strong></p>
+    <div class="command">sudo systemctl status mysql</div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">Install Basic Tools</div>
+
+    <div class="command">sudo apt install -y curl wget htop net-tools</div>
+
+    <p><strong>These are helpful for troubleshooting!</strong></p>
+  </div>
+
+  <div class="success">
+    ✅ All services installed!<br>
+    ✅ Ready to practice scenarios!
+  </div>
+
+  <h2>🎯 PART 4: Practice All 7 Scenarios (120 minutes)</h2>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <strong>Scenario 1</strong><br>
+      <div class="time">Port Conflict</div>
+      <div class="time">15 min</div>
+    </div>
+    <div class="timeline-item">
+      <strong>Scenario 2</strong><br>
+      <div class="time">Disk Full</div>
+      <div class="time">15 min</div>
+    </div>
+    <div class="timeline-item">
+      <strong>Scenario 3</strong><br>
+      <div class="time">High CPU</div>
+      <div class="time">20 min</div>
+    </div>
+    <div class="timeline-item">
+      <strong>Scenario 4</strong><br>
+      <div class="time">DB Error</div>
+      <div class="time">20 min</div>
+    </div>
+    <div class="timeline-item">
+      <strong>Scenario 5</strong><br>
+      <div class="time">Backup</div>
+      <div class="time">15 min</div>
+    </div>
+    <div class="timeline-item">
+      <strong>Scenario 6</strong><br>
+      <div class="time">SSL Cert</div>
+      <div class="time">10 min</div>
+    </div>
+    <div class="timeline-item">
+      <strong>Scenario 7</strong><br>
+      <div class="time">DNS</div>
+      <div class="time">15 min</div>
+    </div>
+  </div>
+
+  <h3>🔴 SCENARIO 1: Website Down (Port Conflict) - 15 minutes</h3>
+
+  <p><strong>The Plan:</strong> Stop nginx, start Apache on port 80, then fix it</p>
+
+  <p><strong>Step 1: Stop nginx</strong></p>
+  <div class="command">sudo systemctl stop nginx</div>
+
+  <p><strong>Step 2: Install Apache</strong></p>
+  <div class="command">sudo apt install -y apache2</div>
+
+  <p><strong>Step 3: Start Apache on port 80</strong></p>
+  <div class="command">sudo systemctl start apache2</div>
+
+  <p><strong>Step 4: Try to restart nginx (will fail)</strong></p>
+  <div class="command">sudo systemctl start nginx</div>
+
+  <p><strong>Expected error:</strong></p>
+  <div class="output">Job for nginx.service failed because the control process exited with error code.
+bind() to 0.0.0.0:80 failed (98: Address already in use)</div>
+
+  <p><strong>Step 5: Check what's using port 80</strong></p>
+  <div class="command">sudo netstat -tuln | grep 80</div>
+
+  <p><strong>Output shows:**</p>
+  <div class="output">tcp    0  0 0.0.0.0:80  0.0.0.0:*  LISTEN  1234/apache2</div>
+
+  <p><strong>Step 6: Now fix it!</strong></p>
+  <div class="command">sudo systemctl stop apache2
+sudo systemctl disable apache2
+sudo systemctl start nginx</div>
+
+  <p><strong>Step 7: Verify nginx is running</strong></p>
+  <div class="command">sudo systemctl status nginx</div>
+
+  <p><strong>Step 8: Test it works</strong></p>
+  <div class="command">curl http://localhost/</div>
+
+  <div class="success">
+    ✅ SCENARIO 1 COMPLETE!<br>
+    ✅ You diagnosed a port conflict!<br>
+    ✅ You fixed it and verified the fix!
+  </div>
+
+  <h3>💾 SCENARIO 2: Disk Full (Old Logs) - 15 minutes</h3>
+
+  <p><strong>The Plan:</strong> Fill disk with logs, then clean them up</p>
+
+  <p><strong>Step 1: Create fake old log files</strong></p>
+  <div class="command">sudo dd if=/dev/zero of=/var/log/syslog.1 bs=1M count=100
+sudo dd if=/dev/zero of=/var/log/syslog.2 bs=1M count=100
+sudo dd if=/dev/zero of=/var/log/nginx/old.log bs=1M count=50</div>
+
+  <p><strong>Step 2: Check disk usage</strong></p>
+  <div class="command">df -h</div>
+
+  <p><strong>Step 3: See what's taking space</strong></p>
+  <div class="command">du -sh /* | sort -hr</div>
+
+  <p><strong>Step 4: Find the large files</strong></p>
+  <div class="command">du -sh /var/log/* | sort -hr</div>
+
+  <p><strong>Step 5: Delete old logs</strong></p>
+  <div class="command">sudo rm /var/log/syslog.1 /var/log/syslog.2 /var/log/nginx/old.log</div>
+
+  <p><strong>Step 6: Verify disk freed</strong></p>
+  <div class="command">df -h</div>
+
+  <div class="success">
+    ✅ SCENARIO 2 COMPLETE!<br>
+    ✅ You identified disk hogs!<br>
+    ✅ You freed up disk space!
+  </div>
+
+  <h3>⚡ SCENARIO 3: High CPU/Memory (Slow Queries) - 20 minutes</h3>
+
+  <p><strong>The Plan:</strong> Run a CPU-heavy query, monitor it, kill it</p>
+
+  <p><strong>Step 1: Login to MySQL</strong></p>
+  <div class="command">mysql -u root</div>
+
+  <p><strong>Step 2: Create test database</strong></p>
+  <div class="command">CREATE DATABASE testdb;
+USE testdb;</div>
+
+  <p><strong>Step 3: Create a large table</strong></p>
+  <div class="command">CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255)
+);
+
+INSERT INTO users (name, email) VALUES ('test', 'test@test.com');
+INSERT INTO users SELECT * FROM users;
+INSERT INTO users SELECT * FROM users;
+INSERT INTO users SELECT * FROM users;</div>
+
+  <p><strong>Step 4: Exit MySQL and open in another terminal</strong></p>
+  <div class="command">EXIT;</div>
+
+  <p><strong>In PuTTY, open NEW session (Connection → SSH → Tunnels → open new terminal)</strong></p>
+
+  <p><strong>Step 5: In first terminal, run slow query</strong></p>
+  <div class="command">mysql -u root -e "USE testdb; SELECT * FROM users WHERE id > 0;"</div>
+
+  <p><strong>Step 6: In second terminal, monitor CPU</strong></p>
+  <div class="command">top</div>
+
+  <p><strong>Press 'q' to exit top</strong></p>
+
+  <p><strong>Step 7: Check MySQL processes</strong></p>
+  <div class="command">mysql -u root -e "SHOW PROCESSLIST;"</div>
+
+  <p><strong>Step 8: Kill the query</strong></p>
+  <div class="command">mysql -u root -e "KILL <process_id>;"</div>
+
+  <div class="success">
+    ✅ SCENARIO 3 COMPLETE!<br>
+    ✅ You monitored CPU usage!<br>
+    ✅ You found and killed slow queries!
+  </div>
+
+  <h3>🗄️ SCENARIO 4: Database Connection Failed - 20 minutes</h3>
+
+  <p><strong>The Plan:</strong> Break MySQL, then fix it</strong></p>
+
+  <p><strong>Step 1: Stop MySQL</strong></p>
+  <div class="command">sudo systemctl stop mysql</div>
+
+  <p><strong>Step 2: Try to connect (will fail)</strong></p>
+  <div class="command">mysql -u root</div>
+
+  <p><strong>Expected error:</strong></p>
+  <div class="output">ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2 "No such file or directory")</div>
+
+  <p><strong>Step 3: Check MySQL status</strong></p>
+  <div class="command">sudo systemctl status mysql</div>
+
+  <p><strong>Expected:</strong></p>
+  <div class="output">● mysql.service - MySQL Community Server
+   Active: inactive (dead)</div>
+
+  <p><strong>Step 4: Check error log</strong></p>
+  <div class="command">sudo tail -50 /var/log/mysql/error.log</div>
+
+  <p><strong>Step 5: Now fix it!</strong></p>
+  <div class="command">sudo systemctl start mysql</div>
+
+  <p><strong>Step 6: Verify it's running</strong></p>
+  <div class="command">sudo systemctl status mysql</div>
+
+  <p><strong>Step 7: Test connection</strong></p>
+  <div class="command">mysql -u root -e "SELECT 1;"</div>
+
+  <div class="success">
+    ✅ SCENARIO 4 COMPLETE!<br>
+    ✅ You diagnosed a downed database!<br>
+    ✅ You restarted and verified it!
+  </div>
+
+  <h3>💾 SCENARIO 5: Backup Failed - 15 minutes</h3>
+
+  <p><strong>The Plan:</strong> Create backup script, make it fail, then fix it</p>
+
+  <p><strong>Step 1: Create backup script</strong></p>
+  <div class="command">sudo nano /usr/local/bin/backup.sh</div>
+
+  <p><strong>Paste this (copy entire block):</strong></p>
+  <div class="command">#!/bin/bash
+echo "[$(date)] Starting backup"
+mysqldump -u backup_user -pWRONG_PASSWORD testdb > /backups/backup.sql 2>&1
+if [ $? -eq 0 ]; then
+    echo "[$(date)] Backup SUCCESS"
+else
+    echo "[$(date)] Backup FAILED"
+fi</div>
+
+  <p><strong>Save (Ctrl+O, Enter, Ctrl+X)</strong></p>
+
+  <p><strong>Step 2: Make it executable</strong></p>
+  <div class="command">sudo chmod +x /usr/local/bin/backup.sh</div>
+
+  <p><strong>Step 3: Create backups directory</strong></p>
+  <div class="command">sudo mkdir -p /backups
+sudo chmod 777 /backups</div>
+
+  <p><strong>Step 4: Run backup (will fail)</strong></p>
+  <div class="command">sudo /usr/local/bin/backup.sh</div>
+
+  <p><strong>Expected: Shows FAILED</strong></p>
+
+  <p><strong>Step 5: Create backup user</strong></p>
+  <div class="command">mysql -u root -e "CREATE USER 'backup_user'@'localhost' IDENTIFIED BY 'backup_password';"
+mysql -u root -e "GRANT SELECT ON *.* TO 'backup_user'@'localhost';"</div>
+
+  <p><strong>Step 6: Update script with correct password</strong></p>
+  <div class="command">sudo nano /usr/local/bin/backup.sh</div>
+
+  <p><strong>Change: -pWRONG_PASSWORD to -pbackup_password</strong></p>
+
+  <p><strong>Step 7: Run backup again (will succeed!)</strong></p>
+  <div class="command">sudo /usr/local/bin/backup.sh</div>
+
+  <p><strong>Step 8: Verify backup exists</strong></p>
+  <div class="command">ls -lh /backups/</div>
+
+  <div class="success">
+    ✅ SCENARIO 5 COMPLETE!<br>
+    ✅ You created and fixed a backup script!<br>
+    ✅ You verified the backup was created!
+  </div>
+
+  <h3>🔒 SCENARIO 6: SSL Certificate Expired - 10 minutes</h3>
+
+  <p><strong>The Plan:</strong> Check nginx SSL config</p>
+
+  <p><strong>Step 1: Check if SSL is configured</strong></p>
+  <div class="command">sudo ls -la /etc/nginx/sites-enabled/</div>
+
+  <p><strong>Step 2: Check default config</strong></p>
+  <div class="command">sudo cat /etc/nginx/sites-available/default</div>
+
+  <p><strong>Step 3: On AWS, use self-signed cert for practice</strong></p>
+  <div class="command">sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/nginx-selfsigned.key \
+  -out /etc/ssl/certs/nginx-selfsigned.crt \
+  -subj "/C=US/ST=State/L=City/O=Org/CN=localhost"</div>
+
+  <p><strong>Step 4: Create HTTPS nginx config</strong></p>
+  <div class="command">sudo tee /etc/nginx/sites-available/default > /dev/null << 'EOF'
+server {
+    listen 443 ssl;
+    server_name _;
+
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+    location / {
+        root /var/www/html;
+        index index.html;
+    }
+}
+
+server {
+    listen 80;
+    return 301 https://$server_name$request_uri;
+}
+EOF</div>
+
+  <p><strong>Step 5: Test nginx config</strong></p>
+  <div class="command">sudo nginx -t</div>
+
+  <p><strong>Step 6: Reload nginx</strong></p>
+  <div class="command">sudo systemctl reload nginx</div>
+
+  <p><strong>Step 7: Test HTTPS</strong></p>
+  <div class="command">curl -k https://localhost/</div>
+
+  <div class="success">
+    ✅ SCENARIO 6 COMPLETE!<br>
+    ✅ You set up HTTPS!<br>
+    ✅ You understand SSL certificates!
+  </div>
+
+  <h3>🌐 SCENARIO 7: DNS Resolution Failing - 15 minutes</h3>
+
+  <p><strong>The Plan:</strong> Test DNS resolution locally</p>
+
+  <p><strong>Step 1: Test DNS query</strong></p>
+  <div class="command">nslookup google.com</div>
+
+  <p><strong>Expected: Shows IP address</strong></p>
+
+  <p><strong>Step 2: Test with Google DNS</strong></p>
+  <div class="command">dig google.com @8.8.8.8</div>
+
+  <p><strong>Step 3: Test local hostname resolution</strong></p>
+  <div class="command">hostname
+getent hosts localhost</div>
+
+  <p><strong>Step 4: Add custom entry to /etc/hosts</strong></p>
+  <div class="command">sudo nano /etc/hosts</div>
+
+  <p><strong>Add this line:</strong></p>
+  <div class="command">127.0.0.1  mydevopslab.local</div>
+
+  <p><strong>Step 5: Test resolution</strong></p>
+  <div class="command">ping mydevopslab.local</div>
+
+  <p><strong>Expected:</strong></p>
+  <div class="output">PING mydevopslab.local (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.03 ms</div>
+
+  <div class="success">
+    ✅ SCENARIO 7 COMPLETE!<br>
+    ✅ You tested DNS resolution!<br>
+    ✅ You added custom DNS entries!
+  </div>
+
+  <h2>🎓 Practice Complete Checklist</h2>
+
+  <table>
+    <tr>
+      <th>Scenario</th>
+      <th>Concept</th>
+      <th>Status</th>
+    </tr>
+    <tr>
+      <td>1. Website Down</td>
+      <td>Port conflicts, service management</td>
+      <td>☐</td>
+    </tr>
+    <tr>
+      <td>2. Disk Full</td>
+      <td>Disk usage, log cleanup</td>
+      <td>☐</td>
+    </tr>
+    <tr>
+      <td>3. High CPU/Memory</td>
+      <td>Process monitoring, query management</td>
+      <td>☐</td>
+    </tr>
+    <tr>
+      <td>4. Database Connection</td>
+      <td>Service troubleshooting, restart</td>
+      <td>☐</td>
+    </tr>
+    <tr>
+      <td>5. Backup Failed</td>
+      <td>User creation, script execution</td>
+      <td>☐</td>
+    </tr>
+    <tr>
+      <td>6. SSL Certificate</td>
+      <td>HTTPS setup, certificates</td>
+      <td>☐</td>
+    </tr>
+    <tr>
+      <td>7. DNS Failing</td>
+      <td>DNS resolution, hosts file</td>
+      <td>☐</td>
+    </tr>
+  </table>
+
+  <h2>🚀 Next Steps After Practice</h2>
+
+  <ol>
+    <li><strong>Take screenshots</strong> of each scenario working</li>
+    <li><strong>Write down what you learned</strong> in your own words</li>
+    <li><strong>Redo scenarios from memory</strong> (don't follow guide)</li>
+    <li><strong>Try harder versions</strong> (more complex setups)</li>
+    <li><strong>Practice on production-like systems</strong></li>
+  </ol>
+
+  <h2>💡 Tips for Success</h2>
+
+  <ul>
+    <li><strong>Go slow:</strong> Read each command before running it</li>
+    <li><strong>Understand output:</strong> Don't just copy-paste, read error messages</li>
+    <li><strong>Take notes:</strong> Write down what worked and what didn't</li>
+    <li><strong>Ask questions:</strong> If something fails, investigate WHY</li>
+    <li><strong>Repeat:</strong> Do each scenario 2-3 times until comfortable</li>
+  </ul>
+
+  <div style="background: var(--success); color: white; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: center;">
+    <h3 style="color: white; border: none; margin-top: 0;">🎉 You're about to become a real DevOps troubleshooter!</h3>
+  </div>
+
+</div>
+</body>
+</html>

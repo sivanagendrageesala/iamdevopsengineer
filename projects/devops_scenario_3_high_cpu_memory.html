@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Scenario 3: High CPU & Memory Usage</title>
+<style>
+:root {
+  --primary: #ffffff;
+  --accent: #d32f2f;
+  --success: #388e3c;
+  --warning: #f57c00;
+  --bg-light: #f5f5f5;
+  --text-dark: #1a1a1a;
+  --text-light: #424242;
+  --border: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #1e1e1e;
+    --accent: #ff6b6b;
+    --success: #51cf66;
+    --warning: #ffd43b;
+    --bg-light: #2d2d2d;
+    --text-dark: #ffffff;
+    --text-light: #e0e0e0;
+    --border: #404040;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--primary);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.8;
+  color: var(--text-dark);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--primary);
+  padding: 30px;
+  border-radius: 8px;
+}
+
+h1 {
+  color: var(--accent);
+  border-bottom: 4px solid var(--accent);
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+}
+
+h2 {
+  color: var(--accent);
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-left: 15px;
+  border-left: 5px solid var(--accent);
+  font-size: 1.6em;
+}
+
+h3 {
+  color: var(--text-dark);
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.step {
+  background: var(--bg-light);
+  border-left: 5px solid var(--accent);
+  padding: 25px;
+  margin: 25px 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.step-number {
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 1.15em;
+}
+
+.command {
+  background: #1a1a1a;
+  color: #00ff00;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.output {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  border-left: 5px solid var(--success);
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.critical {
+  background: rgba(211, 47, 47, 0.15);
+  border-left: 5px solid var(--accent);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--accent);
+}
+
+.critical strong {
+  color: var(--accent);
+  font-size: 1.05em;
+}
+
+.success {
+  background: rgba(56, 142, 60, 0.15);
+  border-left: 5px solid var(--success);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--success);
+}
+
+.success strong {
+  color: var(--success);
+  font-size: 1.05em;
+}
+
+.scenario-box {
+  background: var(--bg-light);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  border-left: 5px solid var(--warning);
+  color: var(--text-dark);
+  border: 1px solid var(--border);
+}
+
+.explanation {
+  background: rgba(56, 142, 60, 0.05);
+  border-left: 5px solid var(--success);
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--success);
+}
+
+.explanation strong {
+  color: var(--success);
+}
+
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.comparison-box {
+  background: var(--bg-light);
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--text-dark);
+}
+
+.comparison-box h4 {
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-light);
+  margin: 25px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th {
+  background: var(--accent);
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 1.05em;
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dark);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+code {
+  background: var(--bg-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+ul, ol {
+  margin-left: 25px;
+  margin-top: 12px;
+  color: var(--text-dark);
+}
+
+li {
+  margin: 10px 0;
+  line-height: 1.7;
+}
+
+p {
+  margin: 12px 0;
+  color: var(--text-dark);
+}
+
+strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.tips {
+  background: rgba(245, 127, 23, 0.1);
+  border: 2px solid var(--warning);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  color: var(--text-dark);
+}
+
+.tips h4 {
+  color: var(--accent);
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.05em;
+}
+
+@media (max-width: 768px) {
+  .comparison {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>⚡ Scenario 3: High CPU & Memory Usage - Complete Explanation</h1>
+
+  <div class="scenario-box">
+    <strong style="color: var(--accent); font-size: 1.05em;">🚨 The Alert:</strong> CPU 95%, Memory 92%, Website SLOW!
+    <br><br><strong style="color: var(--accent); font-size: 1.05em;">⏱️ Your Time:</strong> Find problem → Kill queries → Verify (10 minutes)
+    <br><br><strong style="color: var(--accent); font-size: 1.05em;">🎯 Your Goal:</strong> Get CPU < 20%, Memory < 70%, Website fast again
+  </div>
+
+  <h2>📚 PART 1: Understanding CPU & Memory</h2>
+
+  <h3>What is CPU? (Think of it as a Cashier)</h3>
+  <div class="explanation">
+    <strong>A cashier at a store:</strong><br>
+    • One cashier can handle one customer at a time<br>
+    • If 100 customers come, the cashier is overwhelmed<br>
+    • The cashier works very fast (calculations per second)
+  </div>
+
+  <p><strong>On a server:</strong></p>
+  <ul>
+    <li>CPU does calculations and processes requests</li>
+    <li>When CPU is 100%, it's like the cashier handling 100 customers at once</li>
+    <li>When CPU is 50%, the cashier is half-busy</li>
+    <li>When CPU is 0%, there's nothing to do</li>
+  </ul>
+
+  <table>
+    <tr>
+      <th>CPU Usage</th>
+      <th>Status</th>
+      <th>What It Means</th>
+    </tr>
+    <tr>
+      <td>0-20%</td>
+      <td>✅ Server Relaxed</td>
+      <td>Light work, plenty of capacity</td>
+    </tr>
+    <tr>
+      <td>20-50%</td>
+      <td>✅ Moderate Work</td>
+      <td>Normal, website responds fast</td>
+    </tr>
+    <tr>
+      <td>50-80%</td>
+      <td>⚠️ Busy</td>
+      <td>Working hard but OK</td>
+    </tr>
+    <tr>
+      <td>80-95%</td>
+      <td>❌ Very Busy</td>
+      <td>Website slow, users complain</td>
+    </tr>
+    <tr>
+      <td>95-100%</td>
+      <td>🚨 CRITICAL</td>
+      <td>Website frozen! Users can't access!</td>
+    </tr>
+  </table>
+
+  <h3>What is Memory (RAM)? (Think of it as a Desk)</h3>
+  <div class="explanation">
+    <strong>A desk in an office:</strong><br>
+    • Bigger desk = you can have more papers on it<br>
+    • When desk fills up, you can't work efficiently<br>
+    • When desk is full, you waste time cleaning up
+  </div>
+
+  <p><strong>On a server:</strong></p>
+  <ul>
+    <li>Memory is where programs store data they're using RIGHT NOW</li>
+    <li>When you open an app, it uses RAM</li>
+    <li>When RAM fills up, server gets slow (uses disk instead)</li>
+    <li>When RAM is completely full, server crashes</li>
+  </ul>
+
+  <table>
+    <tr>
+      <th>Memory Usage</th>
+      <th>Status</th>
+      <th>What It Means</th>
+    </tr>
+    <tr>
+      <td>0-50%</td>
+      <td>✅ Server Relaxed</td>
+      <td>Plenty of free space</td>
+    </tr>
+    <tr>
+      <td>50-70%</td>
+      <td>✅ Normal</td>
+      <td>Good, server working normally</td>
+    </tr>
+    <tr>
+      <td>70-85%</td>
+      <td>⚠️ Getting Full</td>
+      <td>Still OK but watch it</td>
+    </tr>
+    <tr>
+      <td>85-95%</td>
+      <td>❌ Very Full</td>
+      <td>Server getting slow</td>
+    </tr>
+    <tr>
+      <td>95-100%</td>
+      <td>🚨 CRITICAL</td>
+      <td>Server crashes! Services fail!</td>
+    </tr>
+  </table>
+
+  <h2>🚨 PART 2: The Crisis</h2>
+
+  <div class="critical">
+    <strong>MONITORING DASHBOARD ALERTS:</strong><br><br>
+    • CPU: 95% (should be < 20%)<br>
+    • Memory: 92% (should be < 70%)<br>
+    • Load Average: 8.45 (very busy!)<br>
+    • Website: SLOW & UNRESPONSIVE<br>
+    • Users Complaining: "Your website is broken!"<br><br>
+    <strong>This is a CRISIS. You have 10 minutes to fix it.</strong>
+  </div>
+
+  <h2>🚀 PART 3: Step-by-Step Walkthrough</h2>
+
+  <div class="step">
+    <div class="step-number">STEP 1: Connect to Server</div>
+    <p>You get the alert and immediately SSH into the server:</p>
+    <div class="command">Server: 192.168.1.100
+Login: myuser
+Password: ****</div>
+    <div class="output">myuser@webserver:~$</div>
+    <p><strong>What you're thinking:</strong> "Alert says CPU is 95%. Something is running crazy. I need to find what process is eating all the CPU and memory."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 2: Check What's Running (TOP Command)</div>
+
+    <h3>What is the TOP command?</h3>
+    <p><strong>TOP is like a LIVE DASHBOARD</strong> that shows:</p>
+    <ul>
+      <li>How much total CPU is being used</li>
+      <li>How much total Memory is being used</li>
+      <li>Which programs are using the most resources</li>
+      <li>Real-time updates</li>
+    </ul>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">top -bn1 | head -20</div>
+
+    <p><strong>Breaking it down:</strong></p>
+    <ul>
+      <li><code>top</code> = Show system resources</li>
+      <li><code>-bn1</code> = Show it once and exit (don't wait for input)</li>
+      <li><code>| head -20</code> = Show only first 20 lines (don't show all output)</li>
+    </ul>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">top - 14:30:45 up 45 days, 3:22, 2 users, load average: 8.45, 7.23, 6.12
+Tasks: 156 total, 12 running, 144 sleeping, 0 stopped, 0 zombie
+%Cpu(s): 95.2 us, 3.1 sy, 0.0 ni, 1.5 id, 0.2 wa
+MiB Mem : 16000.0 total, 14720.0 used, 1280.0 free, 250.0 buff
+MiB Swap:  4096.0 total, 2048.0 used, 2048.0 free. 3200.0 avail Mem
+
+    PID USER      PR  NI    VIRT    RES %CPU %MEM     TIME+ COMMAND
+  5678 mysql     20   0 2456012 8456m 45.2 52.8  156:32 mysqld
+  1234 www-data  20   0  856204 3200m 38.1 20.1   89:45 php-fpm
+  9012 root      20   0  156204  245m  8.5  1.5   12:30 sshd</div>
+
+    <h3>Understanding Line 1: Current Time</h3>
+    <div class="explanation">
+      <code>top - 14:30:45 up 45 days, 3:22, 2 users, load average: 8.45, 7.23, 6.12</code><br><br>
+      <strong>What this means:</strong><br>
+      • Current time: 14:30:45 (2:30 PM)<br>
+      • Server running: 45 days (good, no recent reboot)<br>
+      • Users logged in: 2<br>
+      • <strong>Load average: 8.45 = VERY BUSY!</strong>
+    </div>
+
+    <p><strong>What is "Load Average"?</strong></p>
+    <p>Think of it like HOW BUSY IS THE CASHIER:</p>
+    <ul>
+      <li>Load 1.0 = 1 cashier exactly busy (normal)</li>
+      <li>Load 2.0 = 2 cashiers worth of work (on 1 cashier = slow!)</li>
+      <li>Load 8.45 = 8.45 cashiers worth of work (CRITICAL!)</li>
+    </ul>
+
+    <p><strong>On a server:</strong></p>
+    <ul>
+      <li>If you have 4 CPU cores: Load 4.0 = Normal</li>
+      <li>If you have 4 CPU cores: Load 8.45 = TWICE as many tasks!</li>
+      <li><strong>Load 8.45 is CRITICAL!</strong> ❌</li>
+    </ul>
+
+    <h3>Understanding Line 3: CPU Usage</h3>
+    <div class="explanation">
+      <code>%Cpu(s): 95.2 us, 3.1 sy, 0.0 ni, 1.5 id, 0.2 wa</code><br><br>
+      <strong>What this means:</strong><br>
+      • 95.2% used by user programs = 95.2% BUSY ❌<br>
+      • 3.1% used by system<br>
+      • 1.5% idle = almost NO free capacity!<br><br>
+      <strong>Translation: CPU is 95% busy. Critical!</strong>
+    </div>
+
+    <h3>Understanding Line 4: Memory Usage</h3>
+    <div class="explanation">
+      <code>MiB Mem : 16000.0 total, 14720.0 used, 1280.0 free</code><br><br>
+      <strong>What this means:</strong><br>
+      • Total RAM: 16000 MB = 16 GB<br>
+      • Used RAM: 14720 MB = 14.7 GB<br>
+      • Free RAM: 1280 MB = 1.3 GB<br><br>
+      <strong>Calculation: 14720 / 16000 = 92% used ❌</strong><br>
+      Only 1.3 GB free!
+    </div>
+
+    <h3>Understanding the Process List (MOST IMPORTANT!)</h3>
+    <div class="explanation">
+      <strong>Look at this part:</strong><br><br>
+      <code>PID   %CPU  %MEM  COMMAND<br>
+      5678  45.2  52.8  mysqld      ← Using 45% CPU + 52% memory!<br>
+      1234  38.1  20.1  php-fpm     ← Using 38% CPU + 20% memory!<br>
+      9012  8.5   1.5   sshd        ← Using 8% CPU + 1% memory</code><br><br>
+      <strong>The Problem Found:</strong><br>
+      1. MySQL is using 45.2% CPU + 52.8% memory = HUGE!<br>
+      2. PHP is using 38.1% CPU + 20.1% memory = VERY HIGH!<br>
+      3. Together = 83% CPU + 72% memory!<br><br>
+      <strong>These two processes are killing the server!</strong>
+    </div>
+
+    <p><strong>What you're thinking:</strong> "MySQL is using way too much CPU and memory! And PHP is also high. Something is wrong. Let me check what queries MySQL is running."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 3: Check What MySQL Is Doing</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">mysql -u root -p -e "SHOW PROCESSLIST;" 2>/dev/null</div>
+
+    <p><strong>What this does:</strong></p>
+    <ul>
+      <li>Connects to MySQL database</li>
+      <li><code>SHOW PROCESSLIST</code> = Show all queries running RIGHT NOW</li>
+      <li>Shows WHY MySQL is using so much CPU</li>
+    </ul>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">+----+------+-----------+--------+---------+------+-------+------------------+
+| Id | User | Host      | db     | Command | Time | State | Info             |
++----+------+-----------+--------+---------+------+-------+------------------+
+|  1 | root | localhost | mysql  | Query   |  892 | copy to tmp table | SELECT * FROM orders WHERE status='pending' |
+|  2 | user | localhost | myapp  | Query   |  456 | Sorting result    | SELECT * FROM users JOIN orders ON...      |
+|  4 | user | localhost | myapp  | Query   |  234 | copy to tmp table | SELECT COUNT(*) FROM large_table WHERE...  |
++----+------+-----------+--------+---------+------+-------+------------------+</div>
+
+    <h3>Understanding Query 1:</h3>
+    <table>
+      <tr>
+        <th>Field</th>
+        <th>Value</th>
+        <th>Meaning</th>
+      </tr>
+      <tr>
+        <td>Id</td>
+        <td>1</td>
+        <td>Query ID (used to kill it)</td>
+      </tr>
+      <tr>
+        <td>Time</td>
+        <td>892 seconds</td>
+        <td><strong>14+ MINUTES!</strong> ❌</td>
+      </tr>
+      <tr>
+        <td>State</td>
+        <td>copy to tmp table</td>
+        <td>Creating temporary table in RAM (CPU intensive!)</td>
+      </tr>
+      <tr>
+        <td>Query</td>
+        <td>SELECT * FROM orders WHERE status='pending'</td>
+        <td>Getting all pending orders (no LIMIT!)</td>
+      </tr>
+    </table>
+
+    <div class="explanation">
+      <strong>Why 892 seconds is BAD:</strong><br><br>
+      • Normal query: 0.1 to 1 second<br>
+      • This query: 892 seconds<br>
+      • <strong>This is 900 TIMES SLOWER than normal!</strong><br><br>
+      This query is <strong>STUCK</strong> and consuming massive CPU!
+    </div>
+
+    <h3>Query 2 and 4 are also bad:</h3>
+    <ul>
+      <li>Query 2: Running 456 seconds (7+ minutes!)</li>
+      <li>Query 4: Running 234 seconds (3+ minutes!)</li>
+    </ul>
+
+    <div class="critical">
+      <strong>THE ROOT CAUSE DISCOVERED:</strong><br><br>
+      You found 3 queries running for 892, 456, and 234 seconds!<br><br>
+      <strong>Why this is a problem:</strong><br>
+      • These queries should complete in < 1 second<br>
+      • They're stuck and consuming massive CPU<br>
+      • They're hogging RAM (creating temp tables)<br>
+      • New requests are piling up behind them<br>
+      • Website becomes slow/frozen
+    </div>
+
+    <p><strong>What you're thinking:</strong> "These queries are CRAZY! I need to stop them immediately. Once I kill them, the server should recover."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 4: Kill the Worst Query</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">mysql -u root -p -e "KILL 1;" 2>/dev/null</div>
+
+    <p><strong>What this does:</strong></p>
+    <ul>
+      <li><code>KILL 1</code> = Stop query with ID 1</li>
+      <li>Immediately terminates the 892-second query</li>
+      <li>MySQL stops using CPU and RAM for this query</li>
+      <li>Result: Instant resource recovery</li>
+    </ul>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">(no output = query successfully killed)</div>
+
+    <h3>Immediately Check CPU/Memory:</h3>
+    <p><strong>Command:</strong></p>
+    <div class="command">top -bn1 | head -10</div>
+
+    <div class="comparison">
+      <div class="comparison-box">
+        <h4 style="color: var(--accent);">BEFORE Killing Query</h4>
+        <code>%Cpu(s): 95.2 us</code> ← 95% CPU<br>
+        <code>MiB Mem: 14720 used</code> ← 92% memory
+      </div>
+      <div class="comparison-box">
+        <h4 style="color: var(--success);">AFTER Killing Query</h4>
+        <code>%Cpu(s): 45.2 us</code> ← 45% CPU ✅<br>
+        <code>MiB Mem: 9234 used</code> ← 57% memory ✅
+      </div>
+    </div>
+
+    <div class="success">
+      <strong>AMAZING IMPROVEMENT!</strong><br><br>
+      • CPU dropped from 95% → 45% ✅<br>
+      • Memory dropped from 92% → 57% ✅<br>
+      • One query was using 50% of all resources!
+    </div>
+
+    <p><strong>What you're thinking:</strong> "Wow! Killing one query freed up 50% of resources! But there are still 2 more slow queries. Let me kill them too."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 5: Kill the Other Slow Queries</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">mysql -u root -p -e "KILL 2; KILL 4;" 2>/dev/null</div>
+
+    <p><strong>This kills:</strong></p>
+    <ul>
+      <li>Query ID 2 (456 seconds)</li>
+      <li>Query ID 4 (234 seconds)</li>
+    </ul>
+
+    <h3>Check Again:</h3>
+    <p><strong>Command:</strong></p>
+    <div class="command">top -bn1 | head -10</div>
+
+    <div class="comparison">
+      <div class="comparison-box">
+        <h4 style="color: var(--accent);">BEFORE</h4>
+        CPU: 45%<br>
+        Memory: 57%
+      </div>
+      <div class="comparison-box">
+        <h4 style="color: var(--success);">AFTER</h4>
+        CPU: 8% ✅<br>
+        Memory: 15% ✅
+      </div>
+    </div>
+
+    <div class="success">
+      <strong>SERVER IS HEALTHY AGAIN!</strong><br><br>
+      • CPU dropped from 45% → 8% ✅<br>
+      • Memory dropped from 57% → 15% ✅<br>
+      • <strong>Crisis resolved!</strong>
+    </div>
+
+    <p><strong>What you're thinking:</strong> "Perfect! All slow queries are gone. The server is back to normal. But I need to find out WHY these queries were running. They must be from a background job or cron script."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 6: Find What Triggered These Queries</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">ps aux | grep -E "mysql|php" | head -10</div>
+
+    <p><strong>What this does:</strong></p>
+    <ul>
+      <li><code>ps aux</code> = List all running processes</li>
+      <li><code>grep -E "mysql|php"</code> = Show only MySQL and PHP processes</li>
+      <li>Shows what's currently running and using resources</li>
+    </ul>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">mysql      5678   0.5   2.1  2456012 340789 14:15 ?     Sl   156:32 /usr/sbin/mysqld
+www-data   1234   1.2   1.5   856204  256789 14:15 ?     S    89:45 /usr/sbin/php-fpm
+www-data   5690   0.0   0.1    45678    234  14:22 ?     S    0:02 php /var/www/backup_orders.php</div>
+
+    <div class="explanation">
+      <strong>What this tells you:</strong><br><br>
+      • mysqld = Database (normal now, 0.5% CPU)<br>
+      • php-fpm = Web server (normal now, 1.2% CPU)<br>
+      • <strong>backup_orders.php = NEW! This is the culprit!</strong><br><br>
+      This script was executing those slow queries!
+    </div>
+
+    <p><strong>What you're thinking:</strong> "There's a script called `backup_orders.php` that was running the slow queries. This is the problem! Let me check when this script is scheduled to run."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 7: Check Scheduled Jobs (CRON)</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">cat /var/spool/cron/crontabs/www-data</div>
+
+    <p><strong>What this does:</strong></p>
+    <ul>
+      <li>Shows all scheduled jobs for the www-data user</li>
+      <li>Cron jobs run automatically at specific times</li>
+      <li>No manual intervention needed</li>
+    </ul>
+
+    <p><strong>Output:</strong></p>
+    <div class="output"># Run backup every day at 2 PM
+0 14 * * * /usr/bin/php /var/www/backup_orders.php
+
+# Run cleanup every 6 hours
+0 */6 * * * /usr/bin/php /var/www/cleanup_old_data.php
+
+# Generate reports every Sunday
+0 10 * * 0 /usr/bin/php /var/www/generate_reports.php</div>
+
+    <h3>Understanding Cron Syntax:</h3>
+    <table>
+      <tr>
+        <th>Cron Time</th>
+        <th>Meaning</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>0 14 * * *</td>
+        <td>Every day at 2 PM</td>
+        <td>14:00 (2 PM)</td>
+      </tr>
+      <tr>
+        <td>0 */6 * * *</td>
+        <td>Every 6 hours</td>
+        <td>0:00, 6:00, 12:00, 18:00</td>
+      </tr>
+      <tr>
+        <td>0 10 * * 0</td>
+        <td>Every Sunday at 10 AM</td>
+        <td>Weekly</td>
+      </tr>
+    </table>
+
+    <div class="critical">
+      <strong>THE PROBLEM IDENTIFIED:</strong><br><br>
+      • backup_orders.php scheduled: <strong>2 PM every day</strong><br>
+      • Current time: 14:22 (2:22 PM)<br>
+      • Scheduled time: 14:00 (2:00 PM)<br>
+      • Difference: 22 minutes ago<br><br>
+      <strong>The backup job started 22 minutes ago and is still running!</strong><br><br>
+      <strong>What the script does:</strong><br>
+      • Executes: <code>SELECT * FROM orders</code><br>
+      • No LIMIT clause = pulls ALL orders<br>
+      • Millions of rows!<br>
+      • Server can't handle it → CPU/Memory maxed out<br>
+      • Website frozen
+    </div>
+
+    <p><strong>What you're thinking:</strong> "Now I understand the problem completely! The backup script runs every day at 2 PM. It's trying to backup ALL orders without any optimization. This is why the server crashed. Tomorrow at 2 PM, it will run again and cause the same problem. I need to FIX this!"</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 8: Verify Server is Healthy</div>
+
+    <p><strong>Check Free Memory:</strong></p>
+    <div class="command">free -h</div>
+    <div class="output">              total        used        free      shared  buff/cache   available
+Mem:           15Gi       2.4Gi        13Gi       234Mi       2.2Gi        12Gi</div>
+    <div class="success">✅ Memory is healthy - plenty of free space</div>
+
+    <p><strong>Check Load Average:</strong></p>
+    <div class="command">uptime</div>
+    <div class="output">14:25:30 up 45 days,  3:25,  2 users,  load average: 1.23, 4.56, 6.12</div>
+    <div class="success">✅ Load average is reasonable - was 8.45 before, now 1.23</div>
+
+    <p><strong>Check MySQL CPU:</strong></p>
+    <div class="command">ps aux | grep mysqld | grep -v grep</div>
+    <div class="output">mysql      5678   0.3   2.1  2456012 340789 14:15 ?     Sl   156:32 /usr/sbin/mysqld</div>
+    <div class="success">✅ MySQL using only 0.3% CPU - was 45% before</div>
+
+    <p><strong>Test Website:</strong></p>
+    <div class="command">curl -w "Response time: %{time_total}s" http://localhost/</div>
+    <div class="output">Response time: 0.234s</div>
+    <div class="success">✅ Website responds in 234 milliseconds - FAST!</div>
+  </div>
+
+  <h2>📊 SUMMARY TABLE</h2>
+  <table>
+    <tr>
+      <th>Step</th>
+      <th>Action</th>
+      <th>Finding</th>
+      <th>Result</th>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>top -bn1</td>
+      <td>CPU 95%, Memory 92%</td>
+      <td>Identified crisis</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>SHOW PROCESSLIST</td>
+      <td>3 slow queries (892, 456, 234 seconds)</td>
+      <td>Found root cause</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>KILL 1</td>
+      <td>Killed 892-second query</td>
+      <td>CPU 95% → 45%, Memory 92% → 57%</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>KILL 2; KILL 4</td>
+      <td>Killed remaining slow queries</td>
+      <td>CPU 45% → 8%, Memory 57% → 15% ✅</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>ps aux grep</td>
+      <td>Found backup_orders.php running</td>
+      <td>Identified the culprit script</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>cat crontab</td>
+      <td>backup_orders.php scheduled at 2 PM</td>
+      <td>Found the cause</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>Verify health</td>
+      <td>All resources normal</td>
+      <td>Server healthy ✅</td>
+    </tr>
+  </table>
+
+  <h2>🎓 What Went Wrong & How You Fixed It</h2>
+
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid var(--border);">
+    <h3 style="color: var(--text-dark);">The Problem:</h3>
+    <ul style="color: var(--text-dark);">
+      <li>CPU: 95% (too high)</li>
+      <li>Memory: 92% (too full)</li>
+      <li>Website: Slow and unresponsive</li>
+    </ul>
+
+    <h3 style="color: var(--text-dark);">Root Cause:</h3>
+    <ul style="color: var(--text-dark);">
+      <li>backup_orders.php script ran at 2 PM</li>
+      <li>Script executed slow queries that:
+        <ul>
+          <li>Took 892, 456, 234 seconds to complete</li>
+          <li>Consumed massive CPU and RAM</li>
+          <li>Locked up the entire server</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3 style="color: var(--text-dark);">The Solution:</h3>
+    <ul style="color: var(--text-dark);">
+      <li>Identified slow queries using SHOW PROCESSLIST</li>
+      <li>Killed the queries using KILL command</li>
+      <li>CPU dropped from 95% to 8%</li>
+      <li>Memory dropped from 92% to 15%</li>
+      <li>Website became fast again</li>
+    </ul>
+
+    <h3 style="color: var(--text-dark);">Prevent It Tomorrow:</h3>
+    <ol style="color: var(--text-dark);">
+      <li><strong>Optimize the script:</strong>
+        <ul>
+          <li>Add LIMIT clause to backup (last 7 days only)</li>
+          <li>Add WHERE clause to filter orders</li>
+          <li>Add query timeout (max 5 minutes)</li>
+        </ul>
+      </li>
+      <li><strong>Reschedule:</strong>
+        <ul>
+          <li>Run backup at 2 AM instead of 2 PM</li>
+          <li>Avoid peak traffic hours</li>
+        </ul>
+      </li>
+      <li><strong>Add monitoring:</strong>
+        <ul>
+          <li>Alert if query runs > 30 seconds</li>
+          <li>Alert if CPU > 80%</li>
+          <li>Alert if Memory > 80%</li>
+        </ul>
+      </li>
+    </ol>
+  </div>
+
+  <h2>🔗 Quick Reference Commands</h2>
+  <div style="background: #1a1a1a; padding: 20px; border-radius: 6px; color: #00ff00; font-family: monospace; margin: 20px 0;">
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check CPU/Memory:</span> top -bn1 | head -20</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">List processes:</span> ps aux | grep mysql</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Show MySQL queries:</span> mysql -e "SHOW PROCESSLIST;"</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Kill MySQL query:</span> mysql -e "KILL 1;"</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check free memory:</span> free -h</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check load average:</span> uptime</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">View cron jobs:</span> crontab -l</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Test website:</span> curl http://localhost/</div>
+  </div>
+
+  <h2>✅ When You Practice This Scenario</h2>
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 5px solid var(--success); border: 1px solid var(--border);">
+    <p style="color: var(--text-dark);">Follow these steps in order:</p>
+    <ol style="color: var(--text-dark);">
+      <li>☐ Check overall resources with <code>top</code></li>
+      <li>☐ Check CPU/Memory breakdown</li>
+      <li>☐ Identify the process using most resources</li>
+      <li>☐ Check database queries if MySQL is high</li>
+      <li>☐ Kill slow queries</li>
+      <li>☐ Verify CPU/Memory dropped</li>
+      <li>☐ Check cron jobs to find root cause</li>
+      <li>☐ Verify server is healthy</li>
+      <li>☐ Test website responds fast</li>
+    </ol>
+    <p style="color: var(--text-dark);"><strong>Total time: ~10 minutes</strong></p>
+  </div>
+
+  <div style="background: var(--accent); color: white; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: center;">
+    <h3 style="color: white; border: none; margin-top: 0;">⭐ You now understand how to troubleshoot high CPU/Memory issues!</h3>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS IAM Explained - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #dc2626;
+            --aws-orange: #ff9900;
+            --success-green: #10b981;
+            --warning-yellow: #fbbf24;
+            --bg-light: #f8f7f5;
+            --bg-dark: #1a1a1a;
+            --text-light: #1a1a1a;
+            --text-dark: #f8f7f5;
+            --border-light: #e5e4e0;
+            --border-dark: #333333;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-light: #1a1a1a;
+                --text-light: #f8f7f5;
+                --border-light: #333333;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg-light: #1a1a1a;
+            --text-light: #f8f7f5;
+            --border-light: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-red), #991b1b);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary-red);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            background: rgba(220, 38, 38, 0.05);
+            border-left: 4px solid var(--primary-red);
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.1);
+        }
+
+        .feature-card h4 {
+            color: var(--primary-red);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .user-demo {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(220, 38, 38, 0.08);
+            border-radius: 12px;
+            border: 2px dashed var(--primary-red);
+        }
+
+        .user-item {
+            padding: 1.5rem;
+            background: var(--primary-red);
+            color: white;
+            border-radius: 8px;
+            margin: 0.75rem 0;
+            animation: slideIn 0.5s ease-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .permission-badge {
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toggle-btn {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .toggle-btn:hover {
+            background: #991b1b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-card {
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+        }
+
+        .comparison-card h4 {
+            margin-bottom: 1rem;
+            color: var(--primary-red);
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box {
+            background: rgba(220, 38, 38, 0.1);
+            border-left: 4px solid var(--primary-red);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .permission-tree {
+            background: rgba(220, 38, 38, 0.05);
+            border: 1px solid var(--border-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .permission-item {
+            padding: 0.75rem 0;
+            margin-left: 1.5rem;
+            border-left: 2px solid var(--border-light);
+            padding-left: 1rem;
+        }
+
+        .permission-item.allow { color: var(--success-green); }
+        .permission-item.deny { color: var(--primary-red); }
+
+        .troubleshooting-step {
+            padding: 1.5rem;
+            background: rgba(220, 38, 38, 0.05);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-red);
+        }
+
+        .troubleshooting-step h4 {
+            color: var(--primary-red);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .troubleshooting-step ul {
+            margin-left: 1.5rem;
+            margin-bottom: 0;
+        }
+
+        .check { color: var(--success-green); font-weight: bold; }
+        .cross { color: var(--primary-red); font-weight: bold; }
+
+        .policy-structure {
+            background: #1a1a1a;
+            color: #10b981;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            border: 1px solid var(--border-light);
+            margin: 1.5rem 0;
+        }
+
+        .json-key { color: #60a5fa; }
+        .json-string { color: #34d399; }
+        .json-value { color: #fbbf24; }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #7a7a7a;
+            border-top: 1px solid var(--border-light);
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            h2 { font-size: 1.5rem; }
+            .feature-list { grid-template-columns: 1fr; }
+            .user-item { flex-direction: column; gap: 1rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AWS IAM Explained</h1>
+        <p>Identity and Access Management — Interactive Learning Guide</p>
+    </header>
+
+    <div class="container">
+        <!-- Section 1: What is IAM? -->
+        <section class="section">
+            <h2>🔐 What is IAM?</h2>
+            <p><strong>IAM = Identity and Access Management</strong> — AWS's service for controlling who (identities) can do what (permissions) with your AWS resources. It's the security foundation of AWS.</p>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Users</h4>
+                    <p>Individual people or applications with specific permissions</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Groups</h4>
+                    <p>Collections of users with shared permissions</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Roles</h4>
+                    <p>Sets of permissions assumed by users or services</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Policies</h4>
+                    <p>JSON documents that define specific permissions</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Critical:</strong> The Root Account (AWS account owner) has complete access to everything. Don't use it for daily work. Create IAM users instead and follow the principle of least privilege.
+            </div>
+        </section>
+
+        <!-- Section 2: IAM Users -->
+        <section class="section">
+            <h2>👤 IAM Users</h2>
+            <p>An IAM user is an identity with specific permissions for a person or application. Each user has their own credentials (passwords and access keys).</p>
+
+            <h3>User Demo</h3>
+            <div class="user-demo">
+                <p style="margin-bottom: 1rem; font-weight: 600;">IAM Users:</p>
+                <div id="usersContainer">
+                    <div class="user-item">
+                        <span>alice@company.com</span>
+                        <span class="permission-badge">Admin</span>
+                    </div>
+                    <div class="user-item">
+                        <span>bob@company.com</span>
+                        <span class="permission-badge">Developer</span>
+                    </div>
+                </div>
+                <button class="toggle-btn" onclick="addUser()">➕ Add User</button>
+                <button class="toggle-btn" onclick="removeUser()" style="background: #991b1b;">🗑️ Remove User</button>
+            </div>
+
+            <h3>Access Keys</h3>
+            <p>Every IAM user can have up to 2 access key pairs (for API access). Each key has:</p>
+            <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                <li><strong>Access Key ID:</strong> Unique identifier (like a username)</li>
+                <li><strong>Secret Access Key:</strong> Password-like secret (never share!)</li>
+            </ul>
+
+            <h3>Authentication Methods</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>Console Login</h4>
+                    <p><span class="check">✓</span> Username + Password</p>
+                    <p><span class="check">✓</span> MFA (optional but recommended)</p>
+                    <p>For AWS Console access</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>Programmatic Access</h4>
+                    <p><span class="check">✓</span> Access Key ID + Secret</p>
+                    <p><span class="check">✓</span> Used by CLI, SDK, applications</p>
+                    <p>For automated API calls</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: IAM Groups -->
+        <section class="section">
+            <h2>👥 IAM Groups</h2>
+            <p>A group is a collection of IAM users. Groups simplify permission management by applying policies to multiple users at once.</p>
+
+            <h3>Group Structure</h3>
+            <div class="permission-tree">
+                <div style="font-weight: bold; color: var(--primary-red);">📁 Engineering Group</div>
+                <div class="permission-item">
+                    <div>└─ alice (member)</div>
+                </div>
+                <div class="permission-item">
+                    <div>└─ bob (member)</div>
+                </div>
+                <div class="permission-item">
+                    <div>└─ charlie (member)</div>
+                </div>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); font-weight: bold; color: var(--success-green);">
+                    ✓ Policies Attached:
+                </div>
+                <div class="permission-item allow">
+                    └─ EC2FullAccess
+                </div>
+                <div class="permission-item allow">
+                    └─ S3ReadOnly
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Best Practice:</strong> Create groups based on job function (Engineers, Developers, Finance) and attach policies to groups, not individual users.
+            </div>
+        </section>
+
+        <!-- Section 4: IAM Roles -->
+        <section class="section">
+            <h2>🎭 IAM Roles</h2>
+            <p>A role is a set of permissions that can be assumed by users or AWS services. Roles are useful for cross-account access and service-to-service communication.</p>
+
+            <h3>Key Differences: Users vs Roles</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>IAM Users</h4>
+                    <p><span class="check">✓</span> Have permanent credentials</p>
+                    <p><span class="check">✓</span> Used by people</p>
+                    <p><span class="check">✓</span> Console + API access</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>IAM Roles</h4>
+                    <p><span class="check">✓</span> Have temporary credentials</p>
+                    <p><span class="check">✓</span> Used by services/applications</p>
+                    <p><span class="check">✓</span> Automatically rotated</p>
+                </div>
+            </div>
+
+            <h3>Common Role Use Cases</h3>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>EC2 Instance Role</h4>
+                    <p>Give EC2 instances permission to access S3, DynamoDB, etc.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Lambda Execution Role</h4>
+                    <p>Permissions for Lambda functions to use other AWS services</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Cross-Account Access</h4>
+                    <p>Allow users from one AWS account to access another</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Service Role</h4>
+                    <p>Allow AWS services to call other AWS services</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Policies & Permissions -->
+        <section class="section">
+            <h2>📋 Policies & Permissions</h2>
+            <p>An IAM policy is a JSON document that defines what actions are allowed or denied on what resources.</p>
+
+            <h3>Policy Structure</h3>
+            <div class="policy-structure">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"Version"</span>: <span class="json-string">"2012-10-17"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"Statement"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"Effect"</span>: <span class="json-value">Allow</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"Action"</span>: <span class="json-string">"s3:GetObject"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"Resource"</span>: <span class="json-string">"arn:aws:s3:::my-bucket/*"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;]<br>
+}
+            </div>
+
+            <h3>Policy Components</h3>
+            <div class="troubleshooting-step">
+                <h4>Effect</h4>
+                <p><strong>Allow</strong> or <strong>Deny</strong> — whether this permission is granted or explicitly blocked</p>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Action</h4>
+                <p>What operation is permitted (e.g., "s3:GetObject", "ec2:DescribeInstances")</p>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Resource</h4>
+                <p>Which AWS resources the action applies to (e.g., specific S3 bucket)</p>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Condition</h4>
+                <p>(Optional) Additional conditions like IP address, time, MFA requirement</p>
+            </div>
+
+            <h3>AWS Managed vs Customer Managed Policies</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>AWS Managed</h4>
+                    <p>Created and maintained by AWS (e.g., AdministratorAccess)</p>
+                    <p>Updates applied automatically</p>
+                    <p>Best for common use cases</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>Customer Managed</h4>
+                    <p>Created and maintained by you</p>
+                    <p>Full control and customization</p>
+                    <p>Better for specific requirements</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Principle of Least Privilege -->
+        <section class="section">
+            <h2>🛡️ Principle of Least Privilege</h2>
+            <p>The most important security principle in IAM: give users/services only the minimum permissions they need to do their job.</p>
+
+            <h3>❌ Don't Do This</h3>
+            <div class="warning-box">
+                <p><strong>Attaching AdministratorAccess to developers:</strong></p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Developers can accidentally delete production databases</li>
+                    <li>No audit trail of who did what</li>
+                    <li>Increases security risk</li>
+                </ul>
+            </div>
+
+            <h3>✅ Do This Instead</h3>
+            <div class="info-box">
+                <p><strong>Create specific policies for developers:</strong></p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>EC2 full access (for dev/test instances only)</li>
+                    <li>S3 access to specific dev buckets only</li>
+                    <li>RDS read-only to production databases</li>
+                    <li>No access to billing, IAM, or KMS</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 7: Troubleshooting -->
+        <section class="section">
+            <h2>🔧 Troubleshooting Guide</h2>
+
+            <h3>Access Denied Errors</h3>
+            <div class="troubleshooting-step">
+                <h4>Step 1: Verify User Exists and is Attached to Policies</h4>
+                <ul>
+                    <li>Go to IAM Users in AWS Console</li>
+                    <li>Check if user has any policies attached</li>
+                    <li>Verify user is in groups with permissions</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 2: Check Policy Statements</h4>
+                <ul>
+                    <li>Review the policy JSON for the correct Action</li>
+                    <li>Verify Resource ARN matches what you're accessing</li>
+                    <li>Check for any Deny statements that override Allow</li>
+                    <li>Ensure Effect is "Allow" not "Deny"</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 3: Check Conditions</h4>
+                <ul>
+                    <li>If policy has conditions, verify they're met</li>
+                    <li>Check IP address restrictions</li>
+                    <li>Verify MFA requirements are satisfied</li>
+                    <li>Check time-based conditions</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 4: Use IAM Policy Simulator</h4>
+                <ul>
+                    <li>Go to IAM > Access Analyzer > Policy Simulator</li>
+                    <li>Simulate the action you're trying to perform</li>
+                    <li>Check the detailed result explaining why it failed</li>
+                </ul>
+            </div>
+
+            <h3>Lost/Forgotten Root Account Password</h3>
+            <div class="troubleshooting-step">
+                <h4>Recovery Steps:</h4>
+                <ul>
+                    <li>Go to AWS login page and click "Forgot Password"</li>
+                    <li>Verify email associated with account</li>
+                    <li>Reset password via email link</li>
+                    <li><strong>Enable MFA immediately after recovery</strong></li>
+                </ul>
+            </div>
+
+            <h3>Cannot Assume Role</h3>
+            <div class="troubleshooting-step">
+                <h4>Checklist:</h4>
+                <ul>
+                    <li><span class="check">✓</span> User has sts:AssumeRole permission</li>
+                    <li><span class="check">✓</span> Role's trust policy allows the user's account/principal</li>
+                    <li><span class="check">✓</span> No explicit Deny on role assumption</li>
+                    <li><span class="check">✓</span> Role hasn't exceeded session duration</li>
+                </ul>
+            </div>
+
+            <h3>Locked Out of AWS Account</h3>
+            <div class="troubleshooting-step">
+                <h4>If All Admin Users Are Locked Out:</h4>
+                <ul>
+                    <li><strong>Root account:</strong> Use account recovery process</li>
+                    <li><strong>Billing contact:</strong> AWS Support can help with emergency access</li>
+                    <li><strong>Organization:</strong> Another org account's root user can help</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 8: Security Best Practices -->
+        <section class="section">
+            <h2>✨ Security Best Practices</h2>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Never Use Root Account</h4>
+                    <p>Create IAM users for daily work, use root only for account setup</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Enable MFA</h4>
+                    <p>Add multi-factor authentication to all user accounts</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Least Privilege Access</h4>
+                    <p>Give only the minimum permissions needed</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Regular Audits</h4>
+                    <p>Review user permissions and remove unused access</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Rotate Keys Regularly</h4>
+                    <p>Change access keys every 90 days</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Use Roles for Services</h4>
+                    <p>Attach IAM roles to EC2/Lambda instead of embedding keys</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Interactive guide to AWS IAM • Made for learning • 2024</p>
+    </footer>
+
+    <script>
+        let userCount = 2;
+        const userRoles = ['Admin', 'Developer', 'Viewer', 'Analyst'];
+
+        function addUser() {
+            const container = document.getElementById('usersContainer');
+            userCount++;
+            const role = userRoles[Math.floor(Math.random() * userRoles.length)];
+
+            const newUser = document.createElement('div');
+            newUser.className = 'user-item';
+            newUser.innerHTML = `
+                <span>user${userCount}@company.com</span>
+                <span class="permission-badge">${role}</span>
+            `;
+            container.appendChild(newUser);
+        }
+
+        function removeUser() {
+            const users = document.querySelectorAll('.user-item');
+            if (users.length > 1) {
+                users[users.length - 1].remove();
+                userCount--;
+            }
+        }
+
+        document.querySelectorAll('.section').forEach((section, index) => {
+            section.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>

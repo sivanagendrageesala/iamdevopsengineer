@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS: The Story - Learn AWS Like a Movie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #ff9900;
+            --accent-blue: #0066cc;
+            --success-green: #10b981;
+            --warning-red: #ef4444;
+            --bg-light: #f8f7f5;
+            --bg-dark: #1a1a1a;
+            --text-light: #1a1a1a;
+            --text-dark: #f8f7f5;
+            --border-light: #e5e4e0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-light: #1a1a1a;
+                --text-light: #f8f7f5;
+                --border-light: #333333;
+            }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        .header-hero {
+            background: linear-gradient(135deg, #000 0%, #ff9900 100%);
+            color: white;
+            padding: 5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .header-hero p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .act {
+            margin-bottom: 4rem;
+            display: none;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .act.active {
+            display: block;
+        }
+
+        .act-header {
+            background: linear-gradient(135deg, var(--primary-orange), #ff6b35);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .act-number {
+            font-size: 3rem;
+            font-weight: bold;
+            opacity: 0.3;
+            margin-bottom: 0.5rem;
+        }
+
+        .act-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .act-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .scene {
+            background: white;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 5px solid var(--primary-orange);
+        }
+
+        .scene h3 {
+            color: var(--primary-orange);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .story-content {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .diagram {
+            background: #f0f0f0;
+            border: 2px dashed var(--primary-orange);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .diagram-box {
+            display: inline-block;
+            background: var(--primary-orange);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.5rem;
+            font-weight: bold;
+        }
+
+        .real-example {
+            background: rgba(255, 102, 0, 0.1);
+            border-left: 4px solid var(--primary-orange);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .real-example-title {
+            font-weight: bold;
+            color: var(--primary-orange);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .key-point {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-green);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .key-point-title {
+            font-weight: bold;
+            color: var(--success-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .problem {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--warning-red);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .problem-title {
+            font-weight: bold;
+            color: var(--warning-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .solution {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-green);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .solution-title {
+            font-weight: bold;
+            color: var(--success-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #ff8c00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
+        }
+
+        .nav-btn.active {
+            background: var(--success-green);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-table th {
+            background: var(--primary-orange);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: rgba(255, 102, 0, 0.05);
+        }
+
+        .visual-flow {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .flow-item {
+            display: inline-block;
+            background: var(--primary-orange);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            margin: 0.5rem;
+            font-weight: bold;
+        }
+
+        .flow-arrow {
+            display: inline-block;
+            margin: 0 0.5rem;
+            font-size: 1.5rem;
+            color: var(--primary-orange);
+        }
+
+        .memory-tip {
+            background: linear-gradient(135deg, rgba(255, 102, 0, 0.1), rgba(255, 102, 0, 0.05));
+            border-left: 4px solid var(--primary-orange);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .memory-tip-title {
+            font-weight: bold;
+            color: var(--primary-orange);
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #7a7a7a;
+            border-top: 1px solid var(--border-light);
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-hero h1 { font-size: 2.2rem; }
+            .act-title { font-size: 1.8rem; }
+            .navigation { flex-direction: column; }
+            .nav-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-hero">
+        <h1>🎬 AWS: The Story</h1>
+        <p>Learn AWS Like You're Watching a Movie - Follow a Startup's Journey from Zero to Scale</p>
+    </div>
+
+    <div class="container">
+        <!-- ACT 1 -->
+        <div id="act1" class="act active">
+            <div class="act-header">
+                <div class="act-number">ACT 1</div>
+                <div class="act-title">🌱 The Beginning</div>
+                <div class="act-subtitle">A Founder's Dream: Building Your First App on AWS</div>
+            </div>
+
+            <div class="scene">
+                <h3>📖 The Story</h3>
+                <div class="story-content">
+                    Meet Sarah, a talented developer with an idea: a photo-sharing app called "SnapShare".
+                    She has $500 saved and wants to build something amazing. But there's a problem -
+                    she doesn't have servers, data centers, or IT staff. <br><br>
+
+                    Enter <strong>AWS</strong> - Amazon Web Services. It's like renting a fully-equipped
+                    kitchen instead of building your own. Sarah can focus on building her app, while AWS
+                    handles the infrastructure.
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎯 The Challenge: Where Do I Host My App?</h3>
+                <div class="problem">
+                    <div class="problem-title">Sarah's Problems:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>No money for expensive servers</li>
+                        <li>No expertise in managing data centers</li>
+                        <li>Needs to handle users only when they sign up (unpredictable)</li>
+                        <li>Doesn't want to maintain hardware</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>✅ The AWS Solution: EC2 (Elastic Compute Cloud)</h3>
+                <div class="story-content">
+                    AWS offers <strong>EC2</strong> - virtual computers in the cloud. Think of it like renting
+                    a computer from AWS instead of buying one. Sarah can start with a small instance (cheap),
+                    and upgrade later as her app grows.
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: EC2 = Renting a Computer</div>
+                    Just like you can rent a small apartment and move to a bigger one later, EC2 lets you
+                    rent computing power and scale up as needed.
+                </div>
+
+                <div class="diagram">
+                    <strong>Traditional Way (Expensive)</strong><br><br>
+                    Buy Server → Install OS → Setup Software → Maintain → Pay Forever<br><br>
+                    <strong>AWS Way (Smart)</strong><br><br>
+                    Click a Button → Get Server → Use It → Pay Only What You Use
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Sarah's First Server</div>
+                    <div class="code-block">
+Step 1: Sarah goes to AWS Console
+Step 2: Clicks "Launch Instance"
+Step 3: Chooses t3.micro (small, cheap)
+Step 4: Selects Ubuntu Linux (free OS)
+Step 5: Configures network
+Step 6: Launches!
+
+Result: A computer running in AWS data center
+Cost: ~$7-10/month (not $500 upfront!)
+                    </div>
+                </div>
+
+                <div class="key-point">
+                    <div class="key-point-title">💡 Key Insight:</div>
+                    EC2 is pay-as-you-go. Sarah only pays for the hours her server is running.
+                    If she stops it, no charges. This is revolutionary compared to traditional servers!
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🏗️ But Wait... Where Do Users Upload Photos?</h3>
+                <div class="story-content">
+                    Sarah's app lets users upload photos. These need to be stored somewhere.
+                    EC2 is for running applications, but where do the files go?
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 The Problem:</div>
+                    EC2 instance has a hard drive, but if the instance dies, all photos are lost!
+                    Plus, hard drives in servers are expensive and limited.
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>📦 The Solution: S3 (Simple Storage Service)</h3>
+                <div class="story-content">
+                    <strong>S3</strong> is like an unlimited storage locker in AWS. Users upload photos,
+                    and S3 stores them safely, separately from the application server. No storage limits,
+                    super reliable, and you only pay for what you use.
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: S3 = Google Drive for the Cloud</div>
+                    You upload files to Google Drive, AWS stores them in S3. Same concept!
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: User Uploads a Photo</div>
+                    <div class="code-block">
+User Flow:
+1. User opens SnapShare app (running on EC2)
+2. Clicks "Upload Photo"
+3. App sends photo to S3
+4. S3 says "Got it! Your photo is safe"
+5. App saves the photo URL in database
+6. Other users can view the photo
+
+Sarah's Bill:
+- EC2: ~$10/month (running the app)
+- S3: ~$0.50/month (storing 1000 photos)
+Total: ~$10.50/month!
+                    </div>
+                </div>
+
+                <div class="visual-flow">
+                    <div class="flow-item">User</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">EC2 App</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">S3 Storage</div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎓 Act 1 Summary: Your First Week on AWS</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Service</th>
+                        <th>What It Does</th>
+                        <th>Use Case</th>
+                    </tr>
+                    <tr>
+                        <td><strong>EC2</strong></td>
+                        <td>Virtual computers (servers)</td>
+                        <td>Run your application/website</td>
+                    </tr>
+                    <tr>
+                        <td><strong>S3</strong></td>
+                        <td>File storage (unlimited)</td>
+                        <td>Store user uploads, backups, files</td>
+                    </tr>
+                </table>
+
+                <div class="key-point">
+                    <div class="key-point-title">💡 What You Learned:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>EC2 = Rent a computer instead of buying</li>
+                        <li>S3 = Unlimited storage for files</li>
+                        <li>AWS is pay-as-you-go (only pay for what you use)</li>
+                        <li>You can start small and grow big</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACT 2 -->
+        <div id="act2" class="act">
+            <div class="act-header">
+                <div class="act-number">ACT 2</div>
+                <div class="act-title">📈 The Growth Explosion</div>
+                <div class="act-subtitle">SnapShare Goes Viral! But Sarah Has a Problem...</div>
+            </div>
+
+            <div class="scene">
+                <h3>📖 The Story</h3>
+                <div class="story-content">
+                    3 months later... SnapShare went viral! 10,000 users signed up. Sarah's happy,
+                    but there's a new problem: <strong>her EC2 server is maxing out</strong>.
+                    It's slow, users are complaining, and Sarah can't sleep at night.
+                    <br><br>
+                    "I need to do something fast before users leave!" Sarah thinks.
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎯 The Problem: Traffic Overload</h3>
+                <div class="problem">
+                    <div class="problem-title">Sarah's Nightmare:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>1 EC2 server handling 10,000 users = 🔥 OVERLOAD!</li>
+                        <li>App is slow, users are frustrated</li>
+                        <li>If the server crashes, everyone loses access</li>
+                        <li>Can't predict when traffic will spike</li>
+                        <li>She could buy more servers, but that costs thousands</li>
+                    </ul>
+                </div>
+
+                <div class="diagram">
+                    <strong>Current Problem:</strong><br><br>
+                    [10,000 Users] → [CRYING EC2 Server] ← ALL THE TRAFFIC!
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>✅ Solution Part 1: Load Balancer (ELB)</h3>
+                <div class="story-content">
+                    Instead of one server handling all traffic, Sarah sets up a <strong>Load Balancer</strong>.
+                    It's like a traffic cop: it watches incoming requests and sends them to different servers.
+                    If one server is busy, requests go to another.
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: Load Balancer = Traffic Cop</div>
+                    Just like a traffic cop directs cars to different roads, a load balancer
+                    directs user requests to different servers.
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Load Balancer at Work</div>
+                    <div class="code-block">
+Before:
+[10,000 Users] → [1 Server] = OVERLOAD!
+
+After:
+[10,000 Users] → [Load Balancer]
+                     ├→ [Server 1] (handling 2,500 users)
+                     ├→ [Server 2] (handling 2,500 users)
+                     ├→ [Server 3] (handling 2,500 users)
+                     └→ [Server 4] (handling 2,500 users)
+
+Result: Smooth experience for everyone!
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>✅ Solution Part 2: Auto Scaling (Game Changer!)</h3>
+                <div class="story-content">
+                    But manually creating servers is slow. What if Sarah needs 20 servers at 8 PM
+                    (peak time) and only 2 servers at 2 AM (quiet time)? <br><br>
+                    Enter <strong>Auto Scaling</strong>: AWS automatically creates or destroys servers
+                    based on demand. When traffic increases, new servers spin up. When traffic drops,
+                    servers shut down. Sarah only pays for what she uses!
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: Auto Scaling = Magic Servers</div>
+                    Like magic, servers appear when you need them and disappear when you don't.
+                    You don't do anything - AWS handles it automatically!
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Auto Scaling in Action</div>
+                    <div class="code-block">
+Sarah Sets Rules:
+"Keep servers at 70% CPU usage"
+
+Daily Pattern:
+2 AM: 2 servers running ($0.20/hour)
+8 AM: Traffic increases → 5 servers (Auto Scaling adds 3)
+12 PM: Peak time → 10 servers (Auto Scaling adds 5 more)
+8 PM: Traffic decreases → 8 servers (Auto Scaling removes 2)
+2 AM: Quiet again → 2 servers (Auto Scaling removes 6)
+
+Sarah's Bill:
+Before (fixed 4 servers): ~$30/month
+After (Auto Scaling): ~$18/month (she actually SAVES money!)
+                    </div>
+                </div>
+
+                <div class="visual-flow">
+                    <div class="flow-item">Detect High Traffic</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Add Servers</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Traffic Drops</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Remove Servers</div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎓 Act 2 Summary: How to Handle Growth</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Problem</th>
+                        <th>AWS Solution</th>
+                        <th>Benefit</th>
+                    </tr>
+                    <tr>
+                        <td>1 server can't handle traffic</td>
+                        <td>Load Balancer (ELB)</td>
+                        <td>Distribute traffic across servers</td>
+                    </tr>
+                    <tr>
+                        <td>Need more servers at peak times</td>
+                        <td>Auto Scaling</td>
+                        <td>Automatic server management</td>
+                    </tr>
+                </table>
+
+                <div class="key-point">
+                    <div class="key-point-title">💡 What You Learned:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>ELB = Distribute traffic (traffic cop)</li>
+                        <li>Auto Scaling = Automatic server management</li>
+                        <li>You can handle 100x more users without doing anything</li>
+                        <li>Actually save money by using resources efficiently</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACT 3 -->
+        <div id="act3" class="act">
+            <div class="act-header">
+                <div class="act-number">ACT 3</div>
+                <div class="act-title">🗄️ The Data Explosion</div>
+                <div class="act-subtitle">Sarah's App Needs a Brain: Databases & Caching</div>
+            </div>
+
+            <div class="scene">
+                <h3>📖 The Story</h3>
+                <div class="story-content">
+                    6 months later: 100,000 users! SnapShare is HUGE. But there's a new problem.
+                    The app needs to store data about users, photos, likes, comments, follows...
+                    All this data is stuck in files. Sarah needs a proper <strong>database</strong>.
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎯 The Problem: Data Management</h3>
+                <div class="problem">
+                    <div class="problem-title">Sarah's New Challenges:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>Finding a specific user from 100,000 users takes too long</li>
+                        <li>Every time someone loads their profile, the app queries the file → SLOW</li>
+                        <li>Data needs to be organized and searchable</li>
+                        <li>If data gets corrupted, she loses everything</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>✅ Solution Part 1: RDS (Relational Database Service)</h3>
+                <div class="story-content">
+                    <strong>RDS</strong> is AWS's managed database service. Instead of storing data in files,
+                    Sarah uses a real database (like MySQL, PostgreSQL). AWS handles backups, updates,
+                    and maintenance automatically.
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: RDS = Filing Cabinet with Magic</div>
+                    Instead of keeping files scattered, RDS organizes data in tables.
+                    Finding a user takes milliseconds instead of minutes!
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Finding a User with RDS</div>
+                    <div class="code-block">
+Without Database (Slow):
+1. Search through 100,000 user files
+2. Read each file until you find the user
+3. Result: Takes 5+ seconds! ❌
+
+With RDS Database (Fast):
+1. Query: "Find user where email = 'john@example.com'"
+2. Database finds it instantly
+3. Result: Takes 50 milliseconds! ✅
+
+100x FASTER!
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>⚡ But There's a New Problem: Users Wait for Database Queries</h3>
+                <div class="problem">
+                    <div class="problem-title">Even with RDS:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>Popular user (1 million followers) → Everyone wants to see their profile</li>
+                        <li>Database gets 50,000 requests/second for same data</li>
+                        <li>Database can't handle it, even though the data doesn't change</li>
+                        <li>Users see "Loading..." for 5+ seconds 😢</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>✅ Solution Part 2: ElastiCache (Memory Magic!)</h3>
+                <div class="story-content">
+                    <strong>ElastiCache</strong> is an ultra-fast memory cache. Instead of asking the database
+                    "What's this user's profile?" every time, ElastiCache remembers the answer.
+                    When 50,000 people ask at once, they all get the instant answer from ElastiCache,
+                    not the slow database.
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: ElastiCache = Your Brain's Memory</div>
+                    Your brain remembers your best friend's phone number. You don't look it up every time.
+                    ElastiCache works the same way - it remembers frequently-used data!
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Cached Popular User Profile</div>
+                    <div class="code-block">
+First Request (Not Cached):
+User A wants profile → App queries Database → Slow (500ms)
+App says: "I got the data, let me remember it"
+App stores in ElastiCache
+
+Next 50,000 Requests (Cached):
+Users B,C,D,E... want same profile → App asks ElastiCache
+ElastiCache says: "Got it instantly!" → Fast (5ms)
+Database never gets bothered!
+
+Performance:
+Without Cache: 500ms per request = User waits 0.5 seconds 😢
+With Cache: 5ms per request = Instant! ✨
+                    </div>
+                </div>
+
+                <div class="visual-flow">
+                    <div class="flow-item">User Request</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Check Cache</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Found! Return Instantly</div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎓 Act 3 Summary: Storing & Retrieving Data Fast</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Need</th>
+                        <th>AWS Solution</th>
+                        <th>Speed</th>
+                    </tr>
+                    <tr>
+                        <td>Organize data</td>
+                        <td>RDS (Database)</td>
+                        <td>~50ms</td>
+                    </tr>
+                    <tr>
+                        <td>Get data lightning-fast</td>
+                        <td>ElastiCache</td>
+                        <td>~5ms</td>
+                    </tr>
+                </table>
+
+                <div class="key-point">
+                    <div class="key-point-title">💡 What You Learned:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>RDS = Organized data with instant searching</li>
+                        <li>ElastiCache = Super-fast memory for popular data</li>
+                        <li>Use cache for data that doesn't change often</li>
+                        <li>Combination makes app lightning-fast for users</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACT 4 -->
+        <div id="act4" class="act">
+            <div class="act-header">
+                <div class="act-number">ACT 4</div>
+                <div class="act-title">🌍 Going Global</div>
+                <div class="act-subtitle">SnapShare Conquers the World! Users in 50 Countries</div>
+            </div>
+
+            <div class="scene">
+                <h3>📖 The Story</h3>
+                <div class="story-content">
+                    1 year later: SnapShare has 1 MILLION users worldwide! But users in Australia
+                    say "Your app is slow!" and users in Japan say "Takes forever to load!"
+                    <br><br>
+                    The problem? Everyone is hitting the same servers in Virginia (USA).
+                    A user in Australia has to send data halfway around the world and back.
+                    That's slow!
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎯 The Problem: Geography</h3>
+                <div class="problem">
+                    <div class="problem-title">Global Users, Single Location = SLOW:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>USA to Australia = 9,000 miles! Takes 200ms just for network delay</li>
+                        <li>Photo takes 500ms to load (should be 100ms)</li>
+                        <li>Users in Asia are leaving for faster competitors</li>
+                        <li>Sarah is losing money due to slow app</li>
+                    </ul>
+                </div>
+
+                <div class="diagram">
+                    <strong>Current Problem:</strong><br><br>
+                    [Users in Sydney] →←→← [AWS Server in Virginia]<br>
+                    9,000 miles = SLOW! 🐢
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>✅ Solution: CloudFront (Content Delivery Network)</h3>
+                <div class="story-content">
+                    <strong>CloudFront</strong> is AWS's global content delivery network. Instead of all users
+                    hitting the same server, CloudFront creates copies of your content around the world.
+                    A user in Australia downloads from an Australian server (nearby), not Virginia!
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: CloudFront = Delivery Stations</div>
+                    Like how pizza chains have restaurants in every neighborhood instead of
+                    all pizza coming from one place, CloudFront stores content everywhere!
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Global Photo Loading</div>
+                    <div class="code-block">
+Before CloudFront (Slow):
+User in Tokyo: Requests photo
+Photo downloaded from Virginia
+Network travel: 200ms + 200ms = 400ms
+Photo takes 500ms to load 😢
+
+After CloudFront (Fast):
+User in Tokyo: Requests photo
+Photo downloaded from Tokyo CloudFront server (nearby!)
+Network travel: 10ms + 10ms = 20ms
+Photo takes 100ms to load! ✨
+
+Result:
+Sarah's app is now 5x FASTER for global users!
+                    </div>
+                </div>
+
+                <div class="visual-flow">
+                    <div class="flow-item">USA Server (Origin)</div>
+                    <div class="flow-arrow">→ Copies to →</div>
+                    <div class="flow-item">CloudFront Servers Worldwide</div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🌐 Wait... Data Privacy Laws!</h3>
+                <div class="problem">
+                    <div class="problem-title">New Problem:</div>
+                    EU law (GDPR) says "European user data must stay in Europe!"
+                    <br><br>
+                    Sarah can't store Japanese user data in Virginia!
+                </div>
+
+                <div class="solution">
+                    <div class="solution-title">AWS Regions to the Rescue!</div>
+                    AWS has data centers in 30+ regions worldwide. Sarah sets up:
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>US servers for Americas</li>
+                        <li>Europe servers for EU (GDPR compliant)</li>
+                        <li>Singapore servers for Asia</li>
+                        <li>Australia servers for Oceania</li>
+                    </ul>
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Multi-Region Setup</div>
+                    <div class="code-block">
+AWS Regions (Worldwide):
+┌─────────────────────────────────────────────────┐
+│  us-east-1 (Virginia)  - Americas               │
+│  eu-west-1 (Ireland)   - Europe (GDPR)          │
+│  ap-south-1 (Mumbai)   - India/Asia             │
+│  ap-northeast-1 (Tokyo) - Japan                 │
+│  ap-southeast-1 (Singapore) - Southeast Asia    │
+└─────────────────────────────────────────────────┘
+
+When user signs up:
+- User in New York → Data stored in us-east-1
+- User in Paris → Data stored in eu-west-1
+- User in Tokyo → Data stored in ap-northeast-1
+
+Result: Fast + Legal + Compliant! ✅
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎓 Act 4 Summary: Serving Global Users</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Challenge</th>
+                        <th>AWS Solution</th>
+                        <th>Result</th>
+                    </tr>
+                    <tr>
+                        <td>Users far from servers</td>
+                        <td>CloudFront (CDN)</td>
+                        <td>5x faster for global users</td>
+                    </tr>
+                    <tr>
+                        <td>Data privacy laws</td>
+                        <td>Multiple AWS Regions</td>
+                        <td>Data stays where legally required</td>
+                    </tr>
+                </table>
+
+                <div class="key-point">
+                    <div class="key-point-title">💡 What You Learned:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>CloudFront = Global content delivery (super fast)</li>
+                        <li>AWS Regions = Data centers in 30+ countries</li>
+                        <li>You can serve users worldwide without slowness</li>
+                        <li>Respect data privacy laws with regional data storage</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACT 5 -->
+        <div id="act5" class="act">
+            <div class="act-header">
+                <div class="act-number">ACT 5</div>
+                <div class="act-title">🏆 The Maturity & Smart Optimization</div>
+                <div class="act-subtitle">SnapShare is a Billion-Dollar Company. How Does Sarah Save Money?</div>
+            </div>
+
+            <div class="scene">
+                <h3>📖 The Story</h3>
+                <div class="story-content">
+                    2 years later: SnapShare is HUGE! Valued at $1 billion with 100 million users.
+                    But Sarah realizes her AWS bill is $500,000/month. That's expensive!
+                    <br><br>
+                    Sarah's investors ask: "Can you reduce costs while keeping performance?"
+                    Sarah needs to get smarter about how she uses AWS.
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎯 The Problem: Expensive Infrastructure</h3>
+                <div class="problem">
+                    <div class="problem-title">Sarah's Dilemma:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>EC2 servers cost $300k/month</li>
+                        <li>Database costs $100k/month</li>
+                        <li>CloudFront costs $50k/month</li>
+                        <li>Other services: $50k/month</li>
+                        <li>Total: $500k/month = $6M/year!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>💰 Solution 1: Reserved Instances (Long-Term Discounts)</h3>
+                <div class="story-content">
+                    Sarah has some servers running 24/7 (they never stop). For these,
+                    she can buy <strong>Reserved Instances</strong> - like a 1-year or 3-year contract.
+                    AWS gives huge discounts (40-60% cheaper) for long-term commitment.
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: Reserved Instances = Yearly Subscription</div>
+                    Like gym memberships - if you commit for a year, they give you a discount!
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Saving Money with Reserved Instances</div>
+                    <div class="code-block">
+Sarah's Always-On Servers (never shut down):
+- 50 servers × $0.10/hour = $5,000/day
+- Traditional: $5,000 × 365 = $1.825M/year
+
+With 1-Year Reserved Instance (40% discount):
+- Same 50 servers × $0.06/hour = $3,000/day
+- Reserved: $3,000 × 365 = $1.095M/year
+
+Savings: $730,000/year! 💰
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎯 Solution 2: Serverless (No Servers to Manage!)</h3>
+                <div class="story-content">
+                    Some tasks (like sending notifications to users) don't need dedicated servers.
+                    Sarah uses <strong>Lambda</strong> - AWS's serverless service. You write code,
+                    AWS runs it, you pay only when it runs. No server management!
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: Lambda = Uber for Code</div>
+                    Like Uber - you don't own cars, you just request a ride when you need one.
+                    Lambda: you don't manage servers, just run code when needed!
+                </div>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Sending Notifications with Lambda</div>
+                    <div class="code-block">
+Old Way (Always-On Server):
+1. Rent a server 24/7 = $0.10/hour = $876/year
+2. Server sends notifications (10ms of actual work per request)
+3. 99.99% of time = WASTED (server doing nothing)
+
+Lambda Way (Serverless):
+1. User gets notified? Lambda runs (10ms)
+2. Notification sent? Done, lambda stops
+3. No server running = $0 when not in use
+4. Cost: $0.000001667 per request
+5. For 1M notifications/day = $50/year!
+
+Savings: $826/year! Not huge, but 17x cheaper!
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>📊 Solution 3: CloudWatch & Monitoring (Avoid Waste)</h3>
+                <div class="story-content">
+                    Sarah sets up monitoring with <strong>CloudWatch</strong>. She watches:
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>Which resources are being used</li>
+                        <li>Which are wasting money</li>
+                        <li>Which servers are idle</li>
+                    </ul>
+                    She finds she has 20 old servers that nobody uses. Deletes them. Saves $30k/month!
+                </div>
+
+                <div class="memory-tip">
+                    <div class="memory-tip-title">🧠 Memory Trick: CloudWatch = Health Check for Your Infrastructure</div>
+                    Like a doctor checking your health, CloudWatch checks your AWS infrastructure!
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>💡 Solution 4: Auto Scaling Better (Right Sizing)</h3>
+                <div class="story-content">
+                    Sarah audits her Auto Scaling rules. She finds:
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>She was keeping too many servers running during slow periods</li>
+                        <li>Changed scaling rules → fewer servers during 2-6 AM (least traffic)</li>
+                        <li>Added more servers during peak times (8-10 AM)</li>
+                    </ul>
+                    Better utilization = Lower costs!
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>📊 Act 5 Summary: Smart Cost Optimization</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Optimization</th>
+                        <th>Savings</th>
+                        <th>What You Give Up</th>
+                    </tr>
+                    <tr>
+                        <td>Reserved Instances</td>
+                        <td>40% savings</td>
+                        <td>Have to commit for 1-3 years</td>
+                    </tr>
+                    <tr>
+                        <td>Lambda (Serverless)</td>
+                        <td>90% savings</td>
+                        <td>Limited to functions (not full apps)</td>
+                    </tr>
+                    <tr>
+                        <td>CloudWatch Monitoring</td>
+                        <td>30% savings</td>
+                        <td>Need to review regularly</td>
+                    </tr>
+                    <tr>
+                        <td>Better Auto Scaling</td>
+                        <td>25% savings</td>
+                        <td>Need to tune rules</td>
+                    </tr>
+                </table>
+
+                <div class="real-example">
+                    <div class="real-example-title">🎬 Real Example: Sarah's Total Savings</div>
+                    <div class="code-block">
+Sarah's AWS Optimization Plan:
+
+Original Bill: $500,000/month
+
+Optimizations:
+1. Reserved Instances (40% off 50% of servers): -$150,000
+2. Delete unused resources (CloudWatch): -$30,000
+3. Better Auto Scaling (25% reduction): -$125,000
+4. Use Lambda for notifications: -$5,000
+
+New Bill: $190,000/month
+
+Annual Savings: $3.72 MILLION! 💰
+
+(She's now profitable because of cost optimization!)
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🏆 Final Lesson: The Complete AWS Stack</h3>
+                <div class="visual-flow">
+                    <div class="flow-item">Users Worldwide</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">CloudFront (Fast)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">ELB (Distributed)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Auto Scaling Servers</div>
+                </div>
+
+                <div class="visual-flow" style="margin-top: 2rem;">
+                    <div class="flow-item">RDS Database</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">ElastiCache (Fast)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">S3 Storage</div>
+                </div>
+
+                <div class="visual-flow" style="margin-top: 2rem;">
+                    <div class="flow-item">Lambda Functions</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">CloudWatch Monitoring</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Cost Optimization</div>
+                </div>
+
+                <div class="key-point" style="margin-top: 2rem;">
+                    <div class="key-point-title">🎓 What Sarah Learned:</div>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>Start small (EC2 + S3)</li>
+                        <li>Scale with Load Balancer + Auto Scaling</li>
+                        <li>Add performance with RDS + ElastiCache</li>
+                        <li>Go global with CloudFront + Regions</li>
+                        <li>Optimize costs with Reserved Instances + Lambda + Monitoring</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="scene">
+                <h3>🎬 THE END - Sarah's Success Story</h3>
+                <div class="story-content" style="font-size: 1.15rem; line-height: 2;">
+                    <strong>SnapShare Status:</strong>
+                    <br>✅ 100 Million Users Worldwide
+                    <br>✅ Available in 50 Countries
+                    <br>✅ Handles 1 Million Requests/Second
+                    <br>✅ $1 Billion Valuation
+                    <br>✅ $190k/month AWS Bill (Optimized)
+                    <br>✅ Fully Automated Infrastructure
+                    <br>✅ 99.99% Uptime SLA
+                    <br><br>
+                    <strong>Sarah's Journey:</strong>
+                    <br>Started: 1 EC2 server, scared it would crash
+                    <br>Now: Global infrastructure handling billions of requests
+                    <br><br>
+                    <strong>AWS Made This Possible:</strong>
+                    <br>Sarah didn't need a data center, IT team, or millions in hardware
+                    <br>She only paid for what she used
+                    <br>She scaled from 0 to 100M users without hiring infrastructure engineers
+                    <br><br>
+                    <strong>The Moral:</strong>
+                    <strong>AWS removed barriers to entrepreneurship. Anyone with an idea can now build a global company.</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn" onclick="previousAct()" id="prevBtn">← Previous Act</button>
+            <button class="nav-btn" onclick="goToAct(1)" id="act1Btn">Act 1</button>
+            <button class="nav-btn" onclick="goToAct(2)" id="act2Btn">Act 2</button>
+            <button class="nav-btn" onclick="goToAct(3)" id="act3Btn">Act 3</button>
+            <button class="nav-btn" onclick="goToAct(4)" id="act4Btn">Act 4</button>
+            <button class="nav-btn" onclick="goToAct(5)" id="act5Btn">Act 5</button>
+            <button class="nav-btn" onclick="nextAct()" id="nextBtn">Next Act →</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>AWS: The Story - Learn AWS Through a Real-World Startup Journey • 2024</p>
+    </footer>
+
+    <script>
+        let currentAct = 1;
+        const totalActs = 5;
+
+        function showAct(actNum) {
+            // Hide all acts
+            for (let i = 1; i <= totalActs; i++) {
+                document.getElementById(`act${i}`).classList.remove('active');
+            }
+
+            // Show selected act
+            document.getElementById(`act${actNum}`).classList.add('active');
+
+            // Update buttons
+            updateNavigation();
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+
+            currentAct = actNum;
+        }
+
+        function nextAct() {
+            if (currentAct < totalActs) {
+                showAct(currentAct + 1);
+            }
+        }
+
+        function previousAct() {
+            if (currentAct > 1) {
+                showAct(currentAct - 1);
+            }
+        }
+
+        function goToAct(actNum) {
+            showAct(actNum);
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentAct === 1;
+            document.getElementById('nextBtn').disabled = currentAct === totalActs;
+
+            // Highlight current act button
+            for (let i = 1; i <= totalActs; i++) {
+                const btn = document.getElementById(`act${i}Btn`);
+                if (i === currentAct) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+        }
+
+        // Initialize
+        updateNavigation();
+    </script>
+</body>
+</html>

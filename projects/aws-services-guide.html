@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Services - Visual Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 250px;
+            display: block;
+            background: #f8f9fa;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-content h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .card-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .features {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .features li {
+            color: #555;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li:last-child {
+            border-bottom: none;
+        }
+
+        .features li:before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+
+        .use-case {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .architecture-section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .architecture-section h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+            text-align: center;
+        }
+
+        .arch-canvas {
+            width: 100%;
+            max-width: 100%;
+            margin: 20px 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .diagram-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .small-diagram {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .architecture-section {
+                padding: 20px;
+            }
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: #764ba2;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☁️ AWS Services - Visual Guide</h1>
+            <p class="subtitle">Comprehensive Visual Explanations of AWS Services</p>
+        </header>
+
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showTab('compute')">Compute</button>
+            <button class="tab-btn" onclick="showTab('storage')">Storage</button>
+            <button class="tab-btn" onclick="showTab('database')">Database</button>
+            <button class="tab-btn" onclick="showTab('networking')">Networking</button>
+            <button class="tab-btn" onclick="showTab('monitoring')">Monitoring</button>
+        </div>
+
+        <!-- COMPUTE SERVICES -->
+        <div id="compute" class="tab-content active">
+            <div class="services-grid">
+                <!-- EC2 -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🖥️</div>
+                        <h2>EC2</h2>
+                        <p>Elastic Compute Cloud</p>
+                    </div>
+                    <canvas id="ec2-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Rents virtual computers (instances) that you can configure and control. Like having your own personal server in the cloud.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Choose processor power (t2.micro → m5.24xlarge)</li>
+                            <li>Choose memory and storage</li>
+                            <li>Choose operating system (Linux, Windows)</li>
+                            <li>Pay per hour/second of usage</li>
+                            <li>Scale up or down instantly</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Hosting web servers, running applications, batch processing jobs, development environments
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lambda -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">⚡</div>
+                        <h2>Lambda</h2>
+                        <p>Serverless Compute</p>
+                    </div>
+                    <canvas id="lambda-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Run code without managing servers. You upload code and it runs automatically when triggered.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>No server management needed</li>
+                            <li>Pay only for execution time</li>
+                            <li>Automatic scaling</li>
+                            <li>Triggered by events</li>
+                            <li>Support for Python, Node.js, Java, Go</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Image processing, real-time file processing, automated backups, API responses
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ECS -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">📦</div>
+                        <h2>ECS</h2>
+                        <p>Elastic Container Service</p>
+                    </div>
+                    <canvas id="ecs-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Run Docker containers at scale. Manage and orchestrate containerized applications.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Run Docker containers</li>
+                            <li>Automatic scaling based on load</li>
+                            <li>Load balancing</li>
+                            <li>Health monitoring</li>
+                            <li>Integration with other AWS services</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Microservices architecture, containerized applications, continuous deployment
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Elastic Beanstalk -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🎛️</div>
+                        <h2>Elastic Beanstalk</h2>
+                        <p>Platform as a Service</p>
+                    </div>
+                    <canvas id="beanstalk-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Deploy and manage applications without thinking about infrastructure. A simplified way to run apps.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>One-click deployment</li>
+                            <li>Automatic scaling</li>
+                            <li>Built-in monitoring</li>
+                            <li>Supports multiple languages</li>
+                            <li>No infrastructure management</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Deploying web applications quickly, prototype development, small-to-medium apps
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STORAGE SERVICES -->
+        <div id="storage" class="tab-content">
+            <div class="services-grid">
+                <!-- S3 -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🪣</div>
+                        <h2>S3</h2>
+                        <p>Simple Storage Service</p>
+                    </div>
+                    <canvas id="s3-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Store any amount of data (files, images, videos, backups) and retrieve it from anywhere in the world.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Unlimited storage capacity</li>
+                            <li>Highly available and durable</li>
+                            <li>Pay per GB stored</li>
+                            <li>Version control</li>
+                            <li>Access control and encryption</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Website static files, backup storage, big data analytics, archive storage
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EBS -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">💾</div>
+                        <h2>EBS</h2>
+                        <p>Elastic Block Store</p>
+                    </div>
+                    <canvas id="ebs-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Block storage volumes for EC2 instances. Think of it as hard drives for your virtual computers.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Attach to EC2 instances</li>
+                            <li>Snapshots and backups</li>
+                            <li>Encryption</li>
+                            <li>High performance</li>
+                            <li>Pay per GB per month</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Databases, file systems, persistent storage for applications
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EFS -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">📁</div>
+                        <h2>EFS</h2>
+                        <p>Elastic File System</p>
+                    </div>
+                    <canvas id="efs-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Shared file storage that multiple EC2 instances can access simultaneously. Like a shared network drive.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Shared across instances</li>
+                            <li>Automatic scaling</li>
+                            <li>High availability</li>
+                            <li>NFS protocol support</li>
+                            <li>Pay per GB used</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Shared code repositories, shared media files, collaborative work
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Glacier -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">❄️</div>
+                        <h2>Glacier</h2>
+                        <p>Cold Storage Archive</p>
+                    </div>
+                    <canvas id="glacier-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Ultra-cheap long-term storage for data you rarely access. Slower retrieval but much cheaper.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Very low cost (1¢ per GB/month)</li>
+                            <li>3-5 hour retrieval time</li>
+                            <li>99.999% durability</li>
+                            <li>Compliance and archival</li>
+                            <li>Vault Lock for immutability</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Compliance backups, long-term archives, disaster recovery
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATABASE SERVICES -->
+        <div id="database" class="tab-content">
+            <div class="services-grid">
+                <!-- RDS -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🗄️</div>
+                        <h2>RDS</h2>
+                        <p>Relational Database Service</p>
+                    </div>
+                    <canvas id="rds-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Managed relational databases. AWS handles backups, updates, and maintenance for you.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Supports MySQL, PostgreSQL, Oracle, SQL Server</li>
+                            <li>Automated backups</li>
+                            <li>Multi-AZ deployment for high availability</li>
+                            <li>Read replicas for scaling reads</li>
+                            <li>Automatic patching</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Web applications, ERP systems, business applications with structured data
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DynamoDB -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">⚙️</div>
+                        <h2>DynamoDB</h2>
+                        <p>NoSQL Database</p>
+                    </div>
+                    <canvas id="dynamodb-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Fast NoSQL database for flexible data. No schema required, scales automatically.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Sub-millisecond latency</li>
+                            <li>Flexible JSON documents</li>
+                            <li>Automatic scaling</li>
+                            <li>Pay per request</li>
+                            <li>Global tables for multi-region</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Mobile apps, real-time applications, IoT devices, gaming leaderboards
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Elasticsearch -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🔍</div>
+                        <h2>Elasticsearch</h2>
+                        <p>Search and Analytics</p>
+                    </div>
+                    <canvas id="elasticsearch-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Full-text search and real-time analytics. Find information instantly across large datasets.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Full-text search capabilities</li>
+                            <li>Real-time analytics</li>
+                            <li>Visualization with Kibana</li>
+                            <li>Distributed and scalable</li>
+                            <li>Security and access control</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Log analysis, e-commerce search, application search features
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ElastiCache -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">⚡</div>
+                        <h2>ElastiCache</h2>
+                        <p>In-Memory Cache</p>
+                    </div>
+                    <canvas id="elasticache-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Ultra-fast in-memory cache to speed up applications. Reduces database load.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Redis or Memcached</li>
+                            <li>Microsecond latency</li>
+                            <li>Automatic failover</li>
+                            <li>Multi-AZ replication</li>
+                            <li>Encryption at rest and in transit</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Session storage, real-time leaderboards, caching database queries
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NETWORKING SERVICES -->
+        <div id="networking" class="tab-content">
+            <div class="services-grid">
+                <!-- VPC -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🌐</div>
+                        <h2>VPC</h2>
+                        <p>Virtual Private Cloud</p>
+                    </div>
+                    <canvas id="vpc-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Isolated network in AWS where you launch resources. Your private section of the AWS cloud.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Custom IP address range</li>
+                            <li>Public and private subnets</li>
+                            <li>Security groups and NACLs</li>
+                            <li>VPN and Direct Connect</li>
+                            <li>Multi-AZ support</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Securing application infrastructure, isolating environments
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ELB -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">⚖️</div>
+                        <h2>ELB</h2>
+                        <p>Elastic Load Balancer</p>
+                    </div>
+                    <canvas id="elb-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Distribute traffic across multiple servers. Ensures no single server gets overwhelmed.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Auto-scaling based on traffic</li>
+                            <li>Health checks</li>
+                            <li>SSL/TLS termination</li>
+                            <li>Request routing</li>
+                            <li>High availability</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Scaling web applications, handling traffic spikes, zero-downtime deployments
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Route 53 -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🗺️</div>
+                        <h2>Route 53</h2>
+                        <p>DNS Service</p>
+                    </div>
+                    <canvas id="route53-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Manage domain names and route traffic to your applications. Like a phone directory for websites.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Domain registration</li>
+                            <li>DNS routing policies</li>
+                            <li>Health checks</li>
+                            <li>Traffic policies</li>
+                            <li>Alias records for AWS resources</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Domain management, geo-routing, failover scenarios
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CloudFront -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🚀</div>
+                        <h2>CloudFront</h2>
+                        <p>CDN - Content Delivery</p>
+                    </div>
+                    <canvas id="cloudfront-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Speed up content delivery by caching at edge locations worldwide. Users get faster loads.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Global edge locations (200+)</li>
+                            <li>Low latency</li>
+                            <li>DDoS protection</li>
+                            <li>Cache invalidation</li>
+                            <li>SSL/TLS support</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Website acceleration, video streaming, API acceleration
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MONITORING SERVICES -->
+        <div id="monitoring" class="tab-content">
+            <div class="services-grid">
+                <!-- CloudWatch -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">📊</div>
+                        <h2>CloudWatch</h2>
+                        <p>Monitoring & Logging</p>
+                    </div>
+                    <canvas id="cloudwatch-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Monitor and log everything. See metrics, set alarms, and troubleshoot issues.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Metrics collection</li>
+                            <li>Log aggregation</li>
+                            <li>Custom alarms</li>
+                            <li>Dashboards</li>
+                            <li>Log Insights queries</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Application monitoring, troubleshooting, performance analysis
+                        </div>
+                    </div>
+                </div>
+
+                <!-- X-Ray -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">🔬</div>
+                        <h2>X-Ray</h2>
+                        <p>Distributed Tracing</p>
+                    </div>
+                    <canvas id="xray-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Trace requests through your entire application. See where bottlenecks are.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Service map visualization</li>
+                            <li>Request tracing</li>
+                            <li>Performance insights</li>
+                            <li>Error detection</li>
+                            <li>Latency analysis</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Microservices debugging, performance optimization
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SNS -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">📬</div>
+                        <h2>SNS</h2>
+                        <p>Notification Service</p>
+                    </div>
+                    <canvas id="sns-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Send notifications: emails, SMS, push notifications. Alert people when something happens.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Multiple delivery channels</li>
+                            <li>Topic-based messaging</li>
+                            <li>Fan-out pattern</li>
+                            <li>Message filtering</li>
+                            <li>Scalable</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Alarm notifications, application alerts, user notifications
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SQS -->
+                <div class="service-card">
+                    <div class="card-header">
+                        <div class="card-icon">📭</div>
+                        <h2>SQS</h2>
+                        <p>Message Queue</p>
+                    </div>
+                    <canvas id="sqs-canvas"></canvas>
+                    <div class="card-content">
+                        <h3>What it does</h3>
+                        <p>Queue messages for processing. Decouple applications so they work independently.</p>
+                        <h3>Key Features</h3>
+                        <ul class="features">
+                            <li>Async message processing</li>
+                            <li>Decouples applications</li>
+                            <li>Automatic retries</li>
+                            <li>Dead letter queues</li>
+                            <li>FIFO and Standard queues</li>
+                        </ul>
+                        <div class="use-case">
+                            <strong>Use Case:</strong> Job processing, background tasks, microservices communication
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ARCHITECTURE SECTION -->
+        <div class="architecture-section">
+            <h2>🏗️ Complete AWS Architecture Example</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 30px;">
+                Here's how multiple AWS services work together in a real-world web application:
+            </p>
+            <canvas id="arch-canvas" width="1200" height="600"></canvas>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #667eea;"></div>
+                    <span>Frontend/CDN</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4ecdc4;"></div>
+                    <span>Load Balancing</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff6b6b;"></div>
+                    <span>Compute</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffd93d;"></div>
+                    <span>Data Layer</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #a29bfe;"></div>
+                    <span>Storage</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fd79a8;"></div>
+                    <span>Monitoring</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Redraw canvases
+            setTimeout(() => {
+                drawAllCanvases();
+            }, 100);
+        }
+
+        function drawEC2Canvas() {
+            const canvas = document.getElementById('ec2-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw 3 servers
+            for (let i = 0; i < 3; i++) {
+                const x = 50 + i * 220;
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(x, 50, 150, 120);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('EC2 Instance', x + 75, 80);
+                ctx.fillText(`t${i + 1} Type`, x + 75, 100);
+
+                // CPU bars
+                ctx.fillStyle = '#ff6b6b';
+                const cpuHeight = 20 + Math.random() * 40;
+                ctx.fillRect(x + 20, 110 + (50 - cpuHeight), 30, cpuHeight);
+                ctx.fillStyle = '#4ecdc4';
+                const memHeight = 20 + Math.random() * 40;
+                ctx.fillRect(x + 60, 110 + (50 - memHeight), 30, memHeight);
+                ctx.fillStyle = '#ffd93d';
+                const diskHeight = 20 + Math.random() * 40;
+                ctx.fillRect(x + 100, 110 + (50 - diskHeight), 30, diskHeight);
+            }
+
+            ctx.fillStyle = '#666';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('CPU', 70, 175);
+            ctx.fillText('RAM', 110, 175);
+            ctx.fillText('Disk', 150, 175);
+        }
+
+        function drawLambdaCanvas() {
+            const canvas = document.getElementById('lambda-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Event sources
+            const events = ['S3', 'API', 'DynamoDB', 'SNS'];
+            events.forEach((event, i) => {
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillRect(20 + i * 60, 30, 50, 40);
+                ctx.fillStyle = 'white';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(event, 45 + i * 60, 55);
+            });
+
+            // Lambda function
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(80, 100, 200, 100);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚡ Lambda Function', 180, 145);
+            ctx.font = '11px Arial';
+            ctx.fillText('Run for 1-900 seconds', 180, 165);
+
+            // Output
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(120, 220, 120, 40);
+            ctx.fillStyle = 'white';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Database', 180, 245);
+        }
+
+        function drawECSCanvas() {
+            const canvas = document.getElementById('ecs-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Container cluster
+            for (let i = 0; i < 4; i++) {
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillRect(40 + (i % 2) * 140, 40 + Math.floor(i / 2) * 100, 120, 80);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Docker', 100 + (i % 2) * 140, 70);
+                ctx.fillText('Container', 100 + (i % 2) * 140, 90);
+                ctx.fillText('App', 100 + (i % 2) * 140, 110);
+            }
+
+            // Orchestration
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(20, 15, 260, 200);
+            ctx.fillStyle = '#667eea';
+            ctx.font = '11px Arial';
+            ctx.fillText('ECS Orchestration', 150, 30);
+        }
+
+        function drawBeanstalkCanvas() {
+            const canvas = document.getElementById('beanstalk-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(50, 50, 220, 180);
+
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Your Code', 160, 90);
+
+            const layers = ['Load Balancer', 'EC2 Instances', 'Database', 'Monitoring'];
+            layers.forEach((layer, i) => {
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.fillRect(60, 100 + i * 20, 200, 15);
+                ctx.fillStyle = '#333';
+                ctx.font = '10px Arial';
+                ctx.fillText(layer, 160, 112 + i * 20);
+            });
+
+            ctx.fillStyle = '#666';
+            ctx.font = '11px Arial';
+            ctx.fillText('AWS Manages All This', 160, 220);
+        }
+
+        function drawS3Canvas() {
+            const canvas = document.getElementById('s3-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw buckets
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = '#667eea';
+                ctx.beginPath();
+                ctx.ellipse(90 + i * 180, 50, 60, 20, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillRect(30 + i * 180, 50, 120, 130);
+                ctx.beginPath();
+                ctx.ellipse(90 + i * 180, 180, 60, 20, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Bucket 1', 90, 120);
+            ctx.fillText('Bucket 2', 270, 120);
+            ctx.fillText('Bucket 3', 450, 120);
+
+            ctx.fillStyle = '#666';
+            ctx.font = '10px Arial';
+            ctx.fillText('Files, Images, Videos, Backups...', 270, 220);
+        }
+
+        function drawEBSCanvas() {
+            const canvas = document.getElementById('ebs-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // EC2 instance
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(120, 40, 160, 100);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('EC2 Instance', 200, 95);
+
+            // EBS volumes
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(80 + i * 100, 160, 80, 60);
+                ctx.fillStyle = 'white';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Vol ${i + 1}`, 120 + i * 100, 190);
+            }
+
+            // Connection lines
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(200, 140);
+            ctx.lineTo(120, 160);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(200, 140);
+            ctx.lineTo(180, 160);
+            ctx.stroke();
+        }
+
+        function drawEFSCanvas() {
+            const canvas = document.getElementById('efs-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Shared storage
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(50, 80, 320, 80);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('EFS - Shared File System', 210, 125);
+
+            // Connected instances
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillRect(80 + i * 100, 20, 80, 40);
+                ctx.fillStyle = 'white';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`EC2 ${i + 1}`, 120 + i * 100, 45);
+
+                // Connection lines
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(120 + i * 100, 60);
+                ctx.lineTo(120 + i * 100, 80);
+                ctx.stroke();
+            }
+        }
+
+        function drawGlacierCanvas() {
+            const canvas = document.getElementById('glacier-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#667eea';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(40 + i * 70, 50 + Math.random() * 20, 60, 80);
+            }
+
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillText('Archive', 70 + i * 70, 95);
+            }
+
+            ctx.fillStyle = '#666';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Cold Storage - $0.01/GB/month', 200, 180);
+            ctx.fillText('Retrieval: 3-5 hours', 200, 200);
+        }
+
+        function drawRDSCanvas() {
+            const canvas = document.getElementById('rds-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Primary DB
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(80, 40, 120, 100);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Primary', 140, 70);
+            ctx.fillText('Database', 140, 85);
+            ctx.fillText('(Read/Write)', 140, 100);
+
+            // Replica
+            ctx.fillStyle = '#764ba2';
+            ctx.fillRect(240, 40, 120, 100);
+            ctx.fillStyle = 'white';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Read Replica', 300, 70);
+            ctx.fillText('(Read Only)', 300, 100);
+
+            // Backup
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(160, 180, 100, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Automated', 210, 195);
+            ctx.fillText('Backups', 210, 210);
+
+            // Connection lines
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(200, 140);
+            ctx.lineTo(210, 180);
+            ctx.stroke();
+        }
+
+        function drawDynamoDBCanvas() {
+            const canvas = document.getElementById('dynamodb-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // NoSQL documents
+            for (let i = 0; i < 4; i++) {
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(40 + i * 70, 50 + Math.random() * 30, 60, 60);
+                ctx.fillStyle = 'white';
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('{ JSON }', 70 + i * 70, 85);
+            }
+
+            ctx.fillStyle = '#666';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Flexible Schema', 200, 170);
+            ctx.fillText('Sub-millisecond latency', 200, 190);
+        }
+
+        function drawElasticsearchCanvas() {
+            const canvas = document.getElementById('elasticsearch-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Search node
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(100, 60, 160, 80);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Full-Text Search', 180, 95);
+            ctx.fillText('& Analytics', 180, 115);
+
+            // Index shards
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillRect(60 + i * 80, 170, 60, 40);
+                ctx.fillStyle = 'white';
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Shard ${i + 1}`, 90 + i * 80, 195);
+            }
+        }
+
+        function drawElastiCacheCanvas() {
+            const canvas = document.getElementById('elasticache-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Cache
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(80, 60, 200, 100);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚡ In-Memory Cache', 180, 110);
+
+            ctx.fillStyle = '#666';
+            ctx.font = '11px Arial';
+            ctx.fillText('Redis / Memcached', 180, 180);
+            ctx.fillText('Microsecond Latency', 180, 200);
+        }
+
+        function drawVPCCanvas() {
+            const canvas = document.getElementById('vpc-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // VPC boundary
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(20, 20, 320, 200);
+
+            // Subnets
+            ctx.fillStyle = '#e8f0ff';
+            ctx.fillRect(30, 30, 140, 90);
+            ctx.fillStyle = '#667eea';
+            ctx.font = '10px Arial';
+            ctx.fillText('Public Subnet', 100, 50);
+
+            ctx.fillStyle = '#ffe8e8';
+            ctx.fillRect(190, 30, 140, 90);
+            ctx.fillStyle = '#ff6b6b';
+            ctx.font = '10px Arial';
+            ctx.fillText('Private Subnet', 260, 50);
+
+            // Resources
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(40, 70, 60, 40);
+            ctx.fillStyle = 'white';
+            ctx.font = '9px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('EC2', 70, 95);
+
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(200, 70, 60, 40);
+            ctx.fillStyle = 'white';
+            ctx.fillText('RDS', 230, 95);
+        }
+
+        function drawELBCanvas() {
+            const canvas = document.getElementById('elb-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Load balancer
+            ctx.fillStyle = '#4ecdc4';
+            ctx.fillRect(120, 20, 160, 60);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚖️ Load Balancer', 200, 55);
+
+            // Servers
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(80 + i * 100, 120, 80, 60);
+                ctx.fillStyle = 'white';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Server ${i + 1}`, 120 + i * 100, 155);
+
+                // Connection lines
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(200, 80);
+                ctx.lineTo(120 + i * 100, 120);
+                ctx.stroke();
+            }
+        }
+
+        function drawRoute53Canvas() {
+            const canvas = document.getElementById('route53-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // DNS Server
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(100, 50, 200, 60);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🗺️ Route 53 DNS', 200, 85);
+
+            // Domains
+            const domains = ['example.com', 'www.example.com', 'api.example.com'];
+            domains.forEach((domain, i) => {
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillRect(50 + i * 100, 140, 80, 40);
+                ctx.fillStyle = 'white';
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(domain, 90 + i * 100, 165);
+            });
+        }
+
+        function drawCloudFrontCanvas() {
+            const canvas = document.getElementById('cloudfront-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(80, 50, 240, 60);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🚀 CloudFront CDN', 200, 85);
+
+            ctx.fillStyle = '#666';
+            ctx.font = '10px Arial';
+            ctx.fillText('200+ Edge Locations Worldwide', 200, 140);
+            ctx.fillText('Cache content closer to users', 200, 160);
+        }
+
+        function drawCloudWatchCanvas() {
+            const canvas = document.getElementById('cloudwatch-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Metrics chart
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i < 10; i++) {
+                const x = 40 + i * 30;
+                const y = 140 - Math.sin(i / 2) * 50;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Dashboard
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(100, 160, 200, 60);
+            ctx.fillStyle = 'white';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('📊 Dashboards', 200, 190);
+        }
+
+        function drawXRayCanvas() {
+            const canvas = document.getElementById('xray-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Service map
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(80, 60, 100, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = '9px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('API', 130, 90);
+
+            const services = ['Service 1', 'Service 2', 'Service 3'];
+            services.forEach((service, i) => {
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillRect(40 + i * 80, 140, 70, 40);
+                ctx.fillStyle = 'white';
+                ctx.font = '8px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(service, 75 + i * 80, 165);
+
+                // Connection lines
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(130, 110);
+                ctx.lineTo(75 + i * 80, 140);
+                ctx.stroke();
+            });
+        }
+
+        function drawSNSCanvas() {
+            const canvas = document.getElementById('sns-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // SNS Topic
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(200, 60, 40, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('SNS', 200, 65);
+
+            // Subscribers
+            const subscribers = ['📧 Email', '💬 SMS', '📱 Push', '🔗 HTTP'];
+            subscribers.forEach((sub, i) => {
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillRect(50 + i * 70, 140, 60, 40);
+                ctx.fillStyle = 'white';
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(sub, 80 + i * 70, 165);
+
+                // Connection lines
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(200, 100);
+                ctx.lineTo(80 + i * 70, 140);
+                ctx.stroke();
+            });
+        }
+
+        function drawSQSCanvas() {
+            const canvas = document.getElementById('sqs-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Producer
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(50, 60, 100, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Producer', 100, 90);
+
+            // Queue
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(170, 60, 100, 50);
+            ctx.fillStyle = 'white';
+            ctx.fillText('Message Queue', 220, 90);
+
+            // Consumer
+            ctx.fillStyle = '#4ecdc4';
+            ctx.fillRect(290, 60, 100, 50);
+            ctx.fillStyle = 'white';
+            ctx.fillText('Consumer', 340, 90);
+
+            // Messages in queue
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(180, 110 + i * 15, 80, 12);
+                ctx.fillStyle = '#667eea';
+                ctx.font = '9px Arial';
+                ctx.fillText(`Message ${i + 1}`, 220, 119 + i * 15);
+            }
+
+            // Arrows
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(150, 85);
+            ctx.lineTo(170, 85);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(270, 85);
+            ctx.lineTo(290, 85);
+            ctx.stroke();
+        }
+
+        function drawArchitecture() {
+            const canvas = document.getElementById('arch-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Users
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(450, 10, 300, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('👥 Users Worldwide', 600, 40);
+
+            // CDN
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(450, 80, 300, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.fillText('🚀 CloudFront CDN', 600, 110);
+
+            // Route 53
+            ctx.fillStyle = '#4ecdc4';
+            ctx.fillRect(450, 150, 300, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.fillText('🗺️ Route 53 DNS', 600, 180);
+
+            // Load Balancer
+            ctx.fillStyle = '#4ecdc4';
+            ctx.fillRect(450, 220, 300, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.fillText('⚖️ Load Balancer (ELB)', 600, 250);
+
+            // EC2 Servers
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillRect(180 + i * 140, 220, 120, 50);
+                ctx.fillStyle = 'white';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`EC2 ${i + 1}`, 240 + i * 140, 250);
+            }
+
+            // Databases
+            ctx.fillStyle = '#ffd93d';
+            ctx.fillRect(150, 310, 150, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('📊 RDS Database', 225, 340);
+
+            // Cache
+            ctx.fillStyle = '#ffd93d';
+            ctx.fillRect(350, 310, 150, 50);
+            ctx.fillStyle = 'white';
+            ctx.fillText('⚡ ElastiCache', 425, 340);
+
+            // Storage
+            ctx.fillStyle = '#a29bfe';
+            ctx.fillRect(550, 310, 150, 50);
+            ctx.fillStyle = 'white';
+            ctx.fillText('🪣 S3 Storage', 625, 340);
+
+            // Monitoring
+            ctx.fillStyle = '#fd79a8';
+            ctx.fillRect(750, 310, 150, 50);
+            ctx.fillStyle = 'white';
+            ctx.fillText('📊 CloudWatch', 825, 340);
+
+            // Connection lines
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 2;
+
+            // User to CDN
+            ctx.beginPath();
+            ctx.moveTo(600, 60);
+            ctx.lineTo(600, 80);
+            ctx.stroke();
+
+            // CDN to Route53
+            ctx.beginPath();
+            ctx.moveTo(600, 130);
+            ctx.lineTo(600, 150);
+            ctx.stroke();
+
+            // Route53 to LB
+            ctx.beginPath();
+            ctx.moveTo(600, 200);
+            ctx.lineTo(600, 220);
+            ctx.stroke();
+
+            // LB to EC2s
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(550, 270);
+                ctx.lineTo(240 + i * 140, 270);
+                ctx.stroke();
+            }
+
+            // EC2 to DB
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(240 + i * 140, 270);
+                ctx.lineTo(225, 310);
+                ctx.stroke();
+            }
+
+            // Everything to monitoring
+            ctx.strokeStyle = '#fd79a8';
+            ctx.lineWidth = 1;
+            const points = [600, 240, 425, 625];
+            points.forEach(x => {
+                ctx.beginPath();
+                ctx.moveTo(x, 270);
+                ctx.lineTo(825, 310);
+                ctx.stroke();
+            });
+        }
+
+        function drawAllCanvases() {
+            drawEC2Canvas();
+            drawLambdaCanvas();
+            drawECSCanvas();
+            drawBeanstalkCanvas();
+            drawS3Canvas();
+            drawEBSCanvas();
+            drawEFSCanvas();
+            drawGlacierCanvas();
+            drawRDSCanvas();
+            drawDynamoDBCanvas();
+            drawElasticsearchCanvas();
+            drawElastiCacheCanvas();
+            drawVPCCanvas();
+            drawELBCanvas();
+            drawRoute53Canvas();
+            drawCloudFrontCanvas();
+            drawCloudWatchCanvas();
+            drawXRayCanvas();
+            drawSNSCanvas();
+            drawSQSCanvas();
+            drawArchitecture();
+        }
+
+        // Initial draw
+        window.addEventListener('load', drawAllCanvases);
+        window.addEventListener('resize', drawAllCanvases);
+    </script>
+</body>
+</html>

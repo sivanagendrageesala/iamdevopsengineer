@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS S3 Explained - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #0066cc;
+            --aws-orange: #ff9900;
+            --success-green: #10b981;
+            --warning-red: #ef4444;
+            --bg-light: #f8f7f5;
+            --bg-dark: #1a1a1a;
+            --text-light: #1a1a1a;
+            --text-dark: #f8f7f5;
+            --border-light: #e5e4e0;
+            --border-dark: #333333;
+            --accent-blue: #0066cc;
+            --accent-orange: #ff9900;
+            --neutral-grey: #7a7a7a;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-light: #1a1a1a;
+                --text-light: #f8f7f5;
+                --border-light: #333333;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg-light: #1a1a1a;
+            --text-light: #f8f7f5;
+            --border-light: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--aws-orange));
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--accent-blue);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            background: rgba(0, 102, 204, 0.05);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 102, 204, 0.1);
+        }
+
+        .feature-card h4 {
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .bucket-demo {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(0, 102, 204, 0.08);
+            border-radius: 12px;
+            border: 2px dashed var(--accent-blue);
+        }
+
+        .bucket-container {
+            border: 3px solid var(--accent-blue);
+            border-radius: 8px;
+            padding: 1.5rem;
+            background: rgba(0, 102, 204, 0.02);
+            min-height: 150px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .object {
+            padding: 1rem;
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            animation: slideIn 0.5s ease-out;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .object:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .url-structure {
+            background: rgba(255, 153, 0, 0.1);
+            border: 1px solid var(--accent-orange);
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .url-part {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem 0.25rem 0.25rem 0;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .url-bucket { background: var(--accent-blue); color: white; }
+        .url-region { background: var(--success-green); color: white; }
+        .url-key { background: var(--accent-orange); color: white; }
+
+        .versioning-timeline {
+            position: relative;
+            padding: 2rem 0 2rem 3rem;
+            margin: 2rem 0;
+        }
+
+        .version-item {
+            position: relative;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: rgba(0, 102, 204, 0.05);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .version-item:before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 1.5rem;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-blue);
+            border: 3px solid var(--bg-light);
+            border-radius: 50%;
+        }
+
+        .version-item:after {
+            content: '';
+            position: absolute;
+            left: -1.85rem;
+            top: 2.5rem;
+            width: 2px;
+            height: 1.5rem;
+            background: var(--border-light);
+        }
+
+        .version-item:last-child:after {
+            display: none;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .version-label {
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .toggle-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 1rem 0;
+        }
+
+        .toggle-btn:hover {
+            background: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .toggle-btn.active {
+            background: var(--success-green);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-card {
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+        }
+
+        .comparison-card h4 {
+            margin-bottom: 1rem;
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .check {
+            color: var(--success-green);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .cross {
+            color: var(--warning-red);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .info-box {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .storage-bar {
+            margin: 1.5rem 0;
+            background: var(--border-light);
+            border-radius: 8px;
+            overflow: hidden;
+            height: 40px;
+            display: flex;
+        }
+
+        .storage-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: flex 0.3s ease;
+        }
+
+        .segment-min { flex: 1; background: var(--accent-blue); }
+        .segment-max { flex: 4; background: var(--accent-orange); }
+        .segment-mpu { flex: 3; background: var(--success-green); }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--neutral-grey);
+            border-top: 1px solid var(--border-light);
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AWS S3 Explained</h1>
+        <p>Simple Storage Service — Interactive Learning Guide</p>
+    </header>
+
+    <div class="container">
+        <!-- Section 1: What is S3? -->
+        <section class="section">
+            <h2>📦 What is S3?</h2>
+            <p><strong>S3 = Simple Storage Service</strong> — AWS's object-based storage for any type of files. It's serverless, scalable, and incredibly reliable.</p>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Global Service</h4>
+                    <p>Exists across all AWS regions worldwide</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Unlimited Storage</h4>
+                    <p>Store as many objects as you need</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Object-Based</h4>
+                    <p>Not a file system — store files as objects</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Serverless</h4>
+                    <p>No infrastructure to manage or maintain</p>
+                </div>
+            </div>
+
+            <h3>What Can S3 Do?</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>✅ Yes, S3 Can:</h4>
+                    <p><span class="check">✓</span> Store any type of files</p>
+                    <p><span class="check">✓</span> Download, upload & access files</p>
+                    <p><span class="check">✓</span> Host static websites</p>
+                    <p><span class="check">✓</span> Backup & disaster recovery</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>❌ No, S3 Cannot:</h4>
+                    <p><span class="cross">✗</span> Execute files or run code</p>
+                    <p><span class="cross">✗</span> Install operating systems</p>
+                    <p><span class="cross">✗</span> Install databases</p>
+                    <p><span class="cross">✗</span> Act as a web server</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Buckets & Objects -->
+        <section class="section">
+            <h2>🎁 Buckets & Objects</h2>
+            <p>S3 organizes storage using two key concepts: <strong>Buckets</strong> (containers) and <strong>Objects</strong> (files).</p>
+
+            <h3>What is a Bucket?</h3>
+            <p>A bucket is a container where you store your objects (files). Think of it like a folder, but with important differences:</p>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Regional</h4>
+                    <p>Created in a specific AWS region</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Globally Unique Names</h4>
+                    <p>Bucket names must be unique across all AWS accounts</p>
+                </div>
+                <div class="feature-card">
+                    <h4>No Nesting</h4>
+                    <p>Cannot create buckets inside buckets</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Private by Default</h4>
+                    <p>Only accessible to the bucket owner</p>
+                </div>
+            </div>
+
+            <h3>Interactive Bucket Demo</h3>
+            <div class="bucket-demo">
+                <p style="margin-bottom: 1rem; font-weight: 600;">📍 Bucket: "my-photos-bucket" (ap-south-1)</p>
+                <div class="bucket-container" id="bucketContainer">
+                    <div class="object">photo1.jpg</div>
+                    <div class="object">video.mp4</div>
+                    <div class="object">document.pdf</div>
+                </div>
+                <button class="toggle-btn" onclick="addObject()">➕ Add File</button>
+                <button class="toggle-btn" onclick="clearBucket()" style="background: #ef4444;">🗑️ Clear Bucket</button>
+            </div>
+
+            <h3>What is an Object?</h3>
+            <p>An object is a file stored in S3. Every object has:</p>
+            <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                <li><strong>KEY</strong> — The object's name/identifier (e.g., "photos/puppy.jpg")</li>
+                <li><strong>VALUE</strong> — The actual file data</li>
+                <li><strong>Metadata</strong> — Information about the object (size, type, etc.)</li>
+            </ul>
+
+            <h3>URL Structure</h3>
+            <p>Every object has a unique URL you can use to access it:</p>
+            <div class="url-structure">
+                https://<span class="url-part url-bucket">bucket-name</span>.<span class="url-part url-region">s3.region</span>.amazonaws.com/<span class="url-part url-key">object-key</span>
+                <br><br>
+                <strong>Example:</strong><br>
+                https://<span class="url-part url-bucket">my-photos</span>.<span class="url-part url-region">s3.ap-south-1</span>.amazonaws.com/<span class="url-part url-key">photos/puppy.jpg</span>
+            </div>
+        </section>
+
+        <!-- Section 3: Versioning -->
+        <section class="section">
+            <h2>🔄 Versioning</h2>
+            <p>Versioning lets you keep multiple versions of an object — like a backup system. Once enabled, it can't be disabled, but it can be suspended.</p>
+
+            <button class="toggle-btn" id="versionToggle" onclick="toggleVersioning()">Enable Versioning</button>
+
+            <div id="versioningContent" class="hidden">
+                <h3>How Versioning Works</h3>
+                <p>When versioning is <strong>enabled</strong>:</p>
+                <ul style="margin-left: 2rem; margin-bottom: 1.5rem;">
+                    <li>Every change creates a new version</li>
+                    <li>Each version gets a unique Version ID</li>
+                    <li>You can retrieve any previous version</li>
+                    <li>Acts as a backup & recovery tool</li>
+                </ul>
+
+                <h3>Version Timeline</h3>
+                <div class="versioning-timeline">
+                    <div class="version-item">
+                        <div class="version-label">v3 (Latest)</div>
+                        <p>puppy.jpg — Updated 2 hours ago</p>
+                        <p style="font-size: 0.9rem; margin: 0; color: var(--neutral-grey);">Version ID: abc123xyz789</p>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-label">v2</div>
+                        <p>puppy.jpg — Updated 1 day ago</p>
+                        <p style="font-size: 0.9rem; margin: 0; color: var(--neutral-grey);">Version ID: def456uvw012</p>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-label">v1</div>
+                        <p>puppy.jpg — Created 1 week ago</p>
+                        <p style="font-size: 0.9rem; margin: 0; color: var(--neutral-grey);">Version ID: ghi789rst345</p>
+                    </div>
+                </div>
+
+                <h3>Important Version Operations</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4>Delete Marker</h4>
+                        <p>When you delete an object, a <strong>Delete Marker</strong> is applied to the latest version, not old versions.</p>
+                        <p style="font-weight: 600; margin-top: 1rem; color: var(--warning-red);">⚠️ You cannot download a Delete Marker</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>Restore Object</h4>
+                        <p>Simply delete the Delete Marker and the object is restored automatically.</p>
+                        <p style="font-weight: 600; margin-top: 1rem; color: var(--success-green);">✓ Easy one-click restore</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 Pro Tip:</strong> Versioning can be <strong>suspended</strong> but never disabled. When suspended, future uploads still create versions, but updates don't.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Storage & Upload -->
+        <section class="section">
+            <h2>💾 Storage Capacity & Upload Methods</h2>
+
+            <h3>Storage Limits</h3>
+            <div class="storage-bar">
+                <div class="storage-segment segment-min" title="Minimum: 0 Bytes">0 B</div>
+                <div class="storage-segment segment-max" title="Maximum: 5TB per object">Max: 5TB</div>
+            </div>
+            <p style="font-size: 0.9rem; margin-top: 1rem;">
+                <strong>Min Object Size:</strong> 0 Bytes |
+                <strong>Max Object Size:</strong> 5TB |
+                <strong>Objects per bucket:</strong> Unlimited
+            </p>
+
+            <h3>How to Upload Files</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>Single PUT (Simple Upload)</h4>
+                    <p><strong>Use when:</strong> Uploading files smaller than 5GB</p>
+                    <p><strong>Where:</strong> AWS Console, API, CLI</p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--neutral-grey);">Max file size: 5GB</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>Multi-Part Upload (MPU)</h4>
+                    <p><strong>Use when:</strong> Uploading files larger than 100MB</p>
+                    <p><strong>Where:</strong> AWS CLI only (not Console)</p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--success-green);">Faster parallel uploads ⚡</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>🚀 Multi-Part Upload (MPU):</strong> Breaks your file into chunks, then uploads each chunk separately and simultaneously. Recommended for any file larger than 100MB for faster transfers.
+            </div>
+        </section>
+
+        <!-- Section 5: WORM Model -->
+        <section class="section">
+            <h2>📝 WORM Model</h2>
+            <p>S3 follows the <strong>WORM</strong> principle (Write Once, Read Many):</p>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Write Once</h4>
+                    <p>After you upload an object, it's immutable (unless versioning is on)</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Read Many</h4>
+                    <p>You can download and read the object as many times as needed</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Consistency</h4>
+                    <p>Guaranteed data consistency after upload</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Reliability</h4>
+                    <p>Data is stored redundantly across multiple locations</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Security -->
+        <section class="section">
+            <h2>🔐 Security & Access</h2>
+
+            <h3>Default Behavior</h3>
+            <div class="info-box">
+                <strong>Buckets are PRIVATE by default.</strong> Only the bucket owner can access objects unless explicit permissions are granted.
+            </div>
+
+            <h3>Making Buckets Public</h3>
+            <p>You can make a bucket or specific objects public, but only if business requirements demand it:</p>
+            <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                <li><strong>Bucket Policies</strong> — Control who can access what</li>
+                <li><strong>IAM Permissions</strong> — Identity and Access Management</li>
+                <li><strong>Access Control Lists (ACL)</strong> — Legacy permission system</li>
+            </ul>
+
+            <p style="font-weight: 600; color: var(--warning-red);">⚠️ Making buckets public creates security risks. Only do this when necessary and use proper access controls.</p>
+        </section>
+
+        <!-- Section 7: Key Takeaways -->
+        <section class="section">
+            <h2>✨ Key Takeaways</h2>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Global, Scalable Storage</h4>
+                    <p>S3 is available worldwide with unlimited capacity</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Buckets & Objects</h4>
+                    <p>Organize files in regionally-unique buckets</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Versioning Protection</h4>
+                    <p>Protect against accidental deletion with versioning</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Simple & Reliable</h4>
+                    <p>WORM model ensures data consistency and durability</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Interactive guide to AWS S3 • Made for learning • 2024</p>
+    </footer>
+
+    <script>
+        let fileCount = 3;
+
+        function addObject() {
+            const bucket = document.getElementById('bucketContainer');
+            fileCount++;
+            const newObject = document.createElement('div');
+            newObject.className = 'object';
+            newObject.textContent = `file${fileCount}.dat`;
+            bucket.appendChild(newObject);
+        }
+
+        function clearBucket() {
+            const bucket = document.getElementById('bucketContainer');
+            bucket.innerHTML = '';
+            fileCount = 0;
+        }
+
+        function toggleVersioning() {
+            const toggle = document.getElementById('versionToggle');
+            const content = document.getElementById('versioningContent');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                toggle.textContent = '✓ Versioning Enabled';
+                toggle.classList.add('active');
+            } else {
+                content.classList.add('hidden');
+                toggle.textContent = 'Enable Versioning';
+                toggle.classList.remove('active');
+            }
+        }
+
+        // Stagger section animations
+        document.querySelectorAll('.section').forEach((section, index) => {
+            section.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Scenario 2: Server Running Out of Disk Space</title>
+<style>
+:root {
+  --primary: #ffffff;
+  --accent: #d32f2f;
+  --success: #388e3c;
+  --warning: #f57c00;
+  --bg-light: #f5f5f5;
+  --text-dark: #1a1a1a;
+  --text-light: #424242;
+  --border: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #1e1e1e;
+    --accent: #ff6b6b;
+    --success: #51cf66;
+    --warning: #ffd43b;
+    --bg-light: #2d2d2d;
+    --text-dark: #ffffff;
+    --text-light: #e0e0e0;
+    --border: #404040;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--primary);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.7;
+  color: var(--text-dark);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--primary);
+  padding: 30px;
+  border-radius: 8px;
+}
+
+h1 {
+  color: var(--accent);
+  border-bottom: 4px solid var(--accent);
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+}
+
+h2 {
+  color: var(--accent);
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-left: 15px;
+  border-left: 5px solid var(--accent);
+  font-size: 1.6em;
+}
+
+h3 {
+  color: var(--text-dark);
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.step {
+  background: var(--bg-light);
+  border-left: 5px solid var(--accent);
+  padding: 25px;
+  margin: 25px 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.step-number {
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 1.15em;
+}
+
+.command {
+  background: #1a1a1a;
+  color: #00ff00;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.output {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  border-left: 5px solid var(--success);
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.critical {
+  background: rgba(211, 47, 47, 0.15);
+  border-left: 5px solid var(--accent);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--accent);
+}
+
+.critical strong {
+  color: var(--accent);
+  font-size: 1.05em;
+}
+
+.success {
+  background: rgba(56, 142, 60, 0.15);
+  border-left: 5px solid var(--success);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--success);
+}
+
+.success strong {
+  color: var(--success);
+  font-size: 1.05em;
+}
+
+.scenario-box {
+  background: var(--bg-light);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  border-left: 5px solid var(--warning);
+  color: var(--text-dark);
+  border: 1px solid var(--border);
+}
+
+.flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 30px 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.flow-item {
+  background: var(--accent);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-weight: bold;
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+  font-size: 0.95em;
+}
+
+.flow-arrow {
+  color: var(--accent);
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-light);
+  margin: 25px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th {
+  background: var(--accent);
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 1.05em;
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dark);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.tips {
+  background: rgba(245, 127, 23, 0.1);
+  border: 2px solid var(--warning);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  color: var(--text-dark);
+}
+
+.tips h4 {
+  color: var(--accent);
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.05em;
+}
+
+code {
+  background: var(--bg-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+ul, ol {
+  margin-left: 25px;
+  margin-top: 12px;
+  color: var(--text-dark);
+}
+
+li {
+  margin: 10px 0;
+  line-height: 1.7;
+}
+
+p {
+  margin: 12px 0;
+  color: var(--text-dark);
+}
+
+strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.diagram {
+  background: var(--bg-light);
+  border: 2px solid var(--border);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  font-family: monospace;
+  color: var(--text-dark);
+  overflow-x: auto;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>💾 Scenario 2: Server Running Out of Disk Space</h1>
+
+  <div class="scenario-box">
+    <strong style="color: var(--accent); font-size: 1.05em;">📢 The Alert:</strong> "Your server disk is 95% full! Running out of space!"
+    <br><br><strong style="color: var(--accent); font-size: 1.05em;">⏱️ Your Time:</strong> Find problem → Free space → Verify (5-10 minutes)
+    <br><br><strong style="color: var(--accent); font-size: 1.05em;">🎯 Your Goal:</strong> Get disk usage back to healthy (&lt; 80%)
+  </div>
+
+  <h2>🚀 The Problem Explained</h2>
+  <div style="background: var(--bg-light); padding: 15px; border-radius: 6px; margin: 15px 0; border: 1px solid var(--border);">
+    <strong style="color: var(--text-dark); font-size: 1.05em;">What happens when disk fills up:</strong>
+    <ul style="color: var(--text-dark);">
+      <li>Applications can't write data</li>
+      <li>Databases crash</li>
+      <li>Logs stop being created</li>
+      <li>Services fail</li>
+      <li>Website goes down</li>
+    </ul>
+  </div>
+
+  <h2>📊 Your Approach</h2>
+  <div class="flow">
+    <div class="flow-item">Check Disk</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">Find Culprit</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">Drill Down</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">Delete Old Files</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">Verify ✅</div>
+  </div>
+
+  <h2>🚀 Step-by-Step Walkthrough</h2>
+
+  <div class="step">
+    <div class="step-number">STEP 1: Connect to Server</div>
+    <p>You get the alert and SSH in immediately:</p>
+    <div class="command">Server: 192.168.1.100
+Login: myuser
+Password: ****</div>
+    <div class="output">myuser@webserver:~$</div>
+    <p><strong>What you're thinking:</strong> "Disk is full. I need to see what's taking space."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 2: Check Overall Disk Usage</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">df -h</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       100G  95G  5G   95%  /
+/dev/sdb1       200G  180G 20G  90%  /data
+tmpfs           8G   0    8G   0%   /dev/shm</div>
+    <div class="critical">
+      ⚠️ <strong>CRITICAL INFO:</strong><br><br>
+      • <strong>/dev/sda1 = 95% full</strong> (only 5G left!) ❌<br>
+      • /dev/sdb1 = 90% full (20G left)<br>
+      • <strong>Problem:</strong> Main disk (/) is almost out of space!
+    </div>
+    <p><strong>What you're thinking:</strong> "Root partition is critical. I need to find what's eating 95GB."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 3: Find Largest Directories</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">du -sh /* | sort -hr</div>
+    <p><strong>Breaking it down:</strong></p>
+    <ul>
+      <li><code>du</code> = disk usage</li>
+      <li><code>-s</code> = summary (total only)</li>
+      <li><code>-h</code> = human readable (GB, MB)</li>
+      <li><code>/*</code> = check all top-level directories</li>
+      <li><code>sort -hr</code> = sort largest to smallest</li>
+    </ul>
+    <p><strong>Output:</strong></p>
+    <div class="output">89G     /var
+4G      /usr
+2G      /home
+1G      /opt
+800M    /tmp
+100M    /root
+100M    /etc
+50M     /bin</div>
+    <div class="critical">
+      ⚠️ <strong>FOUND THE CULPRIT!</strong><br><br>
+      • <strong>/var = 89GB</strong> (almost all the space!)<br>
+      • Everything else is tiny<br>
+      • <strong>Problem identified:</strong> /var is the problem
+    </div>
+    <p><strong>What you're thinking:</strong> "/var contains logs, databases, temp data. Something in there is huge. Probably logs."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 4: Check What's Inside /var</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">du -sh /var/* | sort -hr</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">85G     /var/log
+2G      /var/lib
+1G      /var/cache
+200M    /var/spool
+100M    /var/www</div>
+    <div class="critical">
+      ⚠️ <strong>CONFIRMED!</strong><br><br>
+      • <strong>/var/log = 85GB</strong> (logs!)<br>
+      • This is definitely the problem<br>
+      • Old log files are piling up
+    </div>
+    <p><strong>What you're thinking:</strong> "Logs are filling up the disk. Let me see which log files are biggest."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 5: Check Individual Log Files</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">du -sh /var/log/* | sort -hr</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">40G     /var/log/syslog
+20G     /var/log/nginx
+15G     /var/log/mysql
+8G      /var/log/apache2
+2G      /var/log/auth.log</div>
+    <div class="critical">
+      ⚠️ <strong>BREAKDOWN:</strong><br><br>
+      • <strong>syslog = 40GB</strong> (system logs)<br>
+      • nginx = 20GB (web server logs)<br>
+      • mysql = 15GB (database logs)<br>
+      • apache2 = 8GB (old web server)<br>
+      • auth.log = 2G (login logs)<br>
+      <strong>Total = 85GB of logs!</strong>
+    </div>
+    <p><strong>What you're thinking:</strong> "These are OLD logs. They should be deleted or compressed. Let me check how old they are."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 6: Check Age of Syslog Files</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">ls -lh /var/log/syslog*</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">-rw-r--r-- 1 root root 40G Aug 01 2026 /var/log/syslog
+-rw-r--r-- 1 root root 30G Jul 15 2026 /var/log/syslog.1
+-rw-r--r-- 1 root root 25G Jul 01 2026 /var/log/syslog.2
+-rw-r--r-- 1 root root 20G Jun 15 2026 /var/log/syslog.3</div>
+    <div class="critical">
+      ⚠️ <strong>ANCIENT FILES!</strong><br><br>
+      • syslog (current) = 40GB from Aug 1<br>
+      • syslog.1 = 30GB from Jul 15<br>
+      • syslog.2 = 25GB from Jul 1<br>
+      • syslog.3 = 20GB from Jun 15<br>
+      <strong>Total: 115GB of logs spanning 2+ months!</strong>
+    </div>
+    <p><strong>What you're thinking:</strong> "These are months old. I can safely delete the old rotated ones (.1, .2, .3). But let me first check if anything is still reading them."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 7: Check If Services Are Using These Files</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">lsof | grep /var/log/syslog</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">rsyslogd  1234  root  5w  REG  8,1  40G  Aug 1 15:30 /var/log/syslog</div>
+    <div class="critical">
+      ⚠️ <strong>IMPORTANT!</strong><br><br>
+      • <strong>rsyslogd</strong> = System logging daemon<br>
+      • Only the <strong>current /var/log/syslog</strong> is open<br>
+      • <strong>Old rotated files (.1, .2, .3) are NOT open</strong><br>
+      • <strong>Safe to delete:</strong> syslog.1, syslog.2, syslog.3
+    </div>
+    <p><strong>What you're thinking:</strong> "Perfect! Only rsyslogd is using the current syslog. The old ones aren't being read. I can delete them safely."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 8: Delete Old Syslog Files (Free Space!)</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">rm /var/log/syslog.1 /var/log/syslog.2 /var/log/syslog.3</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">(no output = success!)</div>
+    <div class="success">
+      ✅ <strong>OLD LOGS DELETED!</strong><br><br>
+      • Deleted: syslog.1 (30GB), syslog.2 (25GB), syslog.3 (20GB)<br>
+      • <strong>Freed: 75GB</strong><br>
+      • Current syslog (40GB) still intact
+    </div>
+    <p><strong>What you're thinking:</strong> "Excellent! 75GB freed. Let me also clean nginx old logs."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 9: Check Nginx Log Files</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">ls -lh /var/log/nginx/</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">-rw-r--r-- 1 nginx nginx 15G Aug 20 2026 access.log
+-rw-r--r-- 1 nginx nginx 3G  Aug 20 2026 error.log
+-rw-r--r-- 1 nginx nginx 2G  Aug 10 2026 access.log.1
+-rw-r--r-- 1 nginx nginx 500M Aug 10 2026 error.log.1</div>
+    <p><strong>Decision:</strong></p>
+    <ul>
+      <li>✅ Keep: access.log, error.log (current logs, nginx writing to them)</li>
+      <li>❌ Delete: access.log.1, error.log.1 (old rotated logs, not in use)</li>
+    </ul>
+    <p><strong>Command:</strong></p>
+    <div class="command">rm /var/log/nginx/access.log.1 /var/log/nginx/error.log.1</div>
+    <div class="success">
+      ✅ <strong>NGINX LOGS CLEANED</strong><br><br>
+      • Freed: 2.5GB more
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 10: Verify Disk Space Freed</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">df -h</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       100G  20G  80G   20%  /
+/dev/sdb1       200G  180G 20G  90%  /data
+tmpfs           8G   0    8G   0%   /dev/shm</div>
+    <div class="success">
+      ✅ <strong>MASSIVE IMPROVEMENT!</strong><br><br>
+      • Was: 95% (5G available)<br>
+      • Now: 20% (80G available)<br>
+      • <strong>Freed: 75GB total</strong><br>
+      • <strong>Disk is now healthy!</strong>
+    </div>
+    <p><strong>What you're thinking:</strong> "Perfect! Back to normal. Now let me verify services are still running."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 11: Verify Services Still Running</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">systemctl status nginx</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">● nginx.service - A high performance web server
+   Loaded: loaded (/etc/systemd/system/multi-user.target.wants/nginx.service; enabled)
+   Active: active (running)
+   Main PID: 5678</div>
+    <div class="success">✅ NGINX RUNNING - No issues</div>
+    <p><strong>Check MySQL:</strong></p>
+    <div class="command">systemctl status mysql</div>
+    <div class="output">● mysql.service - MySQL Database Server
+   Loaded: loaded
+   Active: active (running)</div>
+    <div class="success">✅ MYSQL RUNNING - No issues</div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 12: Test The Application</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">curl http://localhost/</div>
+    <p><strong>Output:</strong></p>
+    <div class="output"><!DOCTYPE html>
+<html>
+<head><title>My Website</title></head>
+<body><h1>Website Running!</h1></body>
+</html></div>
+    <div class="success">
+      ✅ <strong>WEBSITE WORKS!</strong><br><br>
+      • HTTP 200 Success<br>
+      • No performance issues<br>
+      • No data loss
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 13: Check Monitoring Alerts</div>
+    <p><strong>Your monitoring system now shows:</strong></p>
+    <div class="output">Disk Usage: 20% ✅ (was 95%)
+Available Space: 80GB ✅ (was 5GB)
+Services: All Running ✅
+Website: Responding ✅
+Alerts: CLEARED ✅</div>
+    <div class="success">
+      ✅ <strong>CRISIS RESOLVED!</strong><br><br>
+      • All alerts cleared<br>
+      • Disk healthy<br>
+      • Services running<br>
+      • Website online<br>
+      <strong>Total time: ~7 minutes</strong>
+    </div>
+  </div>
+
+  <h2>📋 Summary Table</h2>
+  <table>
+    <tr>
+      <th>Step</th>
+      <th>Command</th>
+      <th>Finding</th>
+      <th>Action</th>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>df -h</td>
+      <td>/dev/sda1 = 95% full</td>
+      <td>Investigate</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>du -sh /*</td>
+      <td>/var = 89GB</td>
+      <td>Drill down</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>du -sh /var/*</td>
+      <td>/var/log = 85GB</td>
+      <td>Check logs</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>du -sh /var/log/*</td>
+      <td>syslog = 40GB</td>
+      <td>Check files</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>ls -lh /var/log/syslog*</td>
+      <td>Old logs from 2 months ago</td>
+      <td>Plan deletion</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>lsof | grep syslog</td>
+      <td>Only current syslog is open</td>
+      <td>Safe to delete old ones</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>rm syslog.1/2/3</td>
+      <td>Old files deleted</td>
+      <td>FREED 75GB</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>df -h</td>
+      <td>Disk now 20% full</td>
+      <td>VERIFY SUCCESS ✅</td>
+    </tr>
+    <tr>
+      <td>11-12</td>
+      <td>systemctl + curl</td>
+      <td>All services running</td>
+      <td>VERIFIED ✅</td>
+    </tr>
+  </table>
+
+  <h2>🎓 Key Commands You Learned</h2>
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid var(--border);">
+    <h3 style="color: var(--text-dark);">df (Disk Free)</h3>
+    <div class="command">df -h</div>
+    <p style="color: var(--text-dark);">Shows total disk usage per filesystem. -h = human readable (GB/MB).</p>
+
+    <h3 style="color: var(--text-dark);">du (Disk Usage)</h3>
+    <div class="command">du -sh /var</div>
+    <p style="color: var(--text-dark);">Shows what's taking space. -s = summary, -h = human readable.</p>
+
+    <h3 style="color: var(--text-dark);">ls (List Files with Size)</h3>
+    <div class="command">ls -lh /var/log/</div>
+    <p style="color: var(--text-dark);">Shows file details including size and date. -h = human readable.</p>
+
+    <h3 style="color: var(--text-dark);">lsof (List Open Files)</h3>
+    <div class="command">lsof | grep syslog</div>
+    <p style="color: var(--text-dark);">Shows which processes have files open. Use before deleting!</p>
+
+    <h3 style="color: var(--text-dark);">rm (Remove Files)</h3>
+    <div class="command">rm /var/log/syslog.1</div>
+    <p style="color: var(--text-dark);">Delete files. BE CAREFUL - files are gone forever!</p>
+  </div>
+
+  <h2>⚠️ Common Issues & Solutions</h2>
+
+  <div class="tips">
+    <h4>❌ Problem: "Permission denied" when deleting</h4>
+    <div class="command">rm /var/log/syslog.1
+-bash: /var/log/syslog.1: Permission denied</div>
+    <p style="color: var(--text-dark);"><strong>Why:</strong> Log files are owned by root. You need sudo.</p>
+    <p style="color: var(--text-dark);"><strong>Solution:</strong></p>
+    <div class="command">sudo rm /var/log/syslog.1</div>
+  </div>
+
+  <div class="tips">
+    <h4>❌ Problem: du command is slow</h4>
+    <p style="color: var(--text-dark);"><strong>Why:</strong> Scanning large filesystems takes time.</p>
+    <p style="color: var(--text-dark);"><strong>Solution:</strong> Use --max-depth to limit recursion:</p>
+    <div class="command">du -sh /var --max-depth=1</div>
+  </div>
+
+  <div class="tips">
+    <h4>❌ Problem: Deleted file but disk didn't free up</h4>
+    <p style="color: var(--text-dark);"><strong>Why:</strong> File is still open by a process (handles not closed).</p>
+    <p style="color: var(--text-dark);"><strong>Solution:</strong> Restart the service using the file:</p>
+    <div class="command">sudo systemctl restart nginx</div>
+  </div>
+
+  <div class="tips">
+    <h4>❌ Problem: Accidentally deleted current log file</h4>
+    <p style="color: var(--text-dark);"><strong>Why:</strong> Oops! You deleted a file that's still in use.</p>
+    <p style="color: var(--text-dark);"><strong>Solution:</strong> Service will recreate it on next write. To speed up:</p>
+    <div class="command">sudo systemctl restart nginx</div>
+    <p style="color: var(--text-dark);">No data loss - just lost logs from that moment.</p>
+  </div>
+
+  <h2>💡 What You Learned</h2>
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid var(--border);">
+    <h3 style="color: var(--text-dark);">Concepts:</h3>
+    <ul style="color: var(--text-dark);">
+      <li>✅ <strong>df</strong> shows overall disk usage</li>
+      <li>✅ <strong>du</strong> drills down to find what's taking space</li>
+      <li>✅ <strong>Log rotation</strong> - old logs are renamed and can be deleted safely</li>
+      <li>✅ <strong>lsof</strong> shows which services are using files</li>
+      <li>✅ <strong>rm</strong> deletes old logs to free space</li>
+      <li>✅ Always verify services are running after cleanup</li>
+    </ul>
+
+    <h3 style="color: var(--text-dark);">Real DevOps Work:</h3>
+    <ul style="color: var(--text-dark);">
+      <li>✅ Proactively monitor disk usage</li>
+      <li>✅ Clean up old logs before disk fills up</li>
+      <li>✅ Understand what files are safe to delete</li>
+      <li>✅ Keep track of which services use which files</li>
+      <li>✅ Test after cleanup to ensure nothing broke</li>
+    </ul>
+  </div>
+
+  <h2>🔗 Quick Reference Commands</h2>
+  <div style="background: #1a1a1a; padding: 20px; border-radius: 6px; color: #00ff00; font-family: monospace; margin: 20px 0;">
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check disk usage:</span> df -h</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Find large directories:</span> du -sh /* | sort -hr</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check specific directory:</span> du -sh /var/* | sort -hr</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">List files with sizes:</span> ls -lh /var/log/</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check what's using a file:</span> lsof | grep syslog</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Delete old logs:</span> rm /var/log/syslog.1</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Delete multiple files:</span> rm file1 file2 file3</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Verify deletion:</span> df -h</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Restart service:</span> sudo systemctl restart nginx</div>
+  </div>
+
+  <h2>🔄 Real Weekly DevOps Tasks</h2>
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid var(--border);">
+    <p style="color: var(--text-dark);">This is preventive maintenance you do <strong>every week</strong>:</p>
+    <ol style="color: var(--text-dark);">
+      <li>Check disk usage: <code>df -h</code></li>
+      <li>If approaching 80%:</li>
+      <li>Find what's big: <code>du -sh /* | sort -hr</code></li>
+      <li>Check old logs: <code>ls -lh /var/log/</code></li>
+      <li>Delete safely: <code>rm old_logs</code></li>
+      <li>Verify: <code>df -h</code></li>
+      <li>Check services: <code>systemctl status</code></li>
+    </ol>
+    <p style="color: var(--text-dark);"><strong>This prevents emergencies!</strong></p>
+  </div>
+
+  <h2>✅ Practice Checklist</h2>
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 5px solid var(--success); border: 1px solid var(--border);">
+    <p style="color: var(--text-dark);"><strong>When you practice this scenario:</strong></p>
+    <ol style="color: var(--text-dark);">
+      <li>☐ SSH into your Linux server</li>
+      <li>☐ Check disk with <code>df -h</code></li>
+      <li>☐ Find large directories with <code>du -sh /*</code></li>
+      <li>☐ Drill down to /var/log</li>
+      <li>☐ Identify old log files</li>
+      <li>☐ Check if they're in use with <code>lsof</code></li>
+      <li>☐ Delete old rotated logs</li>
+      <li>☐ Verify space freed with <code>df -h</code></li>
+      <li>☐ Check services with <code>systemctl status</code></li>
+      <li>☐ Test website or application</li>
+    </ol>
+    <p style="color: var(--text-dark);"><strong>Total time: ~10 minutes</strong></p>
+  </div>
+
+  <div style="background: var(--accent); color: white; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: center;">
+    <h3 style="color: white; border: none; margin-top: 0;">⭐ You're now ready to troubleshoot real disk space issues!</h3>
+  </div>
+
+</div>
+</body>
+</html>

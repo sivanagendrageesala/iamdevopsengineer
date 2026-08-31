@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Scenario 4: Database Connection Failed</title>
+<style>
+:root {
+  --primary: #ffffff;
+  --accent: #d32f2f;
+  --success: #388e3c;
+  --warning: #f57c00;
+  --info: #1976d2;
+  --bg-light: #f5f5f5;
+  --text-dark: #1a1a1a;
+  --text-light: #424242;
+  --border: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #1e1e1e;
+    --accent: #ff6b6b;
+    --success: #51cf66;
+    --warning: #ffd43b;
+    --info: #4dabf7;
+    --bg-light: #2d2d2d;
+    --text-dark: #ffffff;
+    --text-light: #e0e0e0;
+    --border: #404040;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--primary);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.8;
+  color: var(--text-dark);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: var(--primary);
+  padding: 30px;
+  border-radius: 8px;
+}
+
+h1 {
+  color: var(--accent);
+  border-bottom: 4px solid var(--accent);
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+}
+
+h2 {
+  color: var(--accent);
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-left: 15px;
+  border-left: 5px solid var(--accent);
+  font-size: 1.6em;
+}
+
+h3 {
+  color: var(--text-dark);
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.step {
+  background: var(--bg-light);
+  border-left: 5px solid var(--accent);
+  padding: 25px;
+  margin: 25px 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.step-number {
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 1.15em;
+}
+
+.command {
+  background: #1a1a1a;
+  color: #00ff00;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.output {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  border-left: 5px solid var(--success);
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.critical {
+  background: rgba(211, 47, 47, 0.15);
+  border-left: 5px solid var(--accent);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--accent);
+}
+
+.critical strong {
+  color: var(--accent);
+}
+
+.success {
+  background: rgba(56, 142, 60, 0.15);
+  border-left: 5px solid var(--success);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--success);
+}
+
+.success strong {
+  color: var(--success);
+}
+
+.scenario-box {
+  background: var(--bg-light);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  border-left: 5px solid var(--warning);
+  color: var(--text-dark);
+  border: 1px solid var(--border);
+}
+
+.diagram-box {
+  background: var(--bg-light);
+  border: 2px solid var(--border);
+  padding: 25px;
+  border-radius: 8px;
+  margin: 25px 0;
+  text-align: center;
+}
+
+.diagram-box svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.explanation {
+  background: rgba(56, 142, 60, 0.05);
+  border-left: 5px solid var(--success);
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--success);
+}
+
+.explanation strong {
+  color: var(--success);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-light);
+  margin: 25px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th {
+  background: var(--accent);
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-weight: bold;
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dark);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+code {
+  background: var(--bg-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+ul, ol {
+  margin-left: 25px;
+  margin-top: 12px;
+  color: var(--text-dark);
+}
+
+li {
+  margin: 10px 0;
+  line-height: 1.7;
+}
+
+p {
+  margin: 12px 0;
+  color: var(--text-dark);
+}
+
+strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.comparison-box {
+  background: var(--bg-light);
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--text-dark);
+}
+
+.comparison-box h4 {
+  color: var(--accent);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .comparison {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🗄️ Scenario 4: Database Connection Failed - Complete Guide with Diagrams</h1>
+
+  <div class="scenario-box">
+    <strong style="color: var(--accent); font-size: 1.05em;">🚨 The Alert:</strong> "Cannot connect to database!"
+    <br><br><strong style="color: var(--accent); font-size: 1.05em;">❌ Error:</strong> Connection refused on port 3306
+    <br><br><strong style="color: var(--accent); font-size: 1.05em;">⏱️ Your Time:</strong> Find problem → Fix → Verify (15 minutes)
+    <br><br><strong style="color: var(--accent); font-size: 1.05em;">🎯 Impact:</strong> Users can't access application, website down
+  </div>
+
+  <h2>🔌 PART 1: Understanding Database Connections</h2>
+
+  <h3>How Database Connections Work (Phone Call Analogy)</h3>
+
+  <div class="diagram-box">
+    <svg viewBox="0 0 600 250" width="100%" height="auto">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0 0, 10 3, 0 6" fill="#d32f2f" />
+        </marker>
+      </defs>
+
+      <!-- Application -->
+      <rect x="30" y="50" width="120" height="80" fill="#4dabf7" rx="5"/>
+      <text x="90" y="85" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Application</text>
+      <text x="90" y="105" text-anchor="middle" fill="white" font-size="12">(Your App)</text>
+
+      <!-- Arrow 1 -->
+      <text x="170" y="100" fill="#d32f2f" font-weight="bold" font-size="16">①</text>
+      <text x="170" y="125" text-anchor="middle" fill="#d32f2f" font-size="11">IP:192.168.1.50</text>
+      <text x="170" y="140" text-anchor="middle" fill="#d32f2f" font-size="11">Port:3306</text>
+
+      <!-- Database -->
+      <rect x="330" y="50" width="120" height="80" fill="#51cf66" rx="5"/>
+      <text x="390" y="85" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Database</text>
+      <text x="390" y="105" text-anchor="middle" fill="white" font-size="12">(MySQL)</text>
+
+      <!-- Arrow 2 -->
+      <text x="290" y="100" fill="#d32f2f" font-weight="bold" font-size="16">②</text>
+      <text x="290" y="125" text-anchor="middle" fill="#d32f2f" font-size="11">Username</text>
+      <text x="290" y="140" text-anchor="middle" fill="#d32f2f" font-size="11">Password</text>
+
+      <!-- Connection Details -->
+      <rect x="30" y="170" width="540" height="60" fill="#f5f5f5" rx="5" stroke="#e0e0e0" stroke-width="1"/>
+      <text x="300" y="190" text-anchor="middle" fill="#1a1a1a" font-weight="bold" font-size="13">Connection Steps:</text>
+      <text x="40" y="210" fill="#1a1a1a" font-size="11">① Dial IP Address (192.168.1.50) + Port (3306)</text>
+      <text x="40" y="225" fill="#1a1a1a" font-size="11">② Send Username + Password (authenticate)</text>
+      <text x="300" y="210" fill="#1a1a1a" font-size="11">③ If OK → Send queries, get results</text>
+      <text x="300" y="225" fill="#1a1a1a" font-size="11">④ If FAIL → Connection refused</text>
+    </svg>
+  </div>
+
+  <h2>❌ PART 2: What Can Go Wrong?</h2>
+
+  <table>
+    <tr>
+      <th>Problem</th>
+      <th>Cause</th>
+      <th>Error Message</th>
+      <th>Fix</th>
+    </tr>
+    <tr>
+      <td><strong>Service Down</strong></td>
+      <td>MySQL crashed or stopped</td>
+      <td>Connection refused</td>
+      <td>Start MySQL service</td>
+    </tr>
+    <tr>
+      <td><strong>Wrong Credentials</strong></td>
+      <td>Wrong username/password</td>
+      <td>Access denied for user</td>
+      <td>Check login credentials</td>
+    </tr>
+    <tr>
+      <td><strong>Wrong IP Address</strong></td>
+      <td>Database on different server</td>
+      <td>No route to host</td>
+      <td>Check server IP</td>
+    </tr>
+    <tr>
+      <td><strong>Firewall Block</strong></td>
+      <td>Port 3306 blocked</td>
+      <td>Connection timeout</td>
+      <td>Open firewall port</td>
+    </tr>
+    <tr>
+      <td><strong>Too Many Connections</strong></td>
+      <td>All slots used up</td>
+      <td>Too many connections</td>
+      <td>Increase max_connections</td>
+    </tr>
+    <tr>
+      <td><strong>Corrupted Data</strong></td>
+      <td>System tables damaged</td>
+      <td>Table doesn't exist</td>
+      <td>Run mysql_upgrade</td>
+    </tr>
+  </table>
+
+  <h2>🚀 PART 3: Step-by-Step Troubleshooting</h2>
+
+  <div class="step">
+    <div class="step-number">STEP 1: Check Application Error Log</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">tail -50 /var/log/app/error.log</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">[2026-09-01 14:45:23] ERROR: Database connection failed
+[2026-09-01 14:45:23] Exception: SQLSTATE[HY000] [2002] Can't connect to MySQL server on '192.168.1.50' (111)
+[2026-09-01 14:45:24] ERROR: Database connection failed
+[2026-09-01 14:45:24] Exception: SQLSTATE[HY000] [2002] Can't connect to MySQL server on '192.168.1.50' (111)
+[2026-09-01 14:45:25] ERROR: Retrying database connection...</div>
+
+    <div class="explanation">
+      <strong>What this means:</strong><br>
+      • "Can't connect to MySQL server on '192.168.1.50'" = Database unreachable<br>
+      • "(111)" = Error code 111 = Connection refused<br>
+      • "Retrying database connection..." = App keeps trying but failing
+    </div>
+
+    <p><strong>What you're thinking:</strong> "Connection is being refused. The database is either down or the port is blocked. Let me check if MySQL service is running."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 2: Check If MySQL Service Is Running</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">systemctl status mysql</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">● mysql.service - MySQL Database Server
+   Loaded: loaded (/etc/systemd/system/mysql.service; enabled; vendor preset: enabled)
+   Active: inactive (dead) since Mon 2026-09-01 14:40:15 UTC; 5min ago
+   Process: 2345 ExecStart=/usr/sbin/mysqld (code=exited, status=1/0)
+   Main PID: 2345 (code=exited, status=1/0)
+
+Sep 01 14:40:15 dbserver mysqld[2345]: [ERROR] /usr/sbin/mysqld: Table 'mysql.user' doesn't exist</div>
+
+    <div class="critical">
+      <strong>CRITICAL DISCOVERY:</strong><br><br>
+      • "Active: inactive (dead)" = MySQL is NOT RUNNING ❌<br>
+      • Status: exited at 14:40:15<br>
+      • Error: "Table 'mysql.user' doesn't exist"<br>
+      <strong>MySQL crashed! System table is missing!</strong>
+    </div>
+
+    <p><strong>What you're thinking:</strong> "MySQL crashed because the 'mysql.user' table is missing. This is a critical system table. The database is corrupted. I need to check the MySQL error log for more details."</p>
+  </div>
+
+  <div class="diagram-box">
+    <svg viewBox="0 0 600 300" width="100%" height="auto">
+      <!-- Left Side: BEFORE (Problem) -->
+      <g>
+        <rect x="20" y="20" width="250" height="100" fill="#ffebee" stroke="#d32f2f" stroke-width="2" rx="5"/>
+        <text x="145" y="40" text-anchor="middle" fill="#d32f2f" font-weight="bold" font-size="14">❌ BEFORE (Problem)</text>
+
+        <circle cx="80" cy="90" r="20" fill="#d32f2f"/>
+        <text x="80" y="95" text-anchor="middle" fill="white" font-weight="bold" font-size="12">X</text>
+        <text x="120" y="95" fill="#d32f2f" font-size="12">MySQL Crashed</text>
+
+        <circle cx="80" cy="120" r="20" fill="#d32f2f"/>
+        <text x="80" y="125" text-anchor="middle" fill="white" font-weight="bold" font-size="12">X</text>
+        <text x="120" y="125" fill="#d32f2f" font-size="12">Corrupted Table</text>
+      </g>
+
+      <!-- Right Side: AFTER (Solution) -->
+      <g>
+        <rect x="330" y="20" width="250" height="100" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="5"/>
+        <text x="455" y="40" text-anchor="middle" fill="#388e3c" font-weight="bold" font-size="14">✅ AFTER (Solution)</text>
+
+        <circle cx="390" cy="90" r="20" fill="#388e3c"/>
+        <text x="390" y="98" text-anchor="middle" fill="white" font-weight="bold" font-size="16">✓</text>
+        <text x="430" y="95" fill="#388e3c" font-size="12">MySQL Running</text>
+
+        <circle cx="390" cy="120" r="20" fill="#388e3c"/>
+        <text x="390" y="128" text-anchor="middle" fill="white" font-weight="bold" font-size="16">✓</text>
+        <text x="430" y="125" fill="#388e3c" font-size="12">Tables Repaired</text>
+      </g>
+
+      <!-- Arrows showing steps -->
+      <text x="300" y="180" text-anchor="middle" fill="#1a1a1a" font-weight="bold" font-size="13">Steps to Fix:</text>
+
+      <rect x="30" y="210" width="530" height="70" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1" rx="5"/>
+      <text x="40" y="230" fill="#1a1a1a" font-size="11" font-weight="bold">1. Check error log → 2. Stop old MySQL process → 3. Run mysql_upgrade</text>
+      <text x="40" y="250" fill="#1a1a1a" font-size="11" font-weight="bold">4. Start MySQL → 5. Test connection → 6. Verify application works</text>
+      <text x="40" y="270" fill="#1a1a1a" font-size="11">All these steps restore the database to working state</text>
+    </svg>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 3: Check MySQL Error Log</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">tail -100 /var/log/mysql/error.log</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">2026-09-01T14:40:12.345678Z 0 [System] /usr/sbin/mysqld: ready for connections.
+2026-09-01T14:40:13.456789Z 1 [ERROR] /usr/sbin/mysqld: Table 'mysql.user' doesn't exist
+2026-09-01T14:40:13.567890Z 1 [ERROR] /usr/sbin/mysqld: Fatal error: Can't open and lock privilege tables: Table 'mysql.user' doesn't exist
+2026-09-01T14:40:13.678901Z 0 [ERROR] /usr/sbin/mysqld: Aborting
+2026-09-01T14:40:15.789012Z 0 [System] /usr/sbin/mysqld: Shutdown complete</div>
+
+    <div class="explanation">
+      <strong>What this log tells you:</strong><br>
+      • 14:40:12 = MySQL started<br>
+      • 14:40:13 = Tried to load user privilege table<br>
+      • Found: Table 'mysql.user' doesn't exist!<br>
+      • 14:40:15 = MySQL aborted and shut down<br><br>
+      <strong>Root Cause: System table is corrupted/missing</strong>
+    </div>
+
+    <p><strong>What you're thinking:</strong> "The mysql.user table is essential for authentication. Without it, MySQL can't start. I need to repair this table. Let me try starting MySQL in safe mode to fix it."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 4: Check for Orphaned MySQL Processes</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">ps aux | grep mysqld | grep -v grep</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">mysql      2345   0.0   5.2  1456234 832456 14:40 ?     Sl    0:05 /usr/sbin/mysqld</div>
+
+    <div class="critical">
+      <strong>PROBLEM FOUND:</strong><br><br>
+      • Old MySQL process (PID 2345) is STILL RUNNING<br>
+      • It crashed but didn't fully exit<br>
+      • File is locked by this old process<br>
+      • New process can't start<br><br>
+      <strong>Solution: Kill this orphaned process</strong>
+    </div>
+
+    <p><strong>What you're thinking:</strong> "There's a zombie MySQL process still holding file locks. When I try to restart MySQL, the new process can't grab the files. I need to kill this old process first."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 5: Kill the Orphaned Process</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">sudo kill -9 2345</div>
+
+    <p><strong>Verify it's gone:</strong></p>
+    <div class="command">ps aux | grep mysqld | grep -v grep</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">(no output = process is gone)</div>
+
+    <div class="success">
+      ✅ Old process killed<br>
+      ✅ File locks released<br>
+      ✅ Ready to restart MySQL
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 6: Start MySQL in Recovery Mode</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">sudo mysqld_safe --skip-grant-tables &</div>
+
+    <p><strong>What this does:</strong></p>
+    <ul>
+      <li><code>mysqld_safe</code> = Safe startup script for MySQL</li>
+      <li><code>--skip-grant-tables</code> = Skip user authentication (bypass corrupted mysql.user table)</li>
+      <li><code>&</code> = Run in background</li>
+    </ul>
+
+    <p><strong>Check if it started:</strong></p>
+    <div class="command">ps aux | grep mysqld | grep -v grep</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">mysql      3456   2.5  15.2  2456234 2432456 14:52 ?     Sl    0:02 /usr/sbin/mysqld --skip-grant-tables</div>
+
+    <div class="success">
+      ✅ MySQL started in recovery mode<br>
+      ✅ Can now connect without password<br>
+      ✅ Can repair corrupted tables
+    </div>
+
+    <p><strong>What you're thinking:</strong> "Good! MySQL started with --skip-grant-tables. This allows me to connect without the mysql.user table. Now I can run mysql_upgrade to fix the corrupted tables."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 7: Repair Corrupted Tables</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">mysql_upgrade --skip-grant-tables</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">Checking if update is needed.
+Repairing mysql.user
+Repairing mysql.db
+Repairing mysql.tables_priv
+Repairing mysql.columns_priv
+Repairing mysql.host
+...
+Repairing tables.
+OK</div>
+
+    <div class="success">
+      ✅ System tables repaired<br>
+      ✅ mysql.user table restored<br>
+      ✅ Permissions fixed
+    </div>
+
+    <p><strong>What this does:</strong></p>
+    <ul>
+      <li>Checks MySQL system tables for corruption</li>
+      <li>Repairs damaged tables automatically</li>
+      <li>Rebuilds user privilege tables</li>
+      <li>Updates table schemas to current version</li>
+    </ul>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 8: Restart MySQL Normally</div>
+
+    <p><strong>Kill the safe startup:</strong></p>
+    <div class="command">sudo pkill mysqld</div>
+
+    <p><strong>Wait a moment, then start normally:</strong></p>
+    <div class="command">sudo systemctl start mysql</div>
+
+    <p><strong>Check status:</strong></p>
+    <div class="command">systemctl status mysql</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">● mysql.service - MySQL Database Server
+   Loaded: loaded (/etc/systemd/system/mysql.service; enabled; vendor preset: enabled)
+   Active: active (running) since Mon 2026-09-01 14:55:23 UTC; 2s ago
+   Process: 3789 ExecStart=/usr/sbin/mysqld (code=exited, status=0/0)
+   Main PID: 3790</div>
+
+    <div class="success">
+      ✅ MySQL is RUNNING!<br>
+      ✅ Service started successfully<br>
+      ✅ Ready to accept connections
+    </div>
+
+    <p><strong>What you're thinking:</strong> "Perfect! MySQL is running normally now. The corrupted tables are fixed. Let me test the connection to make sure it's working."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 9: Test Database Connection</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">mysql -u root -p -e "SHOW DATABASES;"</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">Enter password:
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| myapp              |
++--------------------+</div>
+
+    <div class="success">
+      ✅ Connected successfully!<br>
+      ✅ System databases intact<br>
+      ✅ Application database (myapp) accessible
+    </div>
+
+    <p><strong>What you're thinking:</strong> "Great! I can connect to MySQL and all databases are visible. Now let me check if the application can connect."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 10: Test Application Connection</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">php /var/www/test_db_connection.php</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">Database: myapp
+Connection Status: OK ✅
+Tables: 5
+Users: 1234
+Orders: 5678</div>
+
+    <div class="success">
+      ✅ Application connects to database!<br>
+      ✅ Can query data<br>
+      ✅ No connection errors
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 11: Check Application Logs</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">tail -20 /var/log/app/error.log</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">[2026-09-01 14:55:45] INFO: Database connection restored
+[2026-09-01 14:55:45] INFO: Syncing application state
+[2026-09-01 14:55:46] INFO: Application ready
+[2026-09-01 14:55:47] INFO: Processing queued requests</div>
+
+    <div class="success">
+      ✅ Application is healthy<br>
+      ✅ Connection restored<br>
+      ✅ Processing requests normally
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 12: Verify Website Works</div>
+
+    <p><strong>The Command:</strong></p>
+    <div class="command">curl -I http://localhost/</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+Content-Length: 45678
+Connection: keep-alive</div>
+
+    <p><strong>Test database query:</strong></p>
+    <div class="command">curl -s http://localhost/api/users | head -c 150</div>
+
+    <p><strong>Output:</strong></p>
+    <div class="output">{"users":[{"id":1,"name":"John","email":"john@example.com"},{"id":2,"name":"Jane","email":"jane@example.com"}...</div>
+
+    <div class="success">
+      ✅ Website responding with 200 OK!<br>
+      ✅ Database queries working!<br>
+      ✅ Users can access application!<br>
+      <strong>🎉 CRISIS RESOLVED!</strong>
+    </div>
+  </div>
+
+  <h2>📊 Troubleshooting Decision Tree</h2>
+
+  <div class="diagram-box">
+    <svg viewBox="0 0 700 500" width="100%" height="auto">
+      <!-- Start -->
+      <rect x="250" y="10" width="200" height="50" fill="#d32f2f" rx="5"/>
+      <text x="350" y="40" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Connection Failed</text>
+
+      <!-- Arrow down -->
+      <line x1="350" y1="60" x2="350" y2="90" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+      <!-- Check 1 -->
+      <rect x="220" y="90" width="260" height="50" fill="#f57c00" rx="5"/>
+      <text x="350" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Is MySQL service running?</text>
+
+      <!-- NO branch -->
+      <line x1="220" y1="140" x2="150" y2="170" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+      <text x="180" y="155" fill="#d32f2f" font-size="11" font-weight="bold">NO</text>
+
+      <rect x="50" y="170" width="200" height="60" fill="#ff9800" rx="5"/>
+      <text x="150" y="190" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Check error log</text>
+      <text x="150" y="205" text-anchor="middle" fill="white" font-size="10">/var/log/mysql/error.log</text>
+      <text x="150" y="220" text-anchor="middle" fill="white" font-size="10">→ Start MySQL</text>
+
+      <!-- YES branch -->
+      <line x1="480" y1="140" x2="550" y2="170" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+      <text x="520" y="155" fill="#388e3c" font-size="11" font-weight="bold">YES</text>
+
+      <rect x="450" y="170" width="200" height="60" fill="#4caf50" rx="5"/>
+      <text x="550" y="190" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Check credentials</text>
+      <text x="550" y="205" text-anchor="middle" fill="white" font-size="10">Username/Password</text>
+      <text x="550" y="220" text-anchor="middle" fill="white" font-size="10">→ Fix login info</text>
+
+      <!-- Check 2 -->
+      <line x1="150" y1="230" x2="350" y2="260" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+      <line x1="550" y1="230" x2="350" y2="260" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+      <rect x="220" y="260" width="260" height="50" fill="#f57c00" rx="5"/>
+      <text x="350" y="285" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Can you connect to MySQL?</text>
+
+      <!-- NO -->
+      <line x1="220" y1="310" x2="150" y2="340" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+      <text x="180" y="325" fill="#d32f2f" font-size="11" font-weight="bold">NO</text>
+
+      <rect x="50" y="340" width="200" height="60" fill="#ff9800" rx="5"/>
+      <text x="150" y="360" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Kill orphaned process</text>
+      <text x="150" y="375" text-anchor="middle" fill="white" font-size="10">ps aux | grep mysqld</text>
+      <text x="150" y="390" text-anchor="middle" fill="white" font-size="10">kill -9 PID</text>
+
+      <!-- YES -->
+      <line x1="480" y1="310" x2="550" y2="340" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+      <text x="520" y="325" fill="#388e3c" font-size="11" font-weight="bold">YES</text>
+
+      <rect x="450" y="340" width="200" height="60" fill="#4caf50" rx="5"/>
+      <text x="550" y="360" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Run mysql_upgrade</text>
+      <text x="550" y="375" text-anchor="middle" fill="white" font-size="10">Repair corrupted</text>
+      <text x="550" y="390" text-anchor="middle" fill="white" font-size="10">system tables</text>
+
+      <!-- Final -->
+      <line x1="150" y1="400" x2="350" y2="430" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+      <line x1="550" y1="400" x2="350" y2="430" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+      <rect x="220" y="430" width="260" height="50" fill="#388e3c" rx="5"/>
+      <text x="350" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="12">✅ Test & Verify</text>
+
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0 0, 10 3, 0 6" fill="#d32f2f" />
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <h2>📋 Summary Table: Before → After</h2>
+
+  <div class="comparison">
+    <div class="comparison-box">
+      <h4>❌ BEFORE (Problem)</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li>🔴 MySQL service: DOWN</li>
+        <li>🔴 Application: Can't connect</li>
+        <li>🔴 Website: Error 500</li>
+        <li>🔴 Users: Blocked out</li>
+        <li>🔴 Database: Corrupted</li>
+      </ul>
+    </div>
+    <div class="comparison-box">
+      <h4>✅ AFTER (Fixed)</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li>🟢 MySQL service: RUNNING</li>
+        <li>🟢 Application: Connected</li>
+        <li>🟢 Website: Status 200 OK</li>
+        <li>🟢 Users: Full access</li>
+        <li>🟢 Database: Repaired</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>🎓 What You Learned</h2>
+
+  <table>
+    <tr>
+      <th>Concept</th>
+      <th>Meaning</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td><strong>Connection Refused</strong></td>
+      <td>Database service not listening on port</td>
+      <td>MySQL crashed or port blocked</td>
+    </tr>
+    <tr>
+      <td><strong>Orphaned Process</strong></td>
+      <td>Old process holding file locks</td>
+      <td>Old MySQL PID 2345 still running</td>
+    </tr>
+    <tr>
+      <td><strong>System Tables</strong></td>
+      <td>MySQL internal database structure</td>
+      <td>mysql.user, mysql.db (critical)</td>
+    </tr>
+    <tr>
+      <td><strong>Skip Grant Tables</strong></td>
+      <td>Start MySQL without authentication</td>
+      <td>--skip-grant-tables flag (recovery)</td>
+    </tr>
+    <tr>
+      <td><strong>mysql_upgrade</strong></td>
+      <td>Repair MySQL system tables</td>
+      <td>Fix corrupted schemas automatically</td>
+    </tr>
+    <tr>
+      <td><strong>Recovery Mode</strong></td>
+      <td>Safe startup for maintenance</td>
+      <td>mysqld_safe with special flags</td>
+    </tr>
+  </table>
+
+  <h2>🔗 Quick Reference Commands</h2>
+  <div style="background: #1a1a1a; padding: 20px; border-radius: 6px; color: #00ff00; font-family: monospace; margin: 20px 0;">
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check service status:</span> systemctl status mysql</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">View error log:</span> tail -100 /var/log/mysql/error.log</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Find MySQL processes:</span> ps aux | grep mysqld</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Kill process:</span> sudo kill -9 PID</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Start safe mode:</span> sudo mysqld_safe --skip-grant-tables &</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Repair tables:</span> mysql_upgrade --skip-grant-tables</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Start service:</span> sudo systemctl start mysql</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Test connection:</span> mysql -u root -p -e "SHOW DATABASES;"</div>
+  </div>
+
+  <h2>✅ Practice Checklist</h2>
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 5px solid var(--success); border: 1px solid var(--border);">
+    <p style="color: var(--text-dark);">When you encounter a database connection error:</p>
+    <ol style="color: var(--text-dark);">
+      <li>☐ Check application error log for specific error</li>
+      <li>☐ Check if MySQL service is running (systemctl status mysql)</li>
+      <li>☐ Check MySQL error log for startup issues</li>
+      <li>☐ Check for orphaned processes (ps aux)</li>
+      <li>☐ Kill old processes if needed (kill -9)</li>
+      <li>☐ Try starting MySQL in safe mode</li>
+      <li>☐ Run mysql_upgrade to repair tables</li>
+      <li>☐ Restart MySQL normally</li>
+      <li>☐ Test manual connection (mysql -u root -p)</li>
+      <li>☐ Test application connection</li>
+      <li>☐ Verify website is responding</li>
+    </ol>
+    <p style="color: var(--text-dark);"><strong>Total time: ~15 minutes</strong></p>
+  </div>
+
+  <div style="background: var(--accent); color: white; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: center;">
+    <h3 style="color: white; border: none; margin-top: 0;">⭐ You can now troubleshoot database connection failures!</h3>
+  </div>
+
+</div>
+</body>
+</html>

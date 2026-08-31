@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS CloudWatch Explained - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #8b5cf6;
+            --aws-orange: #ff9900;
+            --success-green: #10b981;
+            --warning-red: #ef4444;
+            --bg-light: #f8f7f5;
+            --bg-dark: #1a1a1a;
+            --text-light: #1a1a1a;
+            --text-dark: #f8f7f5;
+            --border-light: #e5e4e0;
+            --border-dark: #333333;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-light: #1a1a1a;
+                --text-light: #f8f7f5;
+                --border-light: #333333;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg-light: #1a1a1a;
+            --text-light: #f8f7f5;
+            --border-light: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-purple), #a855f7);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary-purple);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            background: rgba(139, 92, 246, 0.05);
+            border-left: 4px solid var(--primary-purple);
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.1);
+        }
+
+        .feature-card h4 {
+            color: var(--primary-purple);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .metric-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .metric-tile {
+            padding: 1.5rem;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-purple);
+            margin: 0.5rem 0;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: #7a7a7a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-demo {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(139, 92, 246, 0.08);
+            border-radius: 12px;
+            border: 2px dashed var(--primary-purple);
+        }
+
+        .toggle-btn {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .toggle-btn:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-card {
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+        }
+
+        .comparison-card h4 {
+            margin-bottom: 1rem;
+            color: var(--primary-purple);
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .troubleshooting-step {
+            padding: 1.5rem;
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-purple);
+        }
+
+        .troubleshooting-step h4 {
+            color: var(--primary-purple);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .troubleshooting-step ul {
+            margin-left: 1.5rem;
+            margin-bottom: 0;
+        }
+
+        .check { color: var(--success-green); font-weight: bold; }
+        .cross { color: var(--warning-red); font-weight: bold; }
+
+        .log-stream {
+            background: #1a1a1a;
+            color: #10b981;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-light);
+        }
+
+        .log-line {
+            margin: 0.25rem 0;
+            animation: slideInLog 0.3s ease-out;
+        }
+
+        .log-error { color: #ef4444; }
+        .log-warn { color: #fbbf24; }
+        .log-info { color: #10b981; }
+
+        @keyframes slideInLog {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alarm-status {
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 0.75rem 0;
+            font-weight: 600;
+        }
+
+        .alarm-ok { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success-green); color: var(--success-green); }
+        .alarm-alert { background: rgba(251, 191, 36, 0.1); border: 1px solid #fbbf24; color: #fbbf24; }
+        .alarm-alarm { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--warning-red); color: var(--warning-red); }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #7a7a7a;
+            border-top: 1px solid var(--border-light);
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            h2 { font-size: 1.5rem; }
+            .metric-board { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AWS CloudWatch Explained</h1>
+        <p>Monitoring, Logging & Observability — Interactive Learning Guide</p>
+    </header>
+
+    <div class="container">
+        <!-- Section 1: What is CloudWatch? -->
+        <section class="section">
+            <h2>📊 What is CloudWatch?</h2>
+            <p><strong>CloudWatch</strong> — AWS's monitoring, logging, and observability service. It collects metrics, logs, and events from your AWS resources and helps you understand what's happening in your infrastructure.</p>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Metrics</h4>
+                    <p>Track performance data (CPU, memory, disk I/O, network)</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Logs</h4>
+                    <p>Centralized log collection from applications and services</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Alarms</h4>
+                    <p>Automated notifications when thresholds are breached</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Dashboards</h4>
+                    <p>Visualize metrics and logs in custom dashboards</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Metrics -->
+        <section class="section">
+            <h2>📈 Metrics</h2>
+            <p>Metrics are time-series data points that measure the performance of your resources. AWS automatically provides basic metrics for EC2, RDS, and other services.</p>
+
+            <h3>Metric Board Demo</h3>
+            <div class="metric-board">
+                <div class="metric-tile">
+                    <div class="metric-label">CPU Utilization</div>
+                    <div class="metric-value" id="cpuValue">45%</div>
+                    <div style="font-size: 0.75rem; color: var(--success-green);">Healthy</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">Memory Used</div>
+                    <div class="metric-value" id="memoryValue">62%</div>
+                    <div style="font-size: 0.75rem; color: var(--success-green);">Good</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">Disk I/O</div>
+                    <div class="metric-value" id="diskValue">28%</div>
+                    <div style="font-size: 0.75rem; color: var(--success-green);">Normal</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">Network In</div>
+                    <div class="metric-value" id="networkValue">125 Mbps</div>
+                    <div style="font-size: 0.75rem; color: var(--success-green);">Active</div>
+                </div>
+            </div>
+
+            <button class="toggle-btn" onclick="simulateLoad()">📊 Simulate High Load</button>
+            <button class="toggle-btn" onclick="resetMetrics()" style="background: var(--success-green);">↻ Reset Metrics</button>
+
+            <h3>Custom Metrics</h3>
+            <p>Beyond AWS-provided metrics, you can push custom metrics from your applications:</p>
+            <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                <li>Application-specific performance data</li>
+                <li>Business metrics (orders, users, revenue)</li>
+                <li>Custom errors or warnings</li>
+                <li>Database query performance</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>💡 Pro Tip:</strong> CloudWatch retains metrics for 15 months. High-resolution metrics (1-second granularity) cost more but provide finer detail.
+            </div>
+        </section>
+
+        <!-- Section 3: Logs -->
+        <section class="section">
+            <h2>📝 CloudWatch Logs</h2>
+            <p>Centralized log management for all your applications and AWS services. Logs are organized into Log Groups and Log Streams.</p>
+
+            <h3>Log Structure</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>Log Group</h4>
+                    <p>Collection of log streams for a specific service or application. Example: <code>/aws/ec2/web-server</code></p>
+                </div>
+                <div class="comparison-card">
+                    <h4>Log Stream</h4>
+                    <p>Sequence of log events from a single resource. Example: <code>i-1234567890abcdef0</code></p>
+                </div>
+            </div>
+
+            <h3>Live Log Stream</h3>
+            <div class="dashboard-demo">
+                <p style="margin-bottom: 1rem; font-weight: 600;">Log Group: /aws/lambda/api-handler</p>
+                <div class="log-stream" id="logStream">
+                    <div class="log-line log-info">[2024-08-18 10:30:45] INFO: Application started</div>
+                    <div class="log-line log-info">[2024-08-18 10:30:46] INFO: Connected to database</div>
+                    <div class="log-line log-info">[2024-08-18 10:30:47] INFO: Server listening on port 3000</div>
+                </div>
+                <button class="toggle-btn" onclick="addLogEntry()">➕ Add Log Entry</button>
+                <button class="toggle-btn" onclick="addErrorLog()" style="background: var(--warning-red);">⚠️ Add Error</button>
+                <button class="toggle-btn" onclick="clearLogs()" style="background: #7a7a7a;">🗑️ Clear Logs</button>
+            </div>
+
+            <h3>Log Filtering & Searching</h3>
+            <p>CloudWatch Logs Insights allows you to query logs using a powerful query language:</p>
+            <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                <li><code>fields @timestamp, @message, status</code> — Select specific fields</li>
+                <li><code>filter status = 500</code> — Find errors</li>
+                <li><code>stats count() by service</code> — Aggregate metrics</li>
+                <li><code>sort @timestamp desc</code> — Order results</li>
+            </ul>
+        </section>
+
+        <!-- Section 4: Alarms -->
+        <section class="section">
+            <h2>🚨 Alarms</h2>
+            <p>CloudWatch Alarms monitor metrics and trigger actions when thresholds are breached. They can send notifications or trigger Auto Scaling actions.</p>
+
+            <h3>Alarm States</h3>
+            <div class="dashboard-demo">
+                <div class="alarm-status alarm-ok">
+                    ✓ OK — Metric is within normal range
+                </div>
+                <div class="alarm-status alarm-alert">
+                    ⚠ INSUFFICIENT DATA — Not enough data to evaluate
+                </div>
+                <div class="alarm-status alarm-alarm">
+                    🚨 ALARM — Metric has breached the threshold
+                </div>
+            </div>
+
+            <h3>Setting Up an Alarm</h3>
+            <div class="troubleshooting-step">
+                <h4>1. Choose a Metric</h4>
+                <p>Select the metric you want to monitor (e.g., CPU Utilization)</p>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>2. Set Threshold & Conditions</h4>
+                <p>Define when alarm triggers: "If CPU > 80% for 5 consecutive minutes"</p>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>3. Configure Actions</h4>
+                <p>What happens when alarm triggers: Send email, text, or trigger Lambda</p>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>4. Add Notifications</h4>
+                <p>Use SNS topics to send notifications to email, Slack, PagerDuty, etc.</p>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Best Practice:</strong> Test alarms in a non-production environment first. Always set up multiple notification channels for critical alarms.
+            </div>
+        </section>
+
+        <!-- Section 5: Dashboards -->
+        <section class="section">
+            <h2>📊 Dashboards</h2>
+            <p>Create custom dashboards to visualize metrics, logs, and alarms in one central location.</p>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Real-Time Monitoring</h4>
+                    <p>See metrics update in real-time as events happen</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Multi-Service View</h4>
+                    <p>Combine metrics from EC2, RDS, Lambda, and other services</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Custom Widgets</h4>
+                    <p>Add line charts, bar graphs, pie charts, and numbers</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Share & Export</h4>
+                    <p>Share dashboards with your team or export data</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Troubleshooting -->
+        <section class="section">
+            <h2>🔧 Troubleshooting Guide</h2>
+
+            <h3>No Metrics Appearing</h3>
+            <div class="troubleshooting-step">
+                <h4>Step 1: Verify Resource Type</h4>
+                <ul>
+                    <li>CloudWatch only collects metrics from <strong>supported AWS resources</strong></li>
+                    <li>EC2 instances start reporting metrics automatically</li>
+                    <li>Custom applications need CloudWatch agent or SDK installed</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 2: Check IAM Permissions</h4>
+                <ul>
+                    <li>For EC2 instances: attach IAM role with CloudWatchAgentServerPolicy</li>
+                    <li>For applications: ensure credentials have <code>cloudwatch:PutMetricData</code> permission</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 3: Verify CloudWatch Agent</h4>
+                <ul>
+                    <li>Check if CloudWatch agent is installed on EC2: <code>systemctl status amazon-cloudwatch-agent</code></li>
+                    <li>Verify agent configuration file: <code>/opt/aws/amazon-cloudwatch-agent/etc/config.json</code></li>
+                    <li>Check agent logs: <code>/opt/aws/amazon-cloudwatch-agent/logs/</code></li>
+                </ul>
+            </div>
+
+            <h3>Logs Not Appearing</h3>
+            <div class="troubleshooting-step">
+                <h4>Step 1: Verify Log Group Exists</h4>
+                <ul>
+                    <li>Check CloudWatch Logs console for the log group</li>
+                    <li>For Lambda: automatic log group should be created at first invocation</li>
+                    <li>For other services: manually create log group if needed</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 2: Check IAM Permissions</h4>
+                <ul>
+                    <li>Application needs <code>logs:CreateLogStream</code> and <code>logs:PutLogEvents</code> permissions</li>
+                    <li>Verify the IAM role/user has these permissions</li>
+                </ul>
+            </div>
+
+            <div class="troubleshooting-step">
+                <h4>Step 3: Check Application Logs</h4>
+                <ul>
+                    <li>Application is sending logs to CloudWatch correctly</li>
+                    <li>Check application logs on the instance for errors</li>
+                    <li>Verify log format is correct for the logging library</li>
+                </ul>
+            </div>
+
+            <h3>Alarm Not Triggering</h3>
+            <div class="troubleshooting-step">
+                <h4>Checklist:</h4>
+                <ul>
+                    <li><span class="check">✓</span> Alarm state is not "ALARM" yet (threshold not breached)</li>
+                    <li><span class="check">✓</span> Alarm is enabled (not disabled)</li>
+                    <li><span class="check">✓</span> SNS topic exists and subscriptions are confirmed</li>
+                    <li><span class="check">✓</span> Check alarm history in CloudWatch console</li>
+                    <li><span class="check">✓</span> Verify threshold and evaluation period settings</li>
+                </ul>
+            </div>
+
+            <h3>High CloudWatch Costs</h3>
+            <div class="troubleshooting-step">
+                <h4>Cost Reduction Tips:</h4>
+                <ul>
+                    <li>Reduce custom metric frequency (push less often)</li>
+                    <li>Use log retention policies (auto-delete old logs)</li>
+                    <li>Consolidate log groups and streams</li>
+                    <li>Use metric math instead of creating multiple metrics</li>
+                    <li>Filter logs before sending to CloudWatch</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 7: Best Practices -->
+        <section class="section">
+            <h2>✨ Best Practices</h2>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>Comprehensive Monitoring</h4>
+                    <p>Monitor system metrics AND application metrics</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Meaningful Alarms</h4>
+                    <p>Set thresholds based on actual business impact</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Structured Logging</h4>
+                    <p>Use JSON format for easier log parsing and analysis</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Log Retention</h4>
+                    <p>Set retention policies to manage costs and storage</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Interactive guide to AWS CloudWatch • Made for learning • 2024</p>
+    </footer>
+
+    <script>
+        function simulateLoad() {
+            const cpu = document.getElementById('cpuValue');
+            const memory = document.getElementById('memoryValue');
+            const disk = document.getElementById('diskValue');
+            const network = document.getElementById('networkValue');
+
+            cpu.textContent = '88%';
+            memory.textContent = '85%';
+            disk.textContent = '72%';
+            network.textContent = '450 Mbps';
+
+            cpu.parentElement.querySelector('div:last-child').textContent = 'High';
+            cpu.parentElement.querySelector('div:last-child').style.color = '#fbbf24';
+        }
+
+        function resetMetrics() {
+            document.getElementById('cpuValue').textContent = '45%';
+            document.getElementById('memoryValue').textContent = '62%';
+            document.getElementById('diskValue').textContent = '28%';
+            document.getElementById('networkValue').textContent = '125 Mbps';
+
+            document.querySelectorAll('.metric-tile div:last-child').forEach(el => {
+                el.textContent = 'Healthy';
+                el.style.color = 'var(--success-green)';
+            });
+        }
+
+        function addLogEntry() {
+            const logStream = document.getElementById('logStream');
+            const newLog = document.createElement('div');
+            newLog.className = 'log-line log-info';
+            const now = new Date().toLocaleTimeString();
+            newLog.textContent = `[${now}] INFO: Event processed successfully`;
+            logStream.appendChild(newLog);
+            logStream.scrollTop = logStream.scrollHeight;
+        }
+
+        function addErrorLog() {
+            const logStream = document.getElementById('logStream');
+            const newLog = document.createElement('div');
+            newLog.className = 'log-line log-error';
+            const now = new Date().toLocaleTimeString();
+            newLog.textContent = `[${now}] ERROR: Connection timeout to database`;
+            logStream.appendChild(newLog);
+            logStream.scrollTop = logStream.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logStream').innerHTML = '';
+        }
+
+        document.querySelectorAll('.section').forEach((section, index) => {
+            section.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        document.querySelectorAll('.metric-tile').forEach((tile, index) => {
+            tile.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>

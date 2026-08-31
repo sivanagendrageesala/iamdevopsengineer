@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Troubleshooting Cheat Sheet - All 4 Scenarios</title>
+<style>
+:root {
+  --primary: #ffffff;
+  --accent: #d32f2f;
+  --success: #388e3c;
+  --warning: #f57c00;
+  --info: #1976d2;
+  --bg-light: #f5f5f5;
+  --text-dark: #1a1a1a;
+  --text-light: #424242;
+  --border: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #1e1e1e;
+    --accent: #ff6b6b;
+    --success: #51cf66;
+    --warning: #ffd43b;
+    --info: #4dabf7;
+    --bg-light: #2d2d2d;
+    --text-dark: #ffffff;
+    --text-light: #e0e0e0;
+    --border: #404040;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--primary);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--text-dark);
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: var(--accent);
+  border-bottom: 4px solid var(--accent);
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+  text-align: center;
+}
+
+h2 {
+  color: var(--accent);
+  margin-top: 30px;
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  border-left: 5px solid var(--accent);
+  background: var(--bg-light);
+  border-radius: 4px;
+}
+
+h3 {
+  color: var(--text-dark);
+  margin-top: 15px;
+  margin-bottom: 10px;
+  font-size: 1.05em;
+}
+
+.scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.scenario-card {
+  background: var(--bg-light);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  transition: transform 0.2s;
+}
+
+.scenario-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.scenario-card h3 {
+  color: white;
+  margin: -20px -20px 15px -20px;
+  padding: 10px 20px;
+  border-radius: 6px 6px 0 0;
+  font-size: 1.2em;
+}
+
+.scenario-1 h3 { background: #d32f2f; }
+.scenario-2 h3 { background: #f57c00; }
+.scenario-3 h3 { background: #1976d2; }
+.scenario-4 h3 { background: #388e3c; }
+
+.scenario-label {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.scenario-1 .scenario-label { background: rgba(211, 47, 47, 0.2); color: var(--accent); }
+.scenario-2 .scenario-label { background: rgba(245, 127, 23, 0.2); color: var(--warning); }
+.scenario-3 .scenario-label { background: rgba(25, 118, 210, 0.2); color: var(--info); }
+.scenario-4 .scenario-label { background: rgba(56, 142, 60, 0.2); color: var(--success); }
+
+.command {
+  background: #1a1a1a;
+  color: #00ff00;
+  padding: 12px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 10px 0;
+  font-size: 0.9em;
+}
+
+.output {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 12px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 10px 0;
+  border-left: 4px solid var(--success);
+  font-size: 0.9em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-light);
+  margin: 20px 0;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th {
+  background: var(--accent);
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-weight: bold;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dark);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.quick-steps {
+  background: var(--bg-light);
+  border-left: 5px solid var(--accent);
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+.quick-steps ol {
+  margin-left: 20px;
+  padding: 0;
+}
+
+.quick-steps li {
+  margin: 8px 0;
+  color: var(--text-dark);
+}
+
+code {
+  background: var(--bg-light);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.alert-box {
+  background: rgba(211, 47, 47, 0.1);
+  border-left: 4px solid var(--accent);
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+  color: var(--text-dark);
+}
+
+.success-box {
+  background: rgba(56, 142, 60, 0.1);
+  border-left: 4px solid var(--success);
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+  color: var(--text-dark);
+}
+
+.warning-box {
+  background: rgba(245, 127, 23, 0.1);
+  border-left: 4px solid var(--warning);
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+  color: var(--text-dark);
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.comparison-item {
+  background: var(--bg-light);
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.comparison-item strong {
+  display: block;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.section-divider {
+  border-bottom: 3px dashed var(--border);
+  margin: 30px 0;
+}
+
+.print-tip {
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 20px 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+.summary-table {
+  margin: 20px 0;
+}
+
+@media print {
+  body { padding: 0; }
+  .container { max-width: 100%; }
+  .print-tip { display: none; }
+}
+
+ul, ol {
+  margin-left: 20px;
+  color: var(--text-dark);
+}
+
+li {
+  margin: 5px 0;
+}
+
+p {
+  margin: 10px 0;
+  color: var(--text-dark);
+}
+
+.icon {
+  font-size: 2em;
+  margin-right: 10px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🚀 DevOps Troubleshooting Cheat Sheet</h1>
+  <p style="text-align: center; color: var(--text-light); font-size: 1.1em; margin-bottom: 30px;">
+    All 4 Scenarios - Quick Reference Guide
+  </p>
+
+  <div class="print-tip">
+    💡 Tip: Print this page (Ctrl+P) or save as PDF for offline reference!
+  </div>
+
+  <h2>📋 Scenario Overview</h2>
+
+  <div class="scenarios-grid">
+    <div class="scenario-card scenario-1">
+      <h3>🌐 Scenario 1</h3>
+      <div class="scenario-label">Port Conflict</div>
+      <p><strong>Problem:</strong> Website not loading</p>
+      <p><strong>Root Cause:</strong> Wrong service using port 80</p>
+      <p><strong>Fix Time:</strong> 5-10 minutes</p>
+      <p><strong>Key Commands:</strong></p>
+      <ul style="margin-left: 15px;">
+        <li>systemctl status nginx</li>
+        <li>netstat -tuln | grep 80</li>
+        <li>systemctl stop apache2</li>
+      </ul>
+    </div>
+
+    <div class="scenario-card scenario-2">
+      <h3>💾 Scenario 2</h3>
+      <div class="scenario-label">Disk Full</div>
+      <p><strong>Problem:</strong> Server 95% disk full</p>
+      <p><strong>Root Cause:</strong> Old log files piling up</p>
+      <p><strong>Fix Time:</strong> 5-10 minutes</p>
+      <p><strong>Key Commands:</strong></p>
+      <ul style="margin-left: 15px;">
+        <li>df -h</li>
+        <li>du -sh /*</li>
+        <li>rm old_logs</li>
+      </ul>
+    </div>
+
+    <div class="scenario-card scenario-3">
+      <h3>⚡ Scenario 3</h3>
+      <div class="scenario-label">High CPU/Memory</div>
+      <p><strong>Problem:</strong> CPU 95%, Memory 92%</p>
+      <p><strong>Root Cause:</strong> Slow database queries</p>
+      <p><strong>Fix Time:</strong> 10 minutes</p>
+      <p><strong>Key Commands:</strong></p>
+      <ul style="margin-left: 15px;">
+        <li>top -bn1</li>
+        <li>SHOW PROCESSLIST</li>
+        <li>KILL query_id</li>
+      </ul>
+    </div>
+
+    <div class="scenario-card scenario-4">
+      <h3>🗄️ Scenario 4</h3>
+      <div class="scenario-label">DB Connection Error</div>
+      <p><strong>Problem:</strong> Cannot connect to database</p>
+      <p><strong>Root Cause:</strong> Corrupted system tables</p>
+      <p><strong>Fix Time:</strong> 15 minutes</p>
+      <p><strong>Key Commands:</strong></p>
+      <ul style="margin-left: 15px;">
+        <li>systemctl status mysql</li>
+        <li>mysql_upgrade</li>
+        <li>mysqld_safe --skip-grant-tables</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <h2>🔍 SCENARIO 1: Website Down (Port Conflict)</h2>
+
+  <div class="alert-box">
+    <strong>⚠️ Alert:</strong> Website not loading | CPU: Normal | Memory: Normal | Error: Port 80 in use
+  </div>
+
+  <div class="quick-steps">
+    <strong>Quick Fix (5 steps):</strong>
+    <ol>
+      <li>Check nginx status: <code>systemctl status nginx</code></li>
+      <li>Find what's using port 80: <code>sudo netstat -tuln | grep 80</code></li>
+      <li>Stop wrong service: <code>sudo systemctl stop apache2</code></li>
+      <li>Disable auto-start: <code>sudo systemctl disable apache2</code></li>
+      <li>Start nginx: <code>sudo systemctl start nginx</code></li>
+    </ol>
+  </div>
+
+  <h3>Key Commands:</h3>
+  <div class="command">systemctl status nginx
+sudo netstat -tuln | grep 80
+ps aux | grep apache
+sudo systemctl stop apache2
+sudo systemctl disable apache2
+sudo systemctl start nginx
+curl http://localhost:80/</div>
+
+  <h3>What to Look For:</h3>
+  <table>
+    <tr>
+      <th>Check</th>
+      <th>Healthy Status</th>
+      <th>Problem Status</th>
+    </tr>
+    <tr>
+      <td>nginx status</td>
+      <td>Active: active (running)</td>
+      <td>Active: failed / inactive</td>
+    </tr>
+    <tr>
+      <td>Port 80 owner</td>
+      <td>nginx using port 80</td>
+      <td>apache2 / other service</td>
+    </tr>
+    <tr>
+      <td>Website response</td>
+      <td>HTTP 200 OK</td>
+      <td>Connection refused</td>
+    </tr>
+  </table>
+
+  <div class="section-divider"></div>
+
+  <h2>💾 SCENARIO 2: Disk Full</h2>
+
+  <div class="alert-box">
+    <strong>⚠️ Alert:</strong> Disk 95% full | Available: 5GB | Critical space warning
+  </div>
+
+  <div class="quick-steps">
+    <strong>Quick Fix (7 steps):</strong>
+    <ol>
+      <li>Check overall disk: <code>df -h</code></li>
+      <li>Find large directories: <code>du -sh /* | sort -hr</code></li>
+      <li>Check /var/log: <code>du -sh /var/log/*</code></li>
+      <li>Check file ages: <code>ls -lh /var/log/</code></li>
+      <li>Check if file is in use: <code>lsof | grep syslog</code></li>
+      <li>Delete old rotated logs: <code>rm /var/log/syslog.1 /var/log/syslog.2</code></li>
+      <li>Verify space freed: <code>df -h</code></li>
+    </ol>
+  </div>
+
+  <h3>Key Commands:</h3>
+  <div class="command">df -h
+du -sh /* | sort -hr
+du -sh /var/* | sort -hr
+du -sh /var/log/* | sort -hr
+ls -lh /var/log/syslog*
+lsof | grep /var/log/syslog
+rm /var/log/old_file
+systemctl status nginx</div>
+
+  <h3>What to Look For:</h3>
+  <table>
+    <tr>
+      <th>Check</th>
+      <th>Healthy</th>
+      <th>Problem</th>
+    </tr>
+    <tr>
+      <td>Disk Usage %</td>
+      <td>< 80%</td>
+      <td>> 90%</td>
+    </tr>
+    <tr>
+      <td>Large directory</td>
+      <td>/var/log < 10GB</td>
+      <td>/var/log > 50GB</td>
+    </tr>
+    <tr>
+      <td>Log age</td>
+      <td>Current + 1 backup</td>
+      <td>Multiple old copies</td>
+    </tr>
+  </table>
+
+  <div class="section-divider"></div>
+
+  <h2>⚡ SCENARIO 3: High CPU/Memory Usage</h2>
+
+  <div class="alert-box">
+    <strong>⚠️ Alert:</strong> CPU: 95% | Memory: 92% | Load: 8.45 | Website SLOW
+  </div>
+
+  <div class="quick-steps">
+    <strong>Quick Fix (6 steps):</strong>
+    <ol>
+      <li>Check CPU/Memory: <code>top -bn1 | head -20</code></li>
+      <li>Find top process: Look at %CPU and %MEM columns</li>
+      <li>Check MySQL queries: <code>mysql -e "SHOW PROCESSLIST;"</code></li>
+      <li>Kill slow query: <code>mysql -e "KILL 1;"</code></li>
+      <li>Verify CPU dropped: <code>top -bn1 | head -10</code></li>
+      <li>Find root cause: <code>ps aux | grep backup</code> or check cron</li>
+    </ol>
+  </div>
+
+  <h3>Key Commands:</h3>
+  <div class="command">top -bn1 | head -20
+ps aux | grep mysql
+mysql -u root -p -e "SHOW PROCESSLIST;"
+mysql -u root -p -e "KILL 1;"
+free -h
+uptime
+crontab -l</div>
+
+  <h3>What to Look For:</h3>
+  <table>
+    <tr>
+      <th>Metric</th>
+      <th>Healthy</th>
+      <th>Problem</th>
+      <th>Action</th>
+    </tr>
+    <tr>
+      <td>CPU Usage</td>
+      <td>< 20%</td>
+      <td>> 80%</td>
+      <td>Find process using CPU</td>
+    </tr>
+    <tr>
+      <td>Memory Usage</td>
+      <td>< 70%</td>
+      <td>> 85%</td>
+      <td>Find memory hog</td>
+    </tr>
+    <tr>
+      <td>Query Time</td>
+      <td>< 1 second</td>
+      <td>> 30 seconds</td>
+      <td>Kill slow query</td>
+    </tr>
+    <tr>
+      <td>Load Average</td>
+      <td>< 4 (on 4-core)</td>
+      <td>> 8</td>
+      <td>Too many tasks</td>
+    </tr>
+  </table>
+
+  <div class="section-divider"></div>
+
+  <h2>🗄️ SCENARIO 4: Database Connection Failed</h2>
+
+  <div class="alert-box">
+    <strong>⚠️ Alert:</strong> Cannot connect to database | Error: Connection refused | Website Error 500
+  </div>
+
+  <div class="quick-steps">
+    <strong>Quick Fix (8 steps):</strong>
+    <ol>
+      <li>Check service status: <code>systemctl status mysql</code></li>
+      <li>Check error log: <code>tail -100 /var/log/mysql/error.log</code></li>
+      <li>Find old processes: <code>ps aux | grep mysqld</code></li>
+      <li>Kill orphaned process: <code>sudo kill -9 PID</code></li>
+      <li>Start safe mode: <code>sudo mysqld_safe --skip-grant-tables &</code></li>
+      <li>Repair tables: <code>mysql_upgrade --skip-grant-tables</code></li>
+      <li>Restart normal: <code>sudo systemctl start mysql</code></li>
+      <li>Test connection: <code>mysql -u root -p -e "SHOW DATABASES;"</code></li>
+    </ol>
+  </div>
+
+  <h3>Key Commands:</h3>
+  <div class="command">systemctl status mysql
+tail -100 /var/log/mysql/error.log
+ps aux | grep mysqld | grep -v grep
+sudo kill -9 PID
+sudo mysqld_safe --skip-grant-tables &
+mysql_upgrade --skip-grant-tables
+sudo systemctl start mysql
+mysql -u root -p -e "SHOW DATABASES;"</div>
+
+  <h3>What to Look For:</h3>
+  <table>
+    <tr>
+      <th>Check</th>
+      <th>Healthy</th>
+      <th>Problem</th>
+    </tr>
+    <tr>
+      <td>Service Status</td>
+      <td>Active: active (running)</td>
+      <td>Active: inactive / failed</td>
+    </tr>
+    <tr>
+      <td>Error Log</td>
+      <td>No [ERROR] messages</td>
+      <td>[ERROR] Table doesn't exist</td>
+    </tr>
+    <tr>
+      <td>Processes</td>
+      <td>One mysqld process</td>
+      <td>Multiple/orphaned mysqld</td>
+    </tr>
+    <tr>
+      <td>Connection Test</td>
+      <td>mysql -e works</td>
+      <td>Access denied / Connection refused</td>
+    </tr>
+  </table>
+
+  <div class="section-divider"></div>
+
+  <h2>🎯 Decision Tree: "What's Wrong?"</h2>
+
+  <table class="summary-table">
+    <tr>
+      <th>Symptom</th>
+      <th>Scenario</th>
+      <th>First Check</th>
+      <th>Quick Fix</th>
+    </tr>
+    <tr>
+      <td>Website not loading</td>
+      <td>Scenario 1</td>
+      <td>systemctl status nginx</td>
+      <td>Stop apache2, start nginx</td>
+    </tr>
+    <tr>
+      <td>Website very slow</td>
+      <td>Scenario 3</td>
+      <td>top -bn1</td>
+      <td>Kill slow queries</td>
+    </tr>
+    <tr>
+      <td>Error 500 on all pages</td>
+      <td>Scenario 4</td>
+      <td>systemctl status mysql</td>
+      <td>Restart MySQL, repair tables</td>
+    </tr>
+    <tr>
+      <td>Application errors</td>
+      <td>Scenario 2</td>
+      <td>df -h</td>
+      <td>Delete old logs</td>
+    </tr>
+    <tr>
+      <td>Server not responding</td>
+      <td>Scenario 3</td>
+      <td>top -bn1</td>
+      <td>Kill resource hogs</td>
+    </tr>
+  </table>
+
+  <div class="section-divider"></div>
+
+  <h2>📊 Comparison: All Scenarios At a Glance</h2>
+
+  <table>
+    <tr>
+      <th style="background: #d32f2f; color: white;">Scenario 1<br>Port Conflict</th>
+      <th style="background: #f57c00; color: white;">Scenario 2<br>Disk Full</th>
+      <th style="background: #1976d2; color: white;">Scenario 3<br>High CPU/Memory</th>
+      <th style="background: #388e3c; color: white;">Scenario 4<br>DB Error</th>
+    </tr>
+    <tr>
+      <td><strong>Impact:</strong> Website down<br><strong>Severity:</strong> 🔴 Critical<br><strong>Time:</strong> 5-10 min</td>
+      <td><strong>Impact:</strong> Apps fail<br><strong>Severity:</strong> 🔴 Critical<br><strong>Time:</strong> 5-10 min</td>
+      <td><strong>Impact:</strong> Website slow<br><strong>Severity:</strong> 🔴 Critical<br><strong>Time:</strong> 10 min</td>
+      <td><strong>Impact:</strong> Website down<br><strong>Severity:</strong> 🔴 Critical<br><strong>Time:</strong> 15 min</td>
+    </tr>
+    <tr>
+      <td><strong>Check:</strong><br>systemctl status<br>netstat</td>
+      <td><strong>Check:</strong><br>df -h<br>du -sh /*</td>
+      <td><strong>Check:</strong><br>top -bn1<br>SHOW PROCESSLIST</td>
+      <td><strong>Check:</strong><br>systemctl status<br>error.log</td>
+    </tr>
+    <tr>
+      <td><strong>Fix:</strong><br>stop apache2<br>start nginx</td>
+      <td><strong>Fix:</strong><br>rm old_logs<br>df -h verify</td>
+      <td><strong>Fix:</strong><br>KILL query<br>crontab reschedule</td>
+      <td><strong>Fix:</strong><br>mysqld_safe<br>mysql_upgrade</td>
+    </tr>
+  </table>
+
+  <div class="section-divider"></div>
+
+  <h2>✅ Universal Troubleshooting Steps</h2>
+
+  <div class="quick-steps">
+    <strong>Use these for ANY problem:</strong>
+    <ol>
+      <li><strong>Gather Information:</strong> Collect error messages, logs, alerts</li>
+      <li><strong>Check Status:</strong> systemctl status, systemctl list-units --failed</li>
+      <li><strong>Read Error Logs:</strong> tail -100 /var/log/[service]/error.log</li>
+      <li><strong>Check Resources:</strong> top, free -h, df -h, netstat</li>
+      <li><strong>Identify Root Cause:</strong> Why did it fail?</li>
+      <li><strong>Take Action:</strong> Fix, restart, repair</li>
+      <li><strong>Verify Fix:</strong> Test manually, check logs</li>
+      <li><strong>Prevent Recurrence:</strong> Optimize, schedule, monitor</li>
+    </ol>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <h2>🔥 Emergency Commands (Use When in Panic!)</h2>
+
+  <table>
+    <tr>
+      <th>Situation</th>
+      <th>Command</th>
+      <th>What It Does</th>
+    </tr>
+    <tr>
+      <td>Website down</td>
+      <td><code>systemctl restart nginx</code></td>
+      <td>Restart web server</td>
+    </tr>
+    <tr>
+      <td>Database down</td>
+      <td><code>systemctl restart mysql</code></td>
+      <td>Restart database</td>
+    </tr>
+    <tr>
+      <td>Runaway process</td>
+      <td><code>sudo kill -9 PID</code></td>
+      <td>Force kill process</td>
+    </tr>
+    <tr>
+      <td>Disk almost full</td>
+      <td><code>rm /var/log/old_file</code></td>
+      <td>Delete old logs</td>
+    </tr>
+    <tr>
+      <td>Too many connections</td>
+      <td><code>mysql -e "KILL old_connection_id;"</code></td>
+      <td>Kill old MySQL connection</td>
+    </tr>
+    <tr>
+      <td>Check everything</td>
+      <td><code>systemctl status --all</code></td>
+      <td>Show all service statuses</td>
+    </tr>
+    <tr>
+      <td>View all errors</td>
+      <td><code>journalctl -p err -b</code></td>
+      <td>Show system errors since boot</td>
+    </tr>
+  </table>
+
+  <div class="section-divider"></div>
+
+  <h2>📚 Common Command Reference</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-item">
+      <strong>Service Management</strong>
+      <code>systemctl status nginx</code><br>
+      <code>systemctl start nginx</code><br>
+      <code>systemctl stop nginx</code><br>
+      <code>systemctl restart nginx</code><br>
+      <code>systemctl enable nginx</code>
+    </div>
+
+    <div class="comparison-item">
+      <strong>System Info</strong>
+      <code>top -bn1</code><br>
+      <code>free -h</code><br>
+      <code>df -h</code><br>
+      <code>uptime</code><br>
+      <code>ps aux</code>
+    </div>
+
+    <div class="comparison-item">
+      <strong>Network</strong>
+      <code>netstat -tuln</code><br>
+      <code>ss -tuln</code><br>
+      <code>curl http://localhost</code><br>
+      <code>ping 8.8.8.8</code><br>
+      <code>lsof -i :80</code>
+    </div>
+
+    <div class="comparison-item">
+      <strong>File/Disk</strong>
+      <code>du -sh /*</code><br>
+      <code>ls -lh /var/log/</code><br>
+      <code>tail -100 error.log</code><br>
+      <code>grep "ERROR" log.log</code><br>
+      <code>find /var/log -mtime +30</code>
+    </div>
+
+    <div class="comparison-item">
+      <strong>Database</strong>
+      <code>mysql -u root -p</code><br>
+      <code>SHOW PROCESSLIST;</code><br>
+      <code>KILL query_id;</code><br>
+      <code>mysql_upgrade</code><br>
+      <code>mysqldump -u root -p db</code>
+    </div>
+
+    <div class="comparison-item">
+      <strong>Process Control</strong>
+      <code>ps aux | grep nginx</code><br>
+      <code>kill -9 PID</code><br>
+      <code>pkill mysqld</code><br>
+      <code>lsof -i :3306</code><br>
+      <code>htop</code>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <h2>💡 Pro Tips</h2>
+
+  <div class="success-box">
+    <strong>✅ DO:</strong>
+    <ul>
+      <li>Always check <strong>error logs first</strong> - they tell the real story</li>
+      <li><strong>Check status</strong> before restarting - understand WHY it failed</li>
+      <li><strong>Take notes</strong> of what you did and what worked</li>
+      <li><strong>Test after fix</strong> - don't assume it's working</li>
+      <li><strong>Monitor</strong> - watch for recurrence</li>
+    </ul>
+  </div>
+
+  <div class="warning-box">
+    <strong>⚠️ DON'T:</strong>
+    <ul>
+      <li>Never kill -9 without checking what you're killing</li>
+      <li>Never delete files you're not 100% sure about</li>
+      <li>Never restart without checking error logs first</li>
+      <li>Never make changes on production without knowing impact</li>
+      <li>Never ignore "could not delete" errors - file might be in use</li>
+    </ul>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <h2>📖 Learning Path</h2>
+
+  <table>
+    <tr>
+      <th>Level</th>
+      <th>Start Here</th>
+      <th>Then Learn</th>
+      <th>Advanced</th>
+    </tr>
+    <tr>
+      <td><strong>Beginner</strong></td>
+      <td>Scenario 1<br>(Port Conflict)</td>
+      <td>Scenario 2<br>(Disk Full)</td>
+      <td>Monitoring &<br>Alerting</td>
+    </tr>
+    <tr>
+      <td><strong>Intermediate</strong></td>
+      <td>Scenario 2<br>(Disk Full)</td>
+      <td>Scenario 3<br>(CPU/Memory)</td>
+      <td>Performance<br>Tuning</td>
+    </tr>
+    <tr>
+      <td><strong>Advanced</strong></td>
+      <td>Scenario 3<br>(CPU/Memory)</td>
+      <td>Scenario 4<br>(Database)</td>
+      <td>Disaster<br>Recovery</td>
+    </tr>
+  </table>
+
+  <div class="success-box" style="text-align: center; margin-top: 40px;">
+    <h3 style="color: var(--success); border: none; margin: 0 0 10px 0;">🎉 You're Ready!</h3>
+    <p><strong>You now have all the tools to troubleshoot the 4 most common DevOps scenarios.</strong></p>
+    <p>Use this cheat sheet whenever you need a quick reference. Good luck! 🚀</p>
+  </div>
+
+</div>
+</body>
+</html>

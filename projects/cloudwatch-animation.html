@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS CloudWatch - Interactive Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .animation-section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 1.05em;
+        }
+
+        canvas {
+            display: block;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 0 auto;
+            border: 2px solid #e0e0e0;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .code-snippet {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .animation-section {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+
+        .info-box strong {
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 AWS CloudWatch Explained with Animations</h1>
+
+        <!-- Section 1: Metrics Collection -->
+        <div class="animation-section">
+            <h2>1️⃣ Metrics Collection</h2>
+            <p class="description">AWS resources continuously send metrics (numerical data) to CloudWatch. Each metric has a value and timestamp.</p>
+            <canvas id="canvas1" width="800" height="350"></canvas>
+            <div class="controls">
+                <button onclick="startAnimation1()">Start Animation</button>
+                <button onclick="resetAnimation1()">Reset</button>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #ff6b6b;"></div>
+                    <span>EC2 CPU Usage</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #4ecdc4;"></div>
+                    <span>Lambda Invocations</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #ffd93d;"></div>
+                    <span>RDS Connections</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Metrics Over Time -->
+        <div class="animation-section">
+            <h2>2️⃣ Graphing Metrics Over Time</h2>
+            <p class="description">CloudWatch plots metrics on a graph to show trends. You can see CPU usage spiking during peak hours or declining during low usage periods.</p>
+            <canvas id="canvas2" width="800" height="350"></canvas>
+            <div class="controls">
+                <button onclick="startAnimation2()">Start Animation</button>
+                <button onclick="resetAnimation2()">Reset</button>
+            </div>
+            <div class="info-box">
+                <strong>💡 Tip:</strong> You can customize the statistic (Average, Max, Min, Sum) and time period (1 min, 5 min, 1 hour, etc.)
+            </div>
+        </div>
+
+        <!-- Section 3: Alarms and Thresholds -->
+        <div class="animation-section">
+            <h2>3️⃣ Alarms & Thresholds</h2>
+            <p class="description">Set a threshold on a metric. When the metric crosses it, an alarm triggers and sends a notification.</p>
+            <canvas id="canvas3" width="800" height="350"></canvas>
+            <div class="controls">
+                <button onclick="startAnimation3()">Start Animation</button>
+                <button onclick="resetAnimation3()">Reset</button>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #4CAF50;"></div>
+                    <span>OK (Below Threshold)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #ff6b6b;"></div>
+                    <span>ALARM (Threshold Crossed)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Logs Flow -->
+        <div class="animation-section">
+            <h2>4️⃣ Logs Collection</h2>
+            <p class="description">Your applications and AWS services send log messages to CloudWatch Logs. These are organized in Log Groups and Streams.</p>
+            <canvas id="canvas4" width="800" height="350"></canvas>
+            <div class="controls">
+                <button onclick="startAnimation4()">Start Animation</button>
+                <button onclick="resetAnimation4()">Reset</button>
+            </div>
+            <div class="code-snippet">
+// Example: Lambda function automatically logs to CloudWatch
+console.log("Request received");
+console.error("Something went wrong!");
+            </div>
+        </div>
+
+        <!-- Section 5: Dashboard -->
+        <div class="animation-section">
+            <h2>5️⃣ Dashboard View</h2>
+            <p class="description">Create custom dashboards to visualize multiple metrics and logs in one place. Monitor your entire infrastructure at a glance.</p>
+            <canvas id="canvas5" width="800" height="400"></canvas>
+            <div class="controls">
+                <button onclick="startAnimation5()">Start Animation</button>
+                <button onclick="resetAnimation5()">Reset</button>
+            </div>
+        </div>
+
+        <!-- Section 6: Log Insights -->
+        <div class="animation-section">
+            <h2>6️⃣ CloudWatch Logs Insights</h2>
+            <p class="description">Query your logs with a powerful search language to find errors, track patterns, and analyze performance.</p>
+            <canvas id="canvas6" width="800" height="350"></canvas>
+            <div class="controls">
+                <button onclick="startAnimation6()">Start Animation</button>
+                <button onclick="resetAnimation6()">Reset</button>
+            </div>
+            <div class="code-snippet">
+// Example query: Find all errors in the last hour
+fields @timestamp, @message, @duration
+| filter @message like /ERROR/
+| stats count() by @message
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animation 1: Metrics Collection
+        function animateMetricsCollection() {
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            let animationProgress = 0;
+
+            function animate() {
+                animationProgress += 0.02;
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Resources on the left
+                const resources = [
+                    { name: 'EC2', color: '#ff6b6b', y: 60 },
+                    { name: 'Lambda', color: '#4ecdc4', y: 150 },
+                    { name: 'RDS', color: '#ffd93d', y: 240 }
+                ];
+
+                resources.forEach(resource => {
+                    // Draw resource box
+                    ctx.fillStyle = resource.color;
+                    ctx.fillRect(20, resource.y, 80, 40);
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(resource.name, 60, resource.y + 25);
+
+                    // Draw animated arrows/metrics
+                    for (let i = 0; i < 3; i++) {
+                        const offset = (animationProgress * 100 + i * 40) % 280;
+                        if (offset < 280) {
+                            ctx.fillStyle = resource.color;
+                            ctx.beginPath();
+                            ctx.arc(120 + offset, resource.y + 20, 6, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                });
+
+                // CloudWatch logo
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(420, 80, 120, 200);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('CloudWatch', 480, 120);
+                ctx.font = '12px Arial';
+                ctx.fillText('Collecting...', 480, 145);
+
+                // Collected metrics display
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(580, 80, 180, 200);
+                ctx.fillStyle = '#333';
+                ctx.font = '12px monospace';
+                ctx.textAlign = 'left';
+                const metrics = [
+                    `CPU: ${Math.round(45 + Math.sin(animationProgress) * 20)}%`,
+                    `Invocations: ${Math.round(100 + Math.sin(animationProgress + 1) * 50)}`,
+                    `Connections: ${Math.round(25 + Math.cos(animationProgress) * 10)}`
+                ];
+                metrics.forEach((metric, i) => {
+                    ctx.fillText(metric, 595, 100 + i * 25);
+                });
+
+                if (animationProgress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+
+            animate();
+        }
+
+        function startAnimation1() {
+            animateMetricsCollection();
+        }
+
+        function resetAnimation1() {
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Animation 2: Metrics Over Time (Line Graph)
+        function animateMetricsGraph() {
+            const canvas = document.getElementById('canvas2');
+            const ctx = canvas.getContext('2d');
+            let animationProgress = 0;
+
+            function drawGraph() {
+                animationProgress += 0.02;
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw axes
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(60, 50);
+                ctx.lineTo(60, 300);
+                ctx.lineTo(750, 300);
+                ctx.stroke();
+
+                // Labels
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('CPU Usage (%)', 400, 330);
+                ctx.textAlign = 'right';
+                ctx.save();
+                ctx.translate(30, 175);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText('Value', 0, 0);
+                ctx.restore();
+
+                // Grid lines
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= 5; i++) {
+                    const y = 50 + (i * 250 / 5);
+                    ctx.beginPath();
+                    ctx.moveTo(60, y);
+                    ctx.lineTo(750, y);
+                    ctx.stroke();
+                    ctx.fillText(100 - i * 20, 50, y + 4);
+                }
+
+                // Draw animated line
+                const numPoints = Math.round(animationProgress * 50);
+                const points = [];
+                for (let i = 0; i < numPoints; i++) {
+                    const x = 60 + (i / 50) * 690;
+                    const baseValue = 40 + 30 * Math.sin(i / 10) + 20 * Math.cos(i / 15);
+                    const y = 300 - (baseValue / 100) * 250;
+                    points.push({ x, y });
+                }
+
+                if (points.length > 0) {
+                    ctx.strokeStyle = '#ff6b6b';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i].x, points[i].y);
+                    }
+                    ctx.stroke();
+
+                    // Draw point
+                    if (points.length > 0) {
+                        ctx.fillStyle = '#ff6b6b';
+                        ctx.beginPath();
+                        ctx.arc(points[points.length - 1].x, points[points.length - 1].y, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // Current value display
+                const currentValue = 40 + 30 * Math.sin(animationProgress * 50 / 10);
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(580, 30, 180, 100);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${Math.round(currentValue)}%`, 670, 70);
+                ctx.font = '14px Arial';
+                ctx.fillText('Current Value', 670, 95);
+
+                if (animationProgress < 1) {
+                    requestAnimationFrame(drawGraph);
+                }
+            }
+
+            drawGraph();
+        }
+
+        function startAnimation2() {
+            animateMetricsGraph();
+        }
+
+        function resetAnimation2() {
+            const canvas = document.getElementById('canvas2');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Animation 3: Alarms and Thresholds
+        function animateAlarm() {
+            const canvas = document.getElementById('canvas3');
+            const ctx = canvas.getContext('2d');
+            let animationProgress = 0;
+
+            function drawAlarm() {
+                animationProgress += 0.015;
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw threshold line
+                const thresholdY = 150;
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(60, thresholdY);
+                ctx.lineTo(750, thresholdY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = '#ff6b6b';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('THRESHOLD: 80%', 70, thresholdY - 10);
+
+                // Draw metric line
+                const numPoints = Math.round(animationProgress * 50);
+                const points = [];
+                for (let i = 0; i < numPoints; i++) {
+                    const x = 60 + (i / 50) * 690;
+                    let baseValue = 50 + 30 * Math.sin(i / 8);
+                    if (i > 35) baseValue += (i - 35) * 2;
+                    const y = 280 - (baseValue / 100) * 200;
+                    points.push({ x, y });
+                }
+
+                if (points.length > 0) {
+                    ctx.strokeStyle = '#4ecdc4';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i].x, points[i].y);
+                    }
+                    ctx.stroke();
+
+                    const currentPoint = points[points.length - 1];
+                    const isAboveThreshold = currentPoint.y < thresholdY;
+
+                    // Draw current value
+                    ctx.fillStyle = isAboveThreshold ? '#ff6b6b' : '#4CAF50';
+                    ctx.beginPath();
+                    ctx.arc(currentPoint.x, currentPoint.y, 6, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Alarm status
+                    const statusBox = {
+                        x: 480,
+                        y: isAboveThreshold ? 30 : 180,
+                        width: 260,
+                        height: 100
+                    };
+
+                    ctx.fillStyle = isAboveThreshold ? '#ff6b6b' : '#4CAF50';
+                    ctx.fillRect(statusBox.x, statusBox.y, statusBox.width, statusBox.height);
+
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(isAboveThreshold ? '🚨 ALARM!' : '✅ OK', statusBox.x + statusBox.width / 2, statusBox.y + 40);
+                    ctx.font = '12px Arial';
+                    ctx.fillText(isAboveThreshold ? 'Threshold crossed!' : 'Status normal', statusBox.x + statusBox.width / 2, statusBox.y + 70);
+                }
+
+                // Axes labels
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Time →', 400, 330);
+
+                if (animationProgress < 1) {
+                    requestAnimationFrame(drawAlarm);
+                }
+            }
+
+            drawAlarm();
+        }
+
+        function startAnimation3() {
+            animateAlarm();
+        }
+
+        function resetAnimation3() {
+            const canvas = document.getElementById('canvas3');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Animation 4: Logs Flow
+        function animateLogsFlow() {
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+            let animationProgress = 0;
+
+            function drawLogs() {
+                animationProgress += 0.02;
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Application on the left
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(30, 120, 100, 100);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Application', 80, 160);
+                ctx.font = '12px Arial';
+                ctx.fillText('Logging', 80, 180);
+
+                // Log messages flowing
+                const logs = [
+                    { text: 'Request received', color: '#4CAF50' },
+                    { text: 'Processing...', color: '#2196f3' },
+                    { text: 'Error occurred!', color: '#ff6b6b' },
+                    { text: 'Retrying...', color: '#ffd93d' }
+                ];
+
+                logs.forEach((log, index) => {
+                    const offset = (animationProgress * 400 + index * 80) % 450;
+                    if (offset < 450) {
+                        const x = 150 + offset;
+                        ctx.fillStyle = log.color;
+                        ctx.fillRect(x, 140 + index * 35, 200, 30);
+                        ctx.fillStyle = 'white';
+                        ctx.font = '12px monospace';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(log.text, x + 10, 160 + index * 35);
+                    }
+                });
+
+                // CloudWatch Logs
+                ctx.fillStyle = '#764ba2';
+                ctx.fillRect(650, 80, 120, 200);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('CloudWatch', 710, 110);
+                ctx.fillText('Logs', 710, 130);
+
+                // Log count
+                const logCount = Math.floor(animationProgress * 100);
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(650, 200, 120, 50);
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText(`${logCount} logs`, 710, 230);
+
+                if (animationProgress < 1) {
+                    requestAnimationFrame(drawLogs);
+                }
+            }
+
+            drawLogs();
+        }
+
+        function startAnimation4() {
+            animateLogsFlow();
+        }
+
+        function resetAnimation4() {
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Animation 5: Dashboard
+        function animateDashboard() {
+            const canvas = document.getElementById('canvas5');
+            const ctx = canvas.getContext('2d');
+            let animationProgress = 0;
+
+            function drawDashboard() {
+                animationProgress += 0.015;
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Title
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('Infrastructure Dashboard', 20, 30);
+
+                // Widget 1: CPU Chart
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                ctx.fillRect(20, 50, 200, 150);
+                ctx.strokeRect(20, 50, 200, 150);
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.fillText('CPU Usage', 30, 70);
+
+                const cpuPoints = 15;
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < cpuPoints; i++) {
+                    const x = 30 + i * 12;
+                    const value = 40 + 20 * Math.sin(animationProgress + i / 3);
+                    const y = 180 - (value / 100) * 80;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // Widget 2: Memory
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                ctx.fillRect(240, 50, 200, 150);
+                ctx.strokeRect(240, 50, 200, 150);
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.fillText('Memory Usage', 250, 70);
+
+                const memoryValue = 60 + 15 * Math.sin(animationProgress);
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillRect(250, 100 + (100 - memoryValue), 180, memoryValue);
+
+                // Widget 3: Error Rate
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                ctx.fillRect(460, 50, 200, 150);
+                ctx.strokeRect(460, 50, 200, 150);
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.fillText('Error Rate', 470, 70);
+
+                const errorPoints = 15;
+                ctx.strokeStyle = '#ffd93d';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < errorPoints; i++) {
+                    const x = 470 + i * 12;
+                    const value = 5 + 8 * Math.sin(animationProgress + i / 2);
+                    const y = 180 - (value / 20) * 80;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // Widget 4: Active Users
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                ctx.fillRect(680, 50, 100, 150);
+                ctx.strokeRect(680, 50, 100, 150);
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.fillText('Active', 690, 70);
+                ctx.font = 'bold 24px Arial';
+                const activeUsers = Math.round(150 + 50 * Math.sin(animationProgress));
+                ctx.fillText(activeUsers, 690, 130);
+
+                // Lower widgets
+                // Widget 5: Alarms
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                ctx.fillRect(20, 220, 360, 160);
+                ctx.strokeRect(20, 220, 360, 160);
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText('Recent Alarms', 30, 240);
+
+                const alarmStates = Math.floor(animationProgress * 3) % 3;
+                ctx.font = '11px Arial';
+                const alarms = ['✓ CPU OK', '⚠ Memory Warning', '✗ Disk Critical'];
+                const alarmColors = ['#4CAF50', '#ffd93d', '#ff6b6b'];
+                alarms.forEach((alarm, i) => {
+                    ctx.fillStyle = alarmColors[i];
+                    ctx.fillRect(30, 250 + i * 25, 15, 15);
+                    ctx.fillStyle = '#333';
+                    ctx.fillText(alarm, 55, 262 + i * 25);
+                });
+
+                // Widget 6: Logs
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                ctx.fillRect(400, 220, 380, 160);
+                ctx.strokeRect(400, 220, 380, 160);
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText('Recent Logs', 410, 240);
+
+                ctx.font = '10px monospace';
+                const logs = [
+                    '2024-01-15 10:45 INFO Request processed',
+                    '2024-01-15 10:46 WARN Cache miss detected',
+                    '2024-01-15 10:47 ERROR Database timeout'
+                ];
+                logs.forEach((log, i) => {
+                    ctx.fillText(log, 410, 260 + i * 25);
+                });
+
+                if (animationProgress < 1) {
+                    requestAnimationFrame(drawDashboard);
+                }
+            }
+
+            drawDashboard();
+        }
+
+        function startAnimation5() {
+            animateDashboard();
+        }
+
+        function resetAnimation5() {
+            const canvas = document.getElementById('canvas5');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Animation 6: Logs Insights Query
+        function animateLogsInsights() {
+            const canvas = document.getElementById('canvas6');
+            const ctx = canvas.getContext('2d');
+            let animationProgress = 0;
+
+            function drawInsights() {
+                animationProgress += 0.015;
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Query box
+                ctx.fillStyle = '#1e1e1e';
+                ctx.fillRect(20, 20, 760, 80);
+                ctx.fillStyle = '#d4d4d4';
+                ctx.font = '12px monospace';
+                ctx.textAlign = 'left';
+                const query = 'fields @timestamp, @message | filter @message like /ERROR/';
+                ctx.fillText(query, 30, 45);
+                ctx.fillText('| stats count() by @message', 30, 65);
+
+                // Logs being scanned
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(20, 120, 380, 210);
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(20, 120, 380, 210);
+
+                ctx.fillStyle = '#667eea';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText('Scanning Logs...', 30, 140);
+
+                ctx.fillStyle = '#333';
+                ctx.font = '11px monospace';
+                const logLines = [
+                    '2024-01-15 10:45 INFO Starting process',
+                    '2024-01-15 10:45 DEBUG Config loaded',
+                    '2024-01-15 10:46 ERROR Connection failed ⚡',
+                    '2024-01-15 10:46 INFO Retrying...',
+                    '2024-01-15 10:47 ERROR Timeout ⚡'
+                ];
+
+                const scannedCount = Math.floor(animationProgress * logLines.length);
+                logLines.forEach((log, i) => {
+                    if (i < scannedCount) {
+                        ctx.fillStyle = log.includes('ERROR') ? '#ff6b6b' : '#999';
+                        ctx.fillText(log, 30, 160 + i * 25);
+                    }
+                });
+
+                // Results box
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(420, 120, 360, 210);
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(420, 120, 360, 210);
+
+                ctx.fillStyle = '#667eea';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText('Results', 430, 140);
+
+                if (scannedCount === logLines.length) {
+                    ctx.fillStyle = '#333';
+                    ctx.font = '11px monospace';
+                    ctx.fillText('Message', 430, 165);
+                    ctx.fillStyle = '#ff6b6b';
+                    ctx.fillText('Connection failed', 430, 190);
+                    ctx.fillText('Timeout', 430, 215);
+                    ctx.fillStyle = '#999';
+                    ctx.font = '10px Arial';
+                    ctx.fillText('Count', 520, 165);
+                    ctx.fillStyle = '#333';
+                    ctx.fillText('1', 520, 190);
+                    ctx.fillText('1', 520, 215);
+                }
+
+                if (animationProgress < 1) {
+                    requestAnimationFrame(drawInsights);
+                }
+            }
+
+            drawInsights();
+        }
+
+        function startAnimation6() {
+            animateLogsInsights();
+        }
+
+        function resetAnimation6() {
+            const canvas = document.getElementById('canvas6');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Troubleshooting: Website Down Scenario</title>
+<style>
+:root {
+  --primary: #ffffff;
+  --accent: #d32f2f;
+  --success: #388e3c;
+  --warning: #f57c00;
+  --bg-light: #f5f5f5;
+  --text-dark: #1a1a1a;
+  --text-light: #424242;
+  --border: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #1e1e1e;
+    --accent: #ff6b6b;
+    --success: #51cf66;
+    --warning: #ffd43b;
+    --bg-light: #2d2d2d;
+    --text-dark: #ffffff;
+    --text-light: #e0e0e0;
+    --border: #404040;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--primary);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.7;
+  color: var(--text-dark);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--primary);
+  padding: 30px;
+  border-radius: 8px;
+}
+
+h1 {
+  color: var(--accent);
+  border-bottom: 4px solid var(--accent);
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+}
+
+h2 {
+  color: var(--accent);
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-left: 15px;
+  border-left: 5px solid var(--accent);
+  font-size: 1.6em;
+}
+
+h3 {
+  color: var(--text-dark);
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.step {
+  background: var(--bg-light);
+  border-left: 5px solid var(--accent);
+  padding: 25px;
+  margin: 25px 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.step-number {
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 1.15em;
+}
+
+.command {
+  background: #1a1a1a;
+  color: #00ff00;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.output {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 15px 0;
+  border-left: 5px solid var(--success);
+  font-size: 0.95em;
+  border: 2px solid #444;
+}
+
+.critical {
+  background: rgba(211, 47, 47, 0.15);
+  border-left: 5px solid var(--accent);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--accent);
+}
+
+.critical strong {
+  color: var(--accent);
+  font-size: 1.05em;
+}
+
+.success {
+  background: rgba(56, 142, 60, 0.15);
+  border-left: 5px solid var(--success);
+  padding: 18px;
+  margin: 15px 0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  border: 1px solid var(--success);
+}
+
+.success strong {
+  color: var(--success);
+  font-size: 1.05em;
+}
+
+.scenario-box {
+  background: var(--bg-light);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  border-left: 5px solid var(--warning);
+  color: var(--text-dark);
+  border: 1px solid var(--border);
+}
+
+.flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 30px 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.flow-item {
+  background: var(--accent);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-weight: bold;
+  flex: 1;
+  min-width: 110px;
+  text-align: center;
+  font-size: 0.95em;
+}
+
+.flow-arrow {
+  color: var(--accent);
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-light);
+  margin: 25px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th {
+  background: var(--accent);
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 1.05em;
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dark);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.tips {
+  background: rgba(245, 127, 23, 0.1);
+  border: 2px solid var(--warning);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  color: var(--text-dark);
+}
+
+.tips h4 {
+  color: var(--accent);
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.05em;
+}
+
+code {
+  background: var(--bg-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+ul, ol {
+  margin-left: 25px;
+  margin-top: 12px;
+  color: var(--text-dark);
+}
+
+li {
+  margin: 10px 0;
+  line-height: 1.7;
+}
+
+p {
+  margin: 12px 0;
+  color: var(--text-dark);
+}
+
+strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.diagram {
+  background: var(--bg-light);
+  border: 2px solid var(--border);
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+  font-family: monospace;
+  color: var(--text-dark);
+  overflow-x: auto;
+}
+
+.diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔴 Website Down: Complete Troubleshooting Guide</h1>
+
+  <div class="scenario-box">
+    <strong style="color: var(--accent); font-size: 1.05em;">📞 The Call:</strong> "Your website is not loading!" You have 10 minutes to diagnose and fix it.
+    <br><br><strong style="color: var(--accent); font-size: 1.05em;">⏱️ Your Time:</strong> SSH → Diagnose → Fix → Verify (3-5 minutes)
+  </div>
+
+  <div class="diagram">
+    <strong style="color: var(--accent);">WORKFLOW DIAGRAM:</strong><br><br>
+    <svg viewBox="0 0 800 100" width="100%" height="100">
+      <rect x="10" y="20" width="100" height="50" fill="#d32f2f" rx="5"/>
+      <text x="60" y="55" text-anchor="middle" fill="white" font-weight="bold">SSH In</text>
+
+      <line x1="110" y1="45" x2="140" y2="45" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+      <rect x="140" y="20" width="100" height="50" fill="#d32f2f" rx="5"/>
+      <text x="190" y="55" text-anchor="middle" fill="white" font-weight="bold">Check nginx</text>
+
+      <line x1="240" y1="45" x2="270" y2="45" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+      <rect x="270" y="20" width="100" height="50" fill="#d32f2f" rx="5"/>
+      <text x="320" y="55" text-anchor="middle" fill="white" font-weight="bold">Find Problem</text>
+
+      <line x1="370" y1="45" x2="400" y2="45" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+      <rect x="400" y="20" width="100" height="50" fill="#d32f2f" rx="5"/>
+      <text x="450" y="55" text-anchor="middle" fill="white" font-weight="bold">Fix It</text>
+
+      <line x1="500" y1="45" x2="530" y2="45" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+      <rect x="530" y="20" width="100" height="50" fill="#388e3c" rx="5"/>
+      <text x="580" y="55" text-anchor="middle" fill="white" font-weight="bold">Verify ✅</text>
+
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0 0, 10 3, 0 6" fill="#d32f2f" />
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <h2>🚀 Step-by-Step Walkthrough</h2>
+
+  <div class="step">
+    <div class="step-number">STEP 1: Connect to Server</div>
+    <p>Open PuTTY and SSH into your server:</p>
+    <div class="command">Server: 192.168.1.100
+Login: myuser
+Password: ****</div>
+    <p>You see:</p>
+    <div class="output">myuser@webserver:~$</div>
+    <p><strong>What this means:</strong> You're logged in, in your home directory (~).</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 2: Confirm Your Location</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">pwd</div>
+    <p><strong>Expected Output:</strong></p>
+    <div class="output">/home/myuser</div>
+    <p><strong>What you're thinking:</strong> "Good, I'm in my home directory. Now let me check if the web server is running."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 3: Check if nginx Is Running</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">systemctl status nginx</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">● nginx.service - A high performance web server and a reverse proxy server
+   Loaded: loaded (/etc/systemd/system/multi-user.target.wants/nginx.service; enabled; vendor preset: enabled)
+   Active: failed (Result: exit-code) since Wed 2026-08-27 15:30:45 UTC; 5min ago
+   Process: 1234 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=1/0)
+   Main PID: 1234 (code=exited, status=1/0)
+
+Aug 27 15:30:45 webserver nginx[1234]: nginx: [emerg] bind() to 0.0.0.0:80 failed (48: Address already in use)</div>
+    <div class="critical">
+      ⚠️ <strong>CRITICAL INFORMATION:</strong><br><br>
+      • <strong>Active: failed</strong> = nginx is DOWN ❌<br>
+      • <strong>bind() to 0.0.0.0:80 failed</strong> = Port 80 is already in use<br>
+      • <strong>Address already in use</strong> = Another process is using port 80
+    </div>
+    <p><strong>What you're thinking:</strong> "Port 80 is taken by something else. I need to find what's using it."</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 4: Find What's Using Port 80</div>
+    <p><strong>Command (requires sudo):</strong></p>
+    <div class="command">sudo netstat -tuln | grep 80</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      5678/apache2
+tcp6       0      0 [::]:80                 [::]:*                  LISTEN      5678/apache2</div>
+    <div class="critical">
+      ⚠️ <strong>CRITICAL INFORMATION:</strong><br><br>
+      • <strong>apache2</strong> is using port 80<br>
+      • Process ID: 5678<br>
+      • Port 80 is LISTEN-ing (actively in use)<br>
+      • <strong>PROBLEM:</strong> This server should run nginx, not apache!
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 5: Check nginx Error Log for More Details</div>
+    <p><strong>Command (read-only, no sudo needed):</strong></p>
+    <div class="command">tail -20 /var/log/nginx/error.log</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">2026-08-27 15:30:45 [emerg] 1234#1234: bind() to 0.0.0.0:80 failed (48: Address already in use)
+2026-08-27 15:30:45 [emerg] 1234#1234: bind() to 0.0.0.0:80 failed (48: Address already in use)
+2026-08-27 15:30:45 [emerg] 1234#1234: bind() to [::]:80 failed (48: Address already in use)
+2026-08-27 15:30:45 [emerg] 1234#1234: still could not bind()
+2026-08-27 15:30:45 [alert] 1234#1234: master process exited with code 1</div>
+    <div class="critical">
+      ⚠️ <strong>WHAT HAPPENED:</strong><br><br>
+      • nginx tried to start<br>
+      • Couldn't bind to port 80 (already in use)<br>
+      • Tried multiple times<br>
+      • Finally gave up and exited
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 6: Check If Apache Is Supposed To Be Running</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">systemctl status apache2</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">● apache2.service - The Apache HTTP Server
+   Loaded: loaded (/etc/systemd/system/multi-user.target.wants/apache2.service; enabled; vendor preset: enabled)
+   Active: active (running) since Wed 2026-08-27 14:00:15 UTC; 1h 30min ago
+   Main PID: 5678</div>
+    <div class="critical">
+      ⚠️ <strong>PROBLEM CONFIRMED:</strong><br><br>
+      • Apache is running<br>
+      • It's been running for 1.5 hours<br>
+      • It's set to auto-start (enabled)<br>
+      • <strong>This is WRONG for a nginx server!</strong>
+    </div>
+    <p><strong>Decision:</strong> Stop apache, disable it, start nginx, verify website works.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 7: Stop Apache</div>
+    <p><strong>Command (requires sudo):</strong></p>
+    <div class="command">sudo systemctl stop apache2</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">(no output = success!)</div>
+    <div class="success">
+      ✅ Apache is now stopped. Port 80 is free!
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 8: Disable Apache Auto-Start</div>
+    <p><strong>Command (requires sudo):</strong></p>
+    <div class="command">sudo systemctl disable apache2</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">Synchronizing state of apache2.service with SysV service script with /lib/systemd/enable/apache2...
+Executing: /lib/systemd/update-rc.d apache2 disable
+Removed /etc/systemd/system/multi-user.target.wants/apache2.service.</div>
+    <div class="success">
+      ✅ Apache will NOT restart on reboot
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 9: Start nginx</div>
+    <p><strong>Command (requires sudo):</strong></p>
+    <div class="command">sudo systemctl start nginx</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">(no output = success!)</div>
+    <div class="success">
+      ✅ nginx is starting...
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 10: Verify nginx Is Running</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">systemctl status nginx</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">● nginx.service - A high performance web server and a reverse proxy server
+   Loaded: loaded (/etc/systemd/system/multi-user.target.wants/nginx.service; enabled; vendor preset: enabled)
+   Active: active (running) since Wed 2026-08-27 15:35:10 UTC; 2s ago
+   Process: 8901 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/0)
+   Main PID: 8902</div>
+    <div class="success">
+      ✅ <strong>CRITICAL INFORMATION:</strong><br><br>
+      • Active: active (running) = nginx is UP ✅<br>
+      • 2s ago = Just started<br>
+      • No errors in output!
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 11: Test The Website</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">curl http://localhost:80/</div>
+    <p><strong>Output:</strong></p>
+    <div class="output"><!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to My Website</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <p>Website is online!</p>
+</body>
+</html></div>
+    <div class="success">
+      ✅ <strong>WEBSITE IS RESPONDING!</strong><br><br>
+      • HTTP 200 = Success<br>
+      • HTML content is loading<br>
+      • Website works!
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">STEP 12: Final Verification - Port 80 Status</div>
+    <p><strong>Command:</strong></p>
+    <div class="command">sudo netstat -tuln | grep 80</div>
+    <p><strong>Output:</strong></p>
+    <div class="output">tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      8902/nginx
+tcp6       0      0 [::]:80                 [::]:*                  LISTEN      8902/nginx</div>
+    <div class="success">
+      ✅ <strong>PERFECT:</strong><br><br>
+      • Port 80 is now owned by nginx (PID 8902)<br>
+      • NOT apache<br>
+      • Both IPv4 and IPv6 are listening<br>
+      • Website should be accessible to users now!
+    </div>
+  </div>
+
+  <h2>📋 Summary Table</h2>
+  <table>
+    <tr>
+      <th>Step</th>
+      <th>Command</th>
+      <th>Problem Found</th>
+      <th>Action Taken</th>
+    </tr>
+    <tr>
+      <td>1-2</td>
+      <td><code>pwd</code></td>
+      <td>Just checking location</td>
+      <td>None (confirmation)</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code>systemctl status nginx</code></td>
+      <td>nginx is DOWN (port in use)</td>
+      <td>Investigate further</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><code>netstat | grep 80</code></td>
+      <td>Apache using port 80</td>
+      <td>Apache shouldn't be here!</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><code>tail error.log</code></td>
+      <td>Port conflict confirmed</td>
+      <td>Plan to stop apache</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><code>systemctl status apache2</code></td>
+      <td>Apache is running</td>
+      <td>Confirm it's wrong</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><code>systemctl stop apache2</code></td>
+      <td>Apache still running</td>
+      <td>STOP apache</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td><code>systemctl disable apache2</code></td>
+      <td>Apache could auto-restart</td>
+      <td>PREVENT auto-restart</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td><code>systemctl start nginx</code></td>
+      <td>nginx still down</td>
+      <td>START nginx</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td><code>systemctl status nginx</code></td>
+      <td>nginx now running!</td>
+      <td>VERIFY success</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td><code>curl localhost</code></td>
+      <td>Test website</td>
+      <td>Website works ✅</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td><code>netstat | grep 80</code></td>
+      <td>Final confirmation</td>
+      <td>nginx owns port 80 ✅</td>
+    </tr>
+  </table>
+
+  <h2>🎓 What You Learned</h2>
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid var(--border);">
+    <p style="color: var(--text-dark);"><strong>You diagnosed a real production problem by:</strong></p>
+    <ul style="color: var(--text-dark);">
+      <li>✅ Checking service status</li>
+      <li>✅ Reading error logs</li>
+      <li>✅ Finding port conflicts</li>
+      <li>✅ Stopping the wrong service</li>
+      <li>✅ Starting the right service</li>
+      <li>✅ Preventing auto-restart of wrong service</li>
+      <li>✅ Testing the fix</li>
+      <li>✅ Verifying final state</li>
+    </ul>
+    <p style="color: var(--text-dark);"><strong>This is REAL DevOps work. You did it in 3 minutes.</strong></p>
+  </div>
+
+  <h2>⚠️ Troubleshooting: What If...?</h2>
+
+  <h3 style="color: var(--text-dark);">What if you don't have sudo access?</h3>
+  <div class="tips">
+    <h4>You CAN do (read-only):</h4>
+    <ul>
+      <li><code>pwd</code> - Check location</li>
+      <li><code>ls -la</code> - List files</li>
+      <li><code>cd</code> - Navigate</li>
+      <li><code>systemctl status nginx</code> - Check status</li>
+      <li><code>tail -f /var/log/nginx/error.log</code> - Watch logs</li>
+      <li><code>grep "error" /var/log/nginx/error.log</code> - Search logs</li>
+      <li><code>netstat -tuln | grep 80</code> - Check ports</li>
+      <li><code>curl http://localhost:80/</code> - Test website</li>
+    </ul>
+    <h4>You CANNOT do (require sudo):</h4>
+    <ul>
+      <li><code>systemctl stop apache2</code> - Stop service</li>
+      <li><code>systemctl start nginx</code> - Start service</li>
+      <li><code>systemctl disable apache2</code> - Disable service</li>
+    </ul>
+    <p><strong>Solution:</strong> Gather all diagnostic info, then call your admin: "Apache is on port 80, nginx can't start. Can you stop apache and start nginx?"</p>
+  </div>
+
+  <h3 style="color: var(--text-dark);">What if netstat command gives "command not found"?</h3>
+  <div class="tips">
+    <h4>Use alternative:</h4>
+    <div class="command">sudo ss -tuln | grep 80</div>
+    <p style="color: var(--text-dark);"><code>ss</code> (socket statistics) is the newer command, does the same thing.</p>
+  </div>
+
+  <h3 style="color: var(--text-dark);">What if curl gives "Connection refused"?</h3>
+  <div class="tips">
+    <h4>Possible reasons:</h4>
+    <ul>
+      <li>nginx didn't actually start (check <code>systemctl status nginx</code>)</li>
+      <li>nginx is listening on wrong port</li>
+      <li>Configuration error (check <code>tail /var/log/nginx/error.log</code>)</li>
+    </ul>
+  </div>
+
+  <h2>🔗 Quick Reference Commands</h2>
+  <div style="background: #1a1a1a; padding: 20px; border-radius: 6px; color: #00ff00; font-family: monospace; margin: 20px 0;">
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check service status:</span> systemctl status nginx</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">View last 20 lines of log:</span> tail -20 /var/log/nginx/error.log</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Watch logs live:</span> tail -f /var/log/nginx/error.log</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Check port usage:</span> sudo netstat -tuln | grep 80</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Stop service:</span> sudo systemctl stop nginx</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Start service:</span> sudo systemctl start nginx</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Restart service:</span> sudo systemctl restart nginx</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Disable auto-start:</span> sudo systemctl disable nginx</div>
+    <div style="margin: 10px 0; color: #00ff00;"><span style="color: #ffd43b;">Test website:</span> curl http://localhost:80/</div>
+  </div>
+
+  <h2>✅ Next Steps</h2>
+  <div style="background: var(--bg-light); padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 5px solid var(--success); border: 1px solid var(--border);">
+    <p style="color: var(--text-dark);"><strong>When you practice this scenario:</strong></p>
+    <ol style="color: var(--text-dark);">
+      <li>SSH into your Linux server</li>
+      <li>Run these commands in order</li>
+      <li>See similar (or same) outputs</li>
+      <li>Troubleshoot your real server</li>
+      <li>Get the website online</li>
+    </ol>
+    <p style="color: var(--text-dark);"><strong>You'll be amazed how much makes sense once you do it yourself!</strong></p>
+  </div>
+
+</div>
+</body>
+</html>
