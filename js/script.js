@@ -115,7 +115,7 @@ const projects = [
     category: "aws",
     icon: "🖥️",
     description: "Deploy and configure a web server on an AWS EC2 instance.",
-    file: "EC2_Project_1_Web_Server.html",
+    file: "projects/EC2_Project_1_Web_Server.html",
     tags: "AWS • EC2 • Web Server"
 },
 
@@ -124,9 +124,9 @@ const projects = [
     category: "aws",
     icon: "📈",
     description: "Configure EC2 Auto Scaling to automatically adjust compute capacity based on demand.",
-    file: "EC2_Project_2_Auto_Scaling.html",
+    file: "projects/EC2_Project_2_Auto_Scaling.html",
     tags: "AWS • EC2 • Auto Scaling"
-}
+},
 
 /* =====================================
    DEVOPS PROJECTS
