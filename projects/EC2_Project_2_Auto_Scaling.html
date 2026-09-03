@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EC2 Project 2: Auto-Scaling Web Application</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { background: #232f3e; color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        h1 { margin-bottom: 10px; }
+        .breadcrumb { opacity: 0.9; font-size: 14px; }
+        section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border-left: 4px solid #232f3e; }
+        h2 { color: #232f3e; margin-bottom: 15px; font-size: 22px; }
+        h3 { color: #0066cc; margin-top: 15px; margin-bottom: 10px; font-size: 16px; }
+        .step { background: #f9f9f9; padding: 15px; margin: 15px 0; border-radius: 6px; border-left: 3px solid #ff9900; }
+        .step-number { display: inline-block; background: #ff9900; color: white; width: 30px; height: 30px; border-radius: 50%; text-align: center; line-height: 30px; font-weight: bold; margin-right: 10px; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #d63384; }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0; border-radius: 4px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 12px; margin: 15px 0; border-radius: 4px; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 12px; margin: 15px 0; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f0f0f0; font-weight: bold; }
+        .cost-section { background: #e8f4f8; padding: 15px; border-radius: 6px; margin: 15px 0; }
+        ul { margin-left: 20px; margin-bottom: 10px; }
+        li { margin-bottom: 8px; }
+        .diagram { background: #f5f5f5; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center; font-family: monospace; }
+        .highlight { background: #fffacd; padding: 2px 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 EC2 Project 2: Auto-Scaling Web Application</h1>
+            <div class="breadcrumb">AWS EC2 Advanced → Load Balancing & Auto-Scaling</div>
+        </header>
+
+        <section>
+            <h2>Project Overview</h2>
+            <p>In this project, you'll build a scalable web application that automatically adjusts capacity based on demand using AWS Load Balancer and Auto Scaling Groups.</p>
+            <div class="info">
+                <strong>Duration:</strong> 60-90 minutes | <strong>Difficulty:</strong> Intermediate | <strong>Cost:</strong> ~$1-2 per day
+            </div>
+            <h3>What You'll Learn:</h3>
+            <ul>
+                <li>Create Launch Templates for consistent instance configuration</li>
+                <li>Setup Application Load Balancer (ALB)</li>
+                <li>Create Auto Scaling Groups with scaling policies</li>
+                <li>Monitor scaling activities via CloudWatch</li>
+                <li>Test scaling by generating load</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Architecture Overview</h2>
+            <div class="diagram">
+Users (Internet)
+    ↓
+Application Load Balancer
+    ↓
+Target Group (ASG)
+    ├─ EC2 Instance 1
+    ├─ EC2 Instance 2
+    └─ EC2 Instance 3 (scales up/down based on CPU load)
+            </div>
+            <p><strong>How it works:</strong> The ALB distributes incoming traffic across multiple EC2 instances. The Auto Scaling Group monitors CPU utilization and adds/removes instances automatically.</p>
+        </section>
+
+        <section>
+            <h2>Prerequisites</h2>
+            <ul>
+                <li>Completed EC2 Project 1 (understand basic EC2 concepts)</li>
+                <li>AWS Account with free tier access</li>
+                <li>Understanding of security groups and key pairs</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Step 1: Create a Launch Template</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Navigate to Launch Templates</h3>
+                <p>AWS Console → EC2 → Launch Templates → <code>Create launch template</code></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Configure Template</h3>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Template name</td>
+                        <td>WebServerTemplate</td>
+                    </tr>
+                    <tr>
+                        <td>Template version description</td>
+                        <td>Web server with Nginx</td>
+                    </tr>
+                    <tr>
+                        <td>AMI</td>
+                        <td>Amazon Linux 2</td>
+                    </tr>
+                    <tr>
+                        <td>Instance type</td>
+                        <td>t2.micro or t2.small</td>
+                    </tr>
+                    <tr>
+                        <td>Key pair</td>
+                        <td>MyEC2KeyPair (from Project 1)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Configure Security Groups</h3>
+                <p><span class="highlight">Create a new security group named "ASG-WebServer-SG"</span></p>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Port</th>
+                        <th>Source</th>
+                    </tr>
+                    <tr>
+                        <td>HTTP</td>
+                        <td>80</td>
+                        <td>0.0.0.0/0 (from internet)</td>
+                    </tr>
+                    <tr>
+                        <td>HTTPS</td>
+                        <td>443</td>
+                        <td>0.0.0.0/0</td>
+                    </tr>
+                    <tr>
+                        <td>SSH</td>
+                        <td>22</td>
+                        <td>Your IP (for debugging)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Add User Data Script</h3>
+                <p><span class="highlight">This script runs automatically when instances launch</span></p>
+                <p>Expand "Advanced Details" → Scroll to "User Data" and enter:</p>
+                <pre>#!/bin/bash
+yum update -y
+yum install -y nginx
+
+# Create a custom page showing instance details
+INSTANCE_ID=$(ec2-metadata --instance-id | cut -d " " -f 2)
+AVAILABILITY_ZONE=$(ec2-metadata --availability-zone | cut -d " " -f 2)
+PRIVATE_IP=$(ec2-metadata --local-ipv4 | cut -d " " -f 2)
+
+cat > /usr/share/nginx/html/index.html << EOF
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Auto-Scaling Demo&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial; margin: 50px; background: #f0f0f0; }
+        .container { background: white; padding: 30px; border-radius: 8px; }
+        h1 { color: #ff9900; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;🎉 Running on Auto-Scaled Instance&lt;/h1&gt;
+        &lt;div class="info"&gt;
+            &lt;p&gt;&lt;strong&gt;Instance ID:&lt;/strong&gt; $INSTANCE_ID&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Availability Zone:&lt;/strong&gt; $AVAILABILITY_ZONE&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Private IP:&lt;/strong&gt; $PRIVATE_IP&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Timestamp:&lt;/strong&gt; $(date)&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;p&gt;Refresh the page. If you see different Instance IDs, the load balancer is distributing traffic! 🔄&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF
+
+systemctl start nginx
+systemctl enable nginx</pre>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Review and Create</h3>
+                <p>Click <code>Create launch template</code></p>
+                <div class="success">
+                    ✅ Launch template created successfully!
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Step 2: Create Application Load Balancer</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Navigate to Load Balancers</h3>
+                <p>EC2 Dashboard → Load Balancing → Load Balancers → <code>Create load balancer</code></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Choose Load Balancer Type</h3>
+                <p>Select <code>Application Load Balancer (ALB)</code> - best for HTTP/HTTPS traffic</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Configure Load Balancer</h3>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>WebAppLoadBalancer</td>
+                    </tr>
+                    <tr>
+                        <td>Scheme</td>
+                        <td>Internet-facing</td>
+                    </tr>
+                    <tr>
+                        <td>IP address type</td>
+                        <td>IPv4</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Select Availability Zones</h3>
+                <ul>
+                    <li>Default VPC</li>
+                    <li>Check at least 2 subnets (different AZs) for high availability</li>
+                </ul>
+                <p><strong>Why?</strong> If one AZ goes down, your ALB still operates.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Create Security Group for ALB</h3>
+                <p>Create new security group "ALB-SG" with:</p>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Port</th>
+                        <th>Source</th>
+                    </tr>
+                    <tr>
+                        <td>HTTP</td>
+                        <td>80</td>
+                        <td>0.0.0.0/0</td>
+                    </tr>
+                    <tr>
+                        <td>HTTPS</td>
+                        <td>443</td>
+                        <td>0.0.0.0/0</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">6</span>
+                <h3>Configure Routing - Create Target Group</h3>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>WebServers</td>
+                    </tr>
+                    <tr>
+                        <td>Protocol</td>
+                        <td>HTTP</td>
+                    </tr>
+                    <tr>
+                        <td>Port</td>
+                        <td>80</td>
+                    </tr>
+                    <tr>
+                        <td>VPC</td>
+                        <td>Default</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">7</span>
+                <h3>Configure Health Checks</h3>
+                <p><span class="highlight">The ALB checks instance health regularly</span></p>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Protocol</td>
+                        <td>HTTP</td>
+                    </tr>
+                    <tr>
+                        <td>Path</td>
+                        <td>/</td>
+                    </tr>
+                    <tr>
+                        <td>Port</td>
+                        <td>80</td>
+                    </tr>
+                    <tr>
+                        <td>Healthy threshold</td>
+                        <td>2 (consecutive healthy checks)</td>
+                    </tr>
+                    <tr>
+                        <td>Unhealthy threshold</td>
+                        <td>2 (remove if 2 failed checks)</td>
+                    </tr>
+                    <tr>
+                        <td>Timeout</td>
+                        <td>5 seconds</td>
+                    </tr>
+                    <tr>
+                        <td>Interval</td>
+                        <td>30 seconds</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">8</span>
+                <h3>Review and Create</h3>
+                <p>Review settings and click <code>Create load balancer</code></p>
+                <div class="success">
+                    ✅ Load balancer is being created. This takes 2-3 minutes.
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">9</span>
+                <h3>Note the Load Balancer DNS Name</h3>
+                <p>Once created, copy the DNS name (e.g., WebAppLoadBalancer-123456.us-east-1.elb.amazonaws.com)</p>
+                <p>You'll use this to access your application.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Step 3: Create Auto Scaling Group</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Navigate to Auto Scaling Groups</h3>
+                <p>EC2 Dashboard → Auto Scaling → Auto Scaling Groups → <code>Create Auto Scaling group</code></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Select Launch Template</h3>
+                <ul>
+                    <li><strong>Name:</strong> WebAppASG</li>
+                    <li><strong>Launch template:</strong> WebServerTemplate</li>
+                    <li><strong>Version:</strong> Latest</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Configure Network Settings</h3>
+                <ul>
+                    <li><strong>VPC:</strong> Default</li>
+                    <li><strong>Availability Zones:</strong> Select at least 2 (e.g., us-east-1a, us-east-1b)</li>
+                </ul>
+                <p><strong>Why 2 AZs?</strong> High availability - if one zone fails, instances continue in another.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Attach to Load Balancer</h3>
+                <ul>
+                    <li>Check <code>Attach to an existing load balancer</code></li>
+                    <li><strong>Target group:</strong> Select "WebServers" (created in Step 2)</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Enable Health Checks</h3>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Health check type</td>
+                        <td>ELB (uses Load Balancer checks)</td>
+                    </tr>
+                    <tr>
+                        <td>Health check grace period</td>
+                        <td>300 seconds</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">6</span>
+                <h3>Configure Group Size and Scaling</h3>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                        <th>Explanation</th>
+                    </tr>
+                    <tr>
+                        <td>Desired capacity</td>
+                        <td>2</td>
+                        <td>Start with 2 instances</td>
+                    </tr>
+                    <tr>
+                        <td>Minimum capacity</td>
+                        <td>2</td>
+                        <td>Always keep at least 2</td>
+                    </tr>
+                    <tr>
+                        <td>Maximum capacity</td>
+                        <td>4</td>
+                        <td>Scale up to max 4</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">7</span>
+                <h3>Add Scaling Policies</h3>
+                <p>Scroll to "Automatic scaling policies" and select <code>Target tracking scaling</code></p>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Metric type</td>
+                        <td>Average CPU Utilization</td>
+                    </tr>
+                    <tr>
+                        <td>Target value</td>
+                        <td>70</td>
+                    </tr>
+                </table>
+                <p><strong>What this means:</strong> If avg CPU goes above 70%, add instances. If it drops below 70%, remove instances (down to minimum).</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">8</span>
+                <h3>Add Tags</h3>
+                <table>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th>Tag New Instances</th>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>ASG-WebServer</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Environment</td>
+                        <td>Production</td>
+                        <td>✓</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">9</span>
+                <h3>Review and Create</h3>
+                <p>Click <code>Create Auto Scaling group</code></p>
+                <div class="success">
+                    ✅ ASG created! Instances will launch in 30-60 seconds.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Step 4: Test Your Setup</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Wait for Instances to Launch</h3>
+                <p>Go to EC2 → Instances and wait for 2 instances to be "running"</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Access via Load Balancer</h3>
+                <p>Open browser and go to: <code>http://WebAppLoadBalancer-xxx.us-east-1.elb.amazonaws.com</code></p>
+                <p>You should see the custom page showing instance details.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Verify Load Distribution</h3>
+                <p>Refresh the page repeatedly (or use F5)</p>
+                <p>Watch the Instance ID change - the load balancer is distributing requests!</p>
+                <div class="success">
+                    ✅ Load balancer is working!
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Generate Load to Test Scaling</h3>
+                <p>SSH into one of the instances and run:</p>
+                <pre>ssh -i ~/Downloads/MyEC2KeyPair.pem ec2-user@PUBLIC_IP
+# Install load test tool
+sudo yum install -y apache2-utils
+
+# Generate load on the local Nginx instance
+ab -n 10000 -c 100 http://localhost/</pre>
+                <p><strong>Alternative (from your machine):</strong></p>
+                <pre>curl -s http://WebAppLoadBalancer-xxx.elb.amazonaws.com/ | grep "Instance ID"</pre>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Monitor Scaling Activity</h3>
+                <p>Go to EC2 → Auto Scaling Groups → WebAppASG</p>
+                <p>Click "Activity" tab to see scaling events</p>
+                <p>Click "Instances" tab to see current instances</p>
+                <p><strong>You should see:</strong> New instances launching as CPU increases</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">6</span>
+                <h3>View CloudWatch Metrics</h3>
+                <p>CloudWatch → Dashboards (create custom) or EC2 → Auto Scaling Groups → Monitor</p>
+                <p>Watch CPU utilization and instance count over time</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Step 5: Cleanup</h2>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Clean up to avoid charges! This setup costs ~$1-2/day.
+            </div>
+
+            <ol>
+                <li><strong>Delete Auto Scaling Group:</strong> EC2 → Auto Scaling Groups → Select WebAppASG → Delete (instances terminate automatically)</li>
+                <li><strong>Delete Load Balancer:</strong> EC2 → Load Balancers → Select WebAppLoadBalancer → Delete</li>
+                <li><strong>Delete Target Group:</strong> EC2 → Target Groups → Select WebServers → Delete</li>
+                <li><strong>Delete Launch Template:</strong> EC2 → Launch Templates → Select WebServerTemplate → Delete</li>
+                <li><strong>Delete Security Groups:</strong> EC2 → Security Groups → Delete ALB-SG and ASG-WebServer-SG</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Key Concepts</h2>
+            <ul>
+                <li><strong>Launch Template:</strong> Reusable configuration for instances</li>
+                <li><strong>Application Load Balancer:</strong> Distributes incoming traffic across instances</li>
+                <li><strong>Target Group:</strong> Instances managed by the load balancer</li>
+                <li><strong>Health Check:</strong> ALB verifies instances are healthy</li>
+                <li><strong>Auto Scaling Group:</strong> Manages instance count based on policies</li>
+                <li><strong>Scaling Policy:</strong> Rules for adding/removing instances</li>
+                <li><strong>Availability Zone:</strong> Independent data center - spread instances across AZs</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Troubleshooting</h2>
+            <table>
+                <tr>
+                    <th>Problem</th>
+                    <th>Solution</th>
+                </tr>
+                <tr>
+                    <td>Load Balancer shows "Unhealthy" targets</td>
+                    <td>Check security group allows port 80, Nginx is running, health check path is correct</td>
+                </tr>
+                <tr>
+                    <td>Instances not launching from ASG</td>
+                    <td>Check Launch Template is valid, AZs are selected, subnets have available IPs</td>
+                </tr>
+                <tr>
+                    <td>Not scaling up during load</td>
+                    <td>CPU might not be high enough, check metrics in CloudWatch, increase load</td>
+                </tr>
+                <tr>
+                    <td>Cannot access load balancer DNS</td>
+                    <td>Wait 2-3 min for ALB to fully initialize, check security group allows port 80</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>Next Steps</h2>
+            <ul>
+                <li>Add HTTPS with ACM certificates</li>
+                <li>Implement target group stickiness (session affinity)</li>
+                <li>Create more sophisticated scaling policies (step scaling)</li>
+                <li>Setup CloudWatch alarms for monitoring</li>
+                <li>Explore Project 3: Containerized applications with Docker</li>
+            </ul>
+        </section>
+    </div>
+</body>
+</html>

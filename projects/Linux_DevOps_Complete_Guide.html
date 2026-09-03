@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux for DevOps - Complete Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #667eea;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .sidebar a:hover {
+            background: #667eea;
+            padding-left: 20px;
+            color: white;
+        }
+
+        .sidebar a.active {
+            background: #667eea;
+            color: white;
+            border-left: 3px solid #f1c40f;
+            padding-left: 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 40px;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* Section Styles */
+        .section {
+            margin: 40px 0;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .command-block {
+            margin: 20px 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .command-header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .command-header:hover {
+            background: #34495e;
+        }
+
+        .toggle-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        .command-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .command-content.active {
+            display: block;
+        }
+
+        .code-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .code-box code {
+            display: block;
+            line-height: 1.5;
+        }
+
+        .example-label {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .explanation {
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .explanation strong {
+            color: #667eea;
+        }
+
+        .output {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            color: #721c24;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            color: #155724;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tr:hover {
+            background: #f5f5f5;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Tips Section */
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tip-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tip-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .tip-card p {
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        /* Keyboard Shortcuts */
+        .shortcut {
+            display: inline-block;
+            background: #2c3e50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+            margin: 2px;
+            font-size: 0.9em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 15px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .command-header {
+                font-size: 0.9em;
+            }
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            z-index: 100;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .back-to-top:hover {
+            background: #764ba2;
+        }
+
+        .back-to-top.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo">📚 DevOps Linux</div>
+            <nav>
+                <a href="#linux-basics" onclick="setActive(this)">Linux Basics</a>
+                <a href="#file-management" onclick="setActive(this)">File Management</a>
+                <a href="#user-permissions" onclick="setActive(this)">User & Permissions</a>
+                <a href="#process-management" onclick="setActive(this)">Process Management</a>
+                <a href="#networking" onclick="setActive(this)">Networking</a>
+                <a href="#package-management" onclick="setActive(this)">Package Management</a>
+                <a href="#log-management" onclick="setActive(this)">Log Management</a>
+                <a href="#disk-storage" onclick="setActive(this)">Disk & Storage</a>
+                <a href="#monitoring" onclick="setActive(this)">Monitoring</a>
+                <a href="#text-processing" onclick="setActive(this)">Text Processing</a>
+                <a href="#ssh-remote" onclick="setActive(this)">SSH & Remote</a>
+                <a href="#security" onclick="setActive(this)">Security</a>
+                <a href="#docker" onclick="setActive(this)">Docker</a>
+                <a href="#tips" onclick="setActive(this)">Tips & Tricks</a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header" id="header">
+                <h1>🐧 Linux for DevOps</h1>
+                <p>Complete Command Reference Guide with Real-Time Examples</p>
+            </div>
+
+            <!-- Section 1: Linux Basics -->
+            <div class="section" id="linux-basics">
+                <h2>1. Linux Basics</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>pwd - Print Working Directory</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Displays the full path of the current directory you're working in.</p>
+                        <div class="code-box"><code>$ pwd</code></div>
+                        <div class="output">/home/user/documents</div>
+                        <div class="explanation">
+                            <strong>Why use it:</strong> Useful when navigating through directories to know your current location. Especially helpful when working in terminal sessions where you might lose track of your position.
+                        </div>
+                        <p class="example-label">Real-Time Example</p>
+                        <p>When you open a terminal, you start in your home directory. Use pwd to confirm:</p>
+                        <div class="code-box"><code>$ pwd
+/home/john</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>ls - List Directory Contents</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Lists files and directories in a location with various formatting options.</p>
+                        <div class="code-box"><code>ls                    # List files in current directory
+ls -l                 # Long format with permissions, owner, size, date
+ls -a                 # Show all files including hidden files
+ls -lh                # Long format with human-readable sizes
+ls -R                 # Recursive listing of all subdirectories
+ls -t                 # Sort by modification time
+ls -S                 # Sort by file size</code></div>
+                        <p class="example-label">Real-Time Example</p>
+                        <div class="code-box"><code>$ ls -lh
+total 152K
+-rw-r--r--  1 john users 1.2K Jan 15 10:30 file1.txt
+-rw-r--r--  1 john users 2.5K Jan 14 09:15 file2.txt
+drwxr-xr-x  2 john users 4.0K Jan 15 11:20 documents</code></div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> The `-l` flag shows detailed information:
+                            <ul style="margin-top: 10px;">
+                                <li>First column: Permissions (rwxr-xr-x)</li>
+                                <li>Second: Link count</li>
+                                <li>Third: Owner (john)</li>
+                                <li>Fourth: Group (users)</li>
+                                <li>Fifth: File size</li>
+                                <li>Last columns: Date and filename</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>cd - Change Directory</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Changes your current working directory.</p>
+                        <div class="code-box"><code>cd /home/user         # Change to absolute path
+cd ../                # Go up one directory
+cd ~                  # Go to home directory
+cd -                  # Go to previous directory</code></div>
+                        <p class="example-label">Real-Time Example - Navigation Scenario</p>
+                        <div class="code-box"><code>$ pwd
+/home/john/documents
+
+$ cd ..
+$ pwd
+/home/john
+
+$ cd projects/webapp
+$ pwd
+/home/john/projects/webapp
+
+$ cd -
+$ pwd
+/home/john</code></div>
+                        <div class="highlight-box">
+                            <strong>💡 Pro Tip:</strong> The tilde (~) is a shortcut for your home directory. Use <span class="shortcut">cd -</span> to toggle between two directories quickly.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>mkdir - Make Directory</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Creates new directories.</p>
+                        <div class="code-box"><code>mkdir mydir                    # Create a single directory
+mkdir -p /path/to/deep/dir    # Create nested directories
+mkdir dir1 dir2 dir3          # Create multiple directories</code></div>
+                        <p class="example-label">Real-Time Example - DevOps Project Setup</p>
+                        <div class="code-box"><code>$ mkdir -p /opt/myapp/{src,config,logs,scripts}
+$ ls -R /opt/myapp
+/opt/myapp:
+config  logs  scripts  src</code></div>
+                        <div class="success-box">
+                            The <span class="shortcut">-p</span> flag creates parent directories automatically. Without it, the command fails if parent directories don't exist.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>cp - Copy Files or Directories</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Copies files or directories.</p>
+                        <div class="code-box"><code>cp file1.txt file2.txt         # Copy a file
+cp -r dir1 dir2                # Copy directory recursively
+cp file.txt /home/user/        # Copy to another location
+cp -v file1.txt file2.txt      # Verbose mode
+cp -i file1.txt file2.txt      # Interactive (asks before overwriting)</code></div>
+                        <p class="example-label">Real-Time Example - DevOps Config Backup</p>
+                        <div class="code-box"><code>$ cp -v /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+'/etc/nginx/nginx.conf' -> '/etc/nginx/nginx.conf.bak'
+
+$ cp -r /var/www/myapp /var/www/myapp_backup
+$ ls -l /var/www/
+drwxr-xr-x 5 root root 4096 Jan 15 myapp
+drwxr-xr-x 5 root root 4096 Jan 15 myapp_backup</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>mv - Move or Rename Files</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Moves or renames files and directories.</p>
+                        <div class="code-box"><code>mv oldname.txt newname.txt     # Rename a file
+mv file.txt /home/user/        # Move file to another location
+mv -i file.txt newlocation/    # Interactive mode</code></div>
+                        <p class="example-label">Real-Time Example</p>
+                        <div class="code-box"><code>$ mv app.py old_app.py
+$ mv old_app.py /backup/
+$ ls /backup/
+old_app.py</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>rm - Remove Files</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Deletes files or directories.</p>
+                        <div class="code-box"><code>rm file.txt                    # Delete a file
+rm -r directory/               # Delete directory and contents
+rm -f file.txt                 # Force deletion without confirmation
+rm -i file.txt                 # Interactive (ask before deleting)
+rm *.log                       # Delete all matching pattern</code></div>
+                        <p class="example-label">Real-Time Example - Cleanup Old Logs</p>
+                        <div class="code-box"><code>$ ls *.log
+app-2024-01-10.log  app-2024-01-11.log  app-2024-01-12.log
+
+$ rm -i *.log
+remove 'app-2024-01-10.log'? y
+remove 'app-2024-01-11.log'? y
+remove 'app-2024-01-12.log'? n</code></div>
+                        <div class="warning-box">
+                            ⚠️ <strong>WARNING:</strong> Deletion is permanent! There's no trash can in Linux. Use <span class="shortcut">-i</span> for interactive mode to prevent accidents.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>cat & less - View File Contents</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Displays file contents on screen.</p>
+                        <div class="code-box"><code>cat file.txt                   # Display entire file
+cat file1.txt file2.txt        # Display multiple files
+cat file.txt | less            # Display with pagination
+
+less largefile.txt             # View file with scrolling
+# In less: press 'q' to quit, 'space' for next page, 'b' for previous</code></div>
+                        <p class="example-label">Real-Time Example - Reading Configuration Files</p>
+                        <div class="code-box"><code>$ cat /etc/hostname
+myserver
+
+$ cat /etc/os-release
+NAME="Ubuntu"
+VERSION="20.04 LTS"
+ID=ubuntu
+
+$ less /var/log/syslog
+# Shows log file page by page - great for large files</code></div>
+                        <div class="explanation">
+                            <strong>When to use each:</strong>
+                            <ul style="margin-top: 10px;">
+                                <li><strong>cat:</strong> Small files, combining files, in scripts</li>
+                                <li><strong>less:</strong> Large files, need to scroll and search</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>head & tail - View Specific Parts of Files</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> View beginning or end of files, useful for logs.</p>
+                        <div class="code-box"><code>head file.txt                  # Show first 10 lines
+head -n 20 file.txt            # Show first 20 lines
+tail file.txt                  # Show last 10 lines
+tail -f logfile.log            # Follow log file in real-time
+tail -F logfile.log            # Follow with file reopening (handles rotation)</code></div>
+                        <p class="example-label">Real-Time Example - Monitoring Application Logs</p>
+                        <div class="code-box"><code>$ tail -f /var/log/app.log
+2024-01-15 10:25:30 INFO Server started
+2024-01-15 10:25:31 INFO Connected to database
+2024-01-15 10:25:32 ERROR Connection timeout
+# Command continues running, showing new lines as they appear
+# Press Ctrl+C to exit</code></div>
+                        <div class="success-box">
+                            <strong>Pro DevOps Tip:</strong> Use <span class="shortcut">tail -f</span> to monitor application logs in real-time while debugging issues.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: File and Directory Management -->
+            <div class="section" id="file-management">
+                <h2>2. File and Directory Management</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>find - Search for Files</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Powerful file search with various criteria.</p>
+                        <div class="code-box"><code>find /path -name "*.log"       # Find files matching pattern
+find . -type f -name "*.txt"   # Find files (not directories)
+find . -type d -name "test"    # Find directories
+find . -size +100M             # Find files larger than 100MB
+find . -mtime -7               # Find files modified in last 7 days
+find . -name "*.log" -delete    # Find and delete matching files
+find . -name "*.log" -exec rm {} \;  # Find and execute command</code></div>
+                        <p class="example-label">Real-Time DevOps Example - Cleanup Old Backups</p>
+                        <div class="code-box"><code>$ find /backup -name "*.tar.gz" -mtime +30
+/backup/app-backup-2023-12-10.tar.gz
+/backup/app-backup-2023-12-05.tar.gz
+
+$ find /backup -name "*.tar.gz" -mtime +30 -delete
+# Deletes all backups older than 30 days</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>grep - Search within Files</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Search for text patterns within files.</p>
+                        <div class="code-box"><code>grep "pattern" file.txt        # Search for pattern
+grep -r "pattern" /path        # Search recursively
+grep -i "pattern" file.txt     # Case-insensitive search
+grep -v "pattern" file.txt     # Show non-matching lines
+grep -n "pattern" file.txt     # Show line numbers
+grep -c "pattern" file.txt     # Count matching lines</code></div>
+                        <p class="example-label">Real-Time Example - Debug Application Errors</p>
+                        <div class="code-box"><code>$ grep -n "ERROR" /var/log/app.log
+125: 2024-01-15 10:25:32 ERROR Connection timeout
+143: 2024-01-15 10:26:15 ERROR Database query failed
+211: 2024-01-15 10:27:45 ERROR Authentication failed
+
+$ grep -c "ERROR" /var/log/app.log
+3
+
+$ grep -i "warning\|error" /var/log/app.log | head -5</code></div>
+                        <div class="highlight-box">
+                            <strong>💡 DevOps Use Case:</strong> Quickly identify errors in application logs, configuration issues, and parse log files for monitoring and alerting.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>sed - Stream Editor (Text Replacement)</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Stream editor for text manipulation and replacement.</p>
+                        <div class="code-box"><code>sed 's/old/new/' file.txt      # Replace first occurrence per line
+sed 's/old/new/g' file.txt     # Replace all occurrences
+sed -i 's/old/new/g' file.txt  # In-place replacement
+sed '10d' file.txt             # Delete line 10
+sed '1,5d' file.txt            # Delete lines 1 to 5
+sed -n '5,10p' file.txt        # Print lines 5 to 10</code></div>
+                        <p class="example-label">Real-Time Example - Update Configuration Files</p>
+                        <div class="code-box"><code>$ cat config.conf
+database_host=localhost
+database_port=5432
+database_user=admin
+
+$ sed -i 's/localhost/192.168.1.100/g' config.conf
+$ cat config.conf
+database_host=192.168.1.100
+database_port=5432
+database_user=admin</code></div>
+                        <div class="success-box">
+                            <strong>DevOps Application:</strong> Modify configuration files during deployment, change IP addresses, and update service endpoints in scripts.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>awk - Advanced Text Processing</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Powerful text processing language for parsing and transforming data.</p>
+                        <div class="code-box"><code>awk '{print $1}' file.txt      # Print first column
+awk '{print $1, $3}' file.txt  # Print columns 1 and 3
+awk -F: '{print $1}' /etc/passwd  # Use colon as delimiter
+awk '{sum += $1} END {print sum}' file.txt  # Sum first column
+awk '$2 > 100' file.txt        # Print rows where column 2 > 100</code></div>
+                        <p class="example-label">Real-Time Example - Parse System Files</p>
+                        <div class="code-box"><code>$ cat /etc/passwd | head -3
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+
+$ awk -F: '{print "User: " $1 " UID: " $3}' /etc/passwd | head -3
+User: root UID: 0
+User: daemon UID: 1
+User: bin UID: 2
+
+$ awk -F: '{sum += $3} END {print "Total UIDs: " sum}' /etc/passwd
+Total UIDs: 7894</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: User and Permissions Management -->
+            <div class="section" id="user-permissions">
+                <h2>3. User and Permissions Management</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>User Management (useradd, usermod, passwd)</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Create, modify, and manage user accounts.</p>
+                        <div class="code-box"><code>useradd -m username            # Create user with home directory
+useradd -s /bin/bash username  # Create with specific shell
+useradd -G sudo username       # Add to group
+usermod -aG sudo username      # Add to sudo group
+usermod -s /bin/bash username  # Change login shell
+passwd username                # Change user password</code></div>
+                        <p class="example-label">Real-Time Example - Create Application User</p>
+                        <div class="code-box"><code>$ sudo useradd -m -s /bin/bash -d /home/appuser appuser
+$ sudo usermod -aG docker appuser
+$ id appuser
+uid=1001(appuser) gid=1001(appuser) groups=1001(appuser),999(docker)
+
+$ sudo passwd appuser
+New password: ****
+Retype password: ****
+passwd: password updated successfully</code></div>
+                        <div class="explanation">
+                            <strong>Breaking it down:</strong>
+                            <ul style="margin-top: 10px;">
+                                <li><span class="shortcut">-m</span> creates home directory</li>
+                                <li><span class="shortcut">-s</span> specifies shell</li>
+                                <li><span class="shortcut">-d</span> sets home directory path</li>
+                                <li><span class="shortcut">-G</span> adds to groups</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>chmod - Change File Permissions</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Change file and directory access permissions.</p>
+                        <div class="code-box"><code>chmod 755 file.sh              # rwxr-xr-x (executable script)
+chmod 644 file.txt             # rw-r--r-- (readable file)
+chmod 600 file.txt             # rw------- (private file)
+chmod +x script.sh             # Add execute permission
+chmod -x script.sh             # Remove execute permission
+chmod -R 755 directory         # Recursive change</code></div>
+                        <p class="example-label">Permission Numbers Explained</p>
+                        <div class="code-box"><code>4 = read (r)
+2 = write (w)
+1 = execute (x)
+
+755 = 7 (owner: rwx) 5 (group: r-x) 5 (others: r-x)
+644 = 6 (owner: rw-) 4 (group: r--) 4 (others: r--)
+600 = 6 (owner: rw-) 0 (group: ---) 0 (others: ---)</code></div>
+                        <p class="example-label">Real-Time Example - Secure Sensitive Files</p>
+                        <div class="code-box"><code>$ ls -l config.txt
+-rw-r--r-- 1 root root 245 Jan 15 config.txt
+
+$ chmod 600 config.txt
+$ ls -l config.txt
+-rw------- 1 root root 245 Jan 15 config.txt
+
+$ chmod 755 /opt/scripts/deploy.sh
+$ ls -l /opt/scripts/deploy.sh
+-rwxr-xr-x 1 root root 1245 Jan 15 deploy.sh</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>chown - Change File Owner</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Change file and directory ownership.</p>
+                        <div class="code-box"><code>chown username file.txt        # Change owner
+chown username:groupname file.txt  # Change owner and group
+chown -R username directory    # Recursive change
+chown :groupname file.txt      # Change group only</code></div>
+                        <p class="example-label">Real-Time Example - Setup Application Ownership</p>
+                        <div class="code-box"><code>$ sudo chown -R appuser:appgroup /opt/myapp
+$ ls -l /opt/myapp/
+total 45
+-rw-r--r-- 1 appuser appgroup  2048 Jan 15 app.py
+-rw-r--r-- 1 appuser appgroup  1024 Jan 15 config.json
+
+$ sudo chown root:root /etc/app/config.conf
+$ ls -l /etc/app/config.conf
+-rw-r--r-- 1 root root 512 Jan 15 config.conf</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>sudo - Execute with Elevated Privileges</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Run commands with root or other user privileges.</p>
+                        <div class="code-box"><code>sudo command                   # Execute as root
+sudo -u username command       # Execute as specific user
+sudo -i                        # Start interactive root shell
+sudo !!                        # Re-run last command with sudo
+sudo -l                        # List sudo privileges</code></div>
+                        <p class="example-label">Real-Time Example - System Administration Tasks</p>
+                        <div class="code-box"><code>$ sudo systemctl restart nginx
+[sudo] password for john:
+$ sudo -u postgres psql
+psql (12.10)
+
+$ sudo !!
+[Re-runs the last command with sudo]
+
+$ sudo -l
+User john may run the following commands on this host:
+  (ALL) ALL
+  (ALL) NOPASSWD: /usr/bin/systemctl</code></div>
+                        <div class="warning-box">
+                            ⚠️ Use sudo carefully! Misuse can compromise system security. Only grant necessary privileges to users.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Process and System Management -->
+            <div class="section" id="process-management">
+                <h2>4. Process and System Management</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>ps - List Running Processes</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Display information about running processes.</p>
+                        <div class="code-box"><code>ps                             # Show current user processes
+ps aux                         # Show all processes with details
+ps -ef                         # Show all processes (different format)
+ps aux | grep python           # Find specific process
+ps -p 1234                     # Show specific PID
+ps --forest                    # Show process tree</code></div>
+                        <p class="example-label">Real-Time Example - Find Running Services</p>
+                        <div class="code-box"><code>$ ps aux | grep nginx
+root       1234  0.0  0.1 125432  5432 ?  Ss  10:15 0:00 nginx: master
+www-data   1235  0.0  0.2 125664  8192 ?  S   10:15 0:00 nginx: worker
+
+USER    PID  %CPU  %MEM    VSZ   RSS  TTY  STAT  START  TIME  COMMAND
+root   1234   0.0   0.1 125432  5432  ?    Ss   10:15   0:00  nginx: master</code></div>
+                        <div class="explanation">
+                            <strong>Output columns:</strong>
+                            <ul style="margin-top: 10px;">
+                                <li><strong>PID:</strong> Process ID</li>
+                                <li><strong>%CPU:</strong> CPU usage percentage</li>
+                                <li><strong>%MEM:</strong> Memory usage percentage</li>
+                                <li><strong>VSZ:</strong> Virtual memory size</li>
+                                <li><strong>RSS:</strong> Resident set size (actual memory)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>top & htop - Real-Time Process Monitoring</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Interactive real-time monitoring of system processes.</p>
+                        <div class="code-box"><code>top                            # Show live process monitoring
+top -p 1234                    # Monitor specific PID
+top -u username                # Show processes of specific user
+htop                           # Enhanced version (more user-friendly)
+top -b -n 1                    # Batch mode (single output)</code></div>
+                        <p class="example-label">Real-Time Example - Monitor System Resources</p>
+                        <div class="code-box"><code>$ top
+top - 10:30:45 up 5 days,  2:15,  1 user,  load average: 0.25, 0.30, 0.35
+Tasks:  120 total,   1 running, 119 sleeping
+%Cpu(s):  5.2 us,  2.1 sy,  0.0 ni, 92.7 id,  0.0 wa
+
+PID  USER  PR  NI  VIRT  RES  SHR  S  %CPU  %MEM  TIME+ COMMAND
+1234 root  20   0 125M  45M  12M  S   2.5   2.3   0:15 nginx
+2345 user  20   0  85M  32M   8M  S   1.2   1.6   0:08 python3</code></div>
+                        <div class="highlight-box">
+                            <strong>In top, press:</strong> M = sort by memory, P = sort by CPU, q = quit, k = kill process
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>kill - Terminate Processes</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Send signals to processes to control their execution.</p>
+                        <div class="code-box"><code>kill 1234                      # Send SIGTERM (graceful termination)
+kill -9 1234                   # Send SIGKILL (force kill)
+kill -15 1234                  # Send SIGTERM (default)
+killall process_name           # Kill all processes with name
+pkill -f "python script.py"    # Kill matching process pattern</code></div>
+                        <p class="example-label">Real-Time Example - Manage Stuck Processes</p>
+                        <div class="code-box"><code>$ ps aux | grep stuck_app
+user   5432  0.0  0.1  125432  5432  ?  S   10:15   0:00  stuck_app
+
+$ kill 5432
+# Process terminates gracefully
+
+$ ps aux | grep stuck_app
+# No output - process has ended
+
+# For stubborn processes that don't respond:
+$ kill -9 5432</code></div>
+                        <div class="warning-box">
+                            ⚠️ Use SIGTERM (kill PID) first to allow graceful shutdown. Only use SIGKILL (-9) if necessary, as it doesn't allow cleanup.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>systemctl - Manage System Services</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Control systemd services and check their status.</p>
+                        <div class="code-box"><code>systemctl start service        # Start a service
+systemctl stop service         # Stop a service
+systemctl restart service      # Restart a service
+systemctl reload service       # Reload without restarting
+systemctl status service       # Show service status
+systemctl enable service       # Enable service at boot
+systemctl disable service      # Disable service at boot
+systemctl list-units --type=service  # List all services</code></div>
+                        <p class="example-label">Real-Time Example - Manage Web Server</p>
+                        <div class="code-box"><code>$ sudo systemctl start nginx
+$ sudo systemctl status nginx
+● nginx.service - A high performance web server
+   Loaded: loaded (/etc/systemd/system/nginx.service; enabled)
+   Active: active (running) since Mon 2024-01-15 10:25:30 UTC
+   Process: 1234 ExecStart=/usr/sbin/nginx
+
+$ sudo systemctl enable nginx
+Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service
+
+$ sudo systemctl restart nginx</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Networking -->
+            <div class="section" id="networking">
+                <h2>5. Networking Commands</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>ifconfig / ip - Network Configuration</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Display and configure network interfaces.</p>
+                        <div class="code-box"><code>ifconfig                       # Show all network interfaces
+ip addr show                   # Show IP addresses (modern)
+ip link show                   # Show network devices
+ip addr add 192.168.1.100/24 dev eth0  # Add IP address
+ifconfig eth0 up               # Enable interface
+ifconfig eth0 down             # Disable interface</code></div>
+                        <p class="example-label">Real-Time Example</p>
+                        <div class="code-box"><code>$ ip addr show
+1: lo: <LOOPBACK,UP,LOWER_UP>
+   inet 127.0.0.1/8
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP>
+   inet 192.168.1.50/24
+   inet6 fe80::1/64
+
+$ ifconfig eth0
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>
+   inet 192.168.1.50  netmask 255.255.255.0  broadcast 192.168.1.255
+   inet6 fe80::1  prefixlen 64  scopeid 0x20<link>
+   ether 08:00:27:00:01:02  txqueuelen 1000</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>ping - Test Network Connectivity</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Test connectivity to remote hosts.</p>
+                        <div class="code-box"><code>ping google.com                # Test connectivity
+ping -c 4 google.com           # Send 4 packets
+ping -i 2 google.com           # Wait 2 seconds between packets
+ping -w 5000 google.com        # Timeout after 5 seconds</code></div>
+                        <p class="example-label">Real-Time Example - Network Diagnostics</p>
+                        <div class="code-box"><code>$ ping -c 4 192.168.1.1
+PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
+64 bytes from 192.168.1.1: icmp_seq=1 time=2.45 ms
+64 bytes from 192.168.1.1: icmp_seq=2 time=2.32 ms
+64 bytes from 192.168.1.1: icmp_seq=3 time=2.51 ms
+64 bytes from 192.168.1.1: icmp_seq=4 time=2.40 ms
+
+--- 192.168.1.1 statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 1003ms</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>netstat / ss - Network Statistics</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Display network connections and listening ports.</p>
+                        <div class="code-box"><code>netstat -an                    # Show all connections
+netstat -tulpn                 # Show listening ports with process
+ss -tulpn                      # Modern replacement (faster)
+netstat -i                     # Show interface statistics
+ss src :80                     # Show connections to port 80</code></div>
+                        <p class="example-label">Real-Time Example - Find What's Listening on Ports</p>
+                        <div class="code-box"><code>$ ss -tulpn | grep LISTEN
+tcp    LISTEN   0   100   *:22    *:*   users:(("sshd",pid=1234,fd=4))
+tcp    LISTEN   0   128   *:80    *:*   users:(("nginx",pid=2345,fd=6))
+tcp    LISTEN   0   128   *:443   *:*   users:(("nginx",pid=2346,fd=7))
+tcp    LISTEN   0   511   127.0.0.1:3306   *:*   users:(("mysqld",pid=3456,fd=20))</code></div>
+                        <div class="highlight-box">
+                            <strong>🔍 DevOps Use Case:</strong> Identify port conflicts, verify services are listening, and troubleshoot network issues.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>curl - Data Transfer Tool</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Transfer data using URLs (HTTP, HTTPS, FTP, etc.).</p>
+                        <div class="code-box"><code>curl https://example.com       # Fetch webpage
+curl -o output.html https://example.com  # Save output
+curl -H "Header: value" https://example.com  # Add headers
+curl -X POST -d "data=value" https://example.com  # POST request
+curl -u username:password https://example.com  # Basic auth
+curl -I https://example.com    # Headers only</code></div>
+                        <p class="example-label">Real-Time Example - Test API Endpoints</p>
+                        <div class="code-box"><code>$ curl -X GET http://localhost:8080/api/users
+[{"id":1,"name":"John"},{"id":2,"name":"Jane"}]
+
+$ curl -X POST http://localhost:8080/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Bob","email":"bob@example.com"}'
+{"id":3,"name":"Bob","email":"bob@example.com"}
+
+$ curl -I https://example.com
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 1234
+Server: Apache/2.4</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 6: Package Management -->
+            <div class="section" id="package-management">
+                <h2>6. Package Management</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>apt (Debian/Ubuntu)</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Package manager for Debian/Ubuntu systems.</p>
+                        <div class="code-box"><code>apt update                     # Update package lists
+apt upgrade                    # Upgrade packages
+apt install package_name       # Install package
+apt remove package_name        # Remove package
+apt search package_name        # Search for package
+apt autoremove                 # Remove unused dependencies
+apt clean                      # Remove cached packages</code></div>
+                        <p class="example-label">Real-Time Example - Install and Manage Software</p>
+                        <div class="code-box"><code>$ sudo apt update
+Hit:1 http://archive.ubuntu.com focal InRelease
+Get:2 http://archive.ubuntu.com focal-updates InRelease
+
+$ sudo apt install nginx
+Reading package lists... Done
+Setting up nginx (1.18.0-1ubuntu1) ...
+Processing triggers for ufw (0.36-6)
+
+$ sudo apt upgrade
+Reading package lists... Done
+Calculating upgrade... Done
+The following packages will be upgraded:
+  curl vim git
+
+$ sudo apt autoremove
+Reading package lists... Done
+Removing unused dependencies...</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>yum/dnf (RHEL/CentOS)</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Package manager for RHEL-based systems.</p>
+                        <div class="code-box"><code>yum update                     # Update packages
+yum install package_name       # Install package
+yum remove package_name        # Remove package
+yum search package_name        # Search packages
+dnf install package_name       # dnf is newer version</code></div>
+                        <p class="example-label">Real-Time Example</p>
+                        <div class="code-box"><code>$ sudo yum update
+Loaded plugins: fastestmirror
+Loading mirror speeds...
+Resolving Dependencies...
+Updating: curl x86_64 7.68.0-1
+
+$ sudo yum install httpd
+Loaded plugins: fastestmirror
+Resolving Dependencies...
+--> Running transaction
+   Installing : httpd-2.4.37-41.el7.x86_64</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>pip (Python Package Manager)</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Install and manage Python packages.</p>
+                        <div class="code-box"><code>pip install package_name       # Install package
+pip install package==1.0.0     # Install specific version
+pip upgrade package_name       # Upgrade package
+pip list                       # List installed packages
+pip install -r requirements.txt  # Install from requirements file
+pip freeze > requirements.txt   # Create requirements file</code></div>
+                        <p class="example-label">Real-Time Example - Python Development Setup</p>
+                        <div class="code-box"><code>$ pip install flask
+Collecting flask
+  Downloading flask-2.3.0.tar.gz
+Installing collected packages: flask, click, itsdangerous
+Successfully installed flask-2.3.0
+
+$ pip freeze > requirements.txt
+$ cat requirements.txt
+flask==2.3.0
+click==8.1.0
+itsdangerous==2.1.0
+
+$ pip install -r requirements.txt</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7: Log Management -->
+            <div class="section" id="log-management">
+                <h2>7. Log Management</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>journalctl - Systemd Journal Logs</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> View and manage systemd journal logs.</p>
+                        <div class="code-box"><code>journalctl                     # Show all logs
+journalctl -n 50               # Show last 50 entries
+journalctl -f                  # Follow logs in real-time
+journalctl -u nginx            # Show logs for specific service
+journalctl -p err              # Show error level and above
+journalctl --since "2024-01-01"  # Show logs since date
+journalctl --since "-1 hour"   # Show last hour of logs</code></div>
+                        <p class="example-label">Real-Time Example - Monitor Application Logs</p>
+                        <div class="code-box"><code>$ journalctl -u nginx -f
+-- Logs begin at Mon 2024-01-15 10:00:00 UTC --
+Jan 15 10:25:30 server nginx[1234]: Starting nginx
+Jan 15 10:25:30 server nginx[1234]: Configuration test successful
+Jan 15 10:25:31 server nginx[2345]: nginx worker started
+# Continues showing new logs as they appear</code></div>
+                        <div class="highlight-box">
+                            <strong>💡 Pro Tip:</strong> Use <span class="shortcut">-f</span> to follow logs, <span class="shortcut">-u</span> to filter by service, and <span class="shortcut">-p</span> to filter by severity level.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>/var/log - Traditional Log Files</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Access traditional system and application logs.</p>
+                        <div class="code-box"><code>tail -f /var/log/syslog        # Follow system logs
+tail -f /var/log/auth.log      # Follow authentication logs
+cat /var/log/dmesg             # Show kernel messages
+tail -f /var/log/nginx/access.log  # Follow web server logs
+tail -f /var/log/apache2/error.log # Follow app server errors</code></div>
+                        <p class="example-label">Real-Time Example - Troubleshoot Failed Login</p>
+                        <div class="code-box"><code>$ tail -f /var/log/auth.log
+Jan 15 10:25:30 server sshd[5432]: Failed password for user john from 192.168.1.100
+Jan 15 10:25:35 server sshd[5433]: Failed password for user john from 192.168.1.100
+Jan 15 10:25:40 server sshd[5434]: Accepted publickey for john from 192.168.1.100
+
+# Identify login issues and brute-force attempts</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 8: Disk and Storage -->
+            <div class="section" id="disk-storage">
+                <h2>8. Disk and Storage Management</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>df & du - Disk Usage</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Check disk space usage.</p>
+                        <div class="code-box"><code>df -h                          # Show disk space (human-readable)
+df -i                          # Show inode usage
+du -sh /path                   # Show directory size
+du -h --max-depth=1 /path      # Show one level deep
+du -sh /* | sort -h            # Find largest directories</code></div>
+                        <p class="example-label">Real-Time Example - Find Disk Space Issues</p>
+                        <div class="code-box"><code>$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   45G   3.2G  94% /
+/dev/sdb1       100G   50G   45G  52% /home
+
+$ du -sh /home/*
+12G    /home/user1
+18G    /home/user2
+8G     /home/user3
+
+$ du -sh /* | sort -hr | head -5
+18G    /home
+12G    /var
+8G     /usr
+5G     /opt
+2G     /tmp</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>mount - Mount Filesystems</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Mount and unmount filesystems.</p>
+                        <div class="code-box"><code>mount                          # Show all mounted filesystems
+mount /dev/sda1 /mnt/data      # Mount partition
+mount -t nfs host:/share /mnt/nfs  # Mount NFS share
+mount -o ro /dev/sda1 /mnt     # Mount as read-only
+umount /mnt/data               # Unmount filesystem</code></div>
+                        <p class="example-label">Real-Time Example - Mount External Drive</p>
+                        <div class="code-box"><code>$ lsblk
+NAME   SIZE TYPE MOUNTPOINT
+sda    100G disk
+├─sda1  50G part /
+└─sda2  50G part /home
+sdb     500G disk          # External drive (not mounted)
+
+$ sudo mount /dev/sdb1 /mnt/backup
+$ mount | grep backup
+/dev/sdb1 on /mnt/backup type ext4 (rw,relatime)
+
+$ df -h /mnt/backup
+Filesystem     Size Used Avail Use%
+/dev/sdb1      500G  200G  280G  42%</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>rsync - Remote Sync & Backup</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Synchronize files locally and remotely.</p>
+                        <div class="code-box"><code>rsync -avz source/ destination/  # Local sync
+rsync -avz -e ssh user@host:/remote/ local/  # Remote sync
+rsync -avz --delete source/ destination/  # Delete extra files
+rsync -avz --backup destination/  # Backup before overwriting</code></div>
+                        <p class="example-label">Real-Time Example - Backup Application Data</p>
+                        <div class="code-box"><code>$ rsync -avz /var/www/myapp/ /backup/myapp-$(date +%Y%m%d)/
+building file list ... done
+index.html
+config.json
+app.py
+sent 156 bytes received 45 bytes
+total size is 12345 speedup is 60.34
+
+$ rsync -avz -e ssh user@server:/var/www/html /local/backup/
+/local/backup/html/
+  config.php  =>  100%
+  index.html =>  100%</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 9: Monitoring -->
+            <div class="section" id="monitoring">
+                <h2>9. System Monitoring and Performance</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>uptime & free - System Status</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Check system uptime and memory usage.</p>
+                        <div class="code-box"><code>uptime                         # Show system uptime and load
+free -h                        # Show memory usage
+free -h -s 2                   # Show memory every 2 seconds
+uname -a                       # Show system information</code></div>
+                        <p class="example-label">Real-Time Example</p>
+                        <div class="code-box"><code>$ uptime
+ 10:30:45 up 125 days,  2:15,  2 users,  load average: 0.25, 0.30, 0.35
+
+$ free -h
+              total       used        free      shared  buff/cache
+Mem:           15Gi       8.2Gi       3.1Gi       512Mi       3.6Gi
+Swap:          2.0Gi       0.0Gi       2.0Gi</code></div>
+                        <div class="explanation">
+                            <strong>Load average explained:</strong>
+                            <ul style="margin-top: 10px;">
+                                <li>0.25 = 1 minute average</li>
+                                <li>0.30 = 5 minute average</li>
+                                <li>0.35 = 15 minute average</li>
+                                <li>On 4-core CPU, 1.0 = 25% utilization, 4.0 = 100% utilization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>iostat & vmstat - I/O and Memory Statistics</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Monitor input/output and virtual memory statistics.</p>
+                        <div class="code-box"><code>iostat                         # Show I/O statistics
+iostat -x                      # Extended I/O stats
+vmstat                         # Show memory statistics
+vmstat 2 10                    # Sample every 2 seconds, 10 times</code></div>
+                        <p class="example-label">Real-Time Example - Detect I/O Bottleneck</p>
+                        <div class="code-box"><code>$ iostat -x 1 3
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+          12.50    0.00   10.50   15.00    0.00   62.00
+
+Device  r/s    w/s    rkB/s    wkB/s   await svctm  %util
+sda    125.00 85.00 2048.00 1024.00  15.50  8.20  65.50
+sdb     45.00 30.00  512.00  256.00  12.30  6.80  32.40</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 10: SSH and Remote Access -->
+            <div class="section" id="ssh-remote">
+                <h2>10. SSH and Remote Access</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>ssh - Secure Shell</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Secure remote access to servers.</p>
+                        <div class="code-box"><code>ssh user@host                  # Connect to remote host
+ssh -i key.pem user@host       # Connect with private key
+ssh -p 2222 user@host          # Connect to different port
+ssh user@host "command"        # Execute command remotely
+ssh -L 8080:localhost:80 user@host  # Local port forwarding
+ssh -R 8080:localhost:80 user@host  # Remote port forwarding</code></div>
+                        <p class="example-label">Real-Time Example - Remote Server Management</p>
+                        <div class="code-box"><code>$ ssh user@192.168.1.100
+user@server:~$ pwd
+/home/user
+
+$ ssh user@server "systemctl restart nginx"
+$ ssh user@server "curl localhost"
+<!DOCTYPE html>...</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>ssh-keygen & ssh-copy-id - SSH Keys</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Generate and manage SSH key pairs for password-less authentication.</p>
+                        <div class="code-box"><code>ssh-keygen -t ed25519          # Generate modern key pair
+ssh-keygen -t rsa -b 4096      # Generate RSA key (compatible)
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@host  # Copy public key
+ssh-copy-id user@host          # Use default key</code></div>
+                        <p class="example-label">Real-Time Example - Setup Password-less SSH</p>
+                        <div class="code-box"><code>$ ssh-keygen -t ed25519 -f ~/.ssh/id_server
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase): [press Enter]
+Your identification has been saved in ~/.ssh/id_server
+Your public key has been saved in ~/.ssh/id_server.pub
+
+$ ssh-copy-id -i ~/.ssh/id_server.pub user@server
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "~/.ssh/id_server.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s)
+Number of key(s) added: 1
+
+$ ssh -i ~/.ssh/id_server user@server
+# Now logs in without password prompt</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>scp & sftp - Secure File Transfer</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Securely copy files between local and remote systems.</p>
+                        <div class="code-box"><code>scp file.txt user@host:/path/  # Copy to remote
+scp user@host:/path/file.txt . # Copy from remote
+scp -r folder user@host:/path/ # Copy folder recursively
+scp -P 2222 file.txt user@host:/path/  # Different port</code></div>
+                        <p class="example-label">Real-Time Example - Backup Configuration</p>
+                        <div class="code-box"><code>$ scp user@server:/etc/nginx/nginx.conf ./nginx.conf.backup
+nginx.conf.backup                    100% 2345     2.3MB/s   00:00
+
+$ scp config.json user@server:/home/user/
+config.json                          100% 1024     1.0MB/s   00:00</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 11: Security -->
+            <div class="section" id="security">
+                <h2>11. Security and Firewall</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>ufw - Uncomplicated Firewall (Ubuntu)</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Simple firewall management on Ubuntu systems.</p>
+                        <div class="code-box"><code>ufw enable                     # Enable firewall
+ufw disable                    # Disable firewall
+ufw allow 22                   # Allow SSH
+ufw allow 80/tcp               # Allow HTTP
+ufw allow 443/tcp              # Allow HTTPS
+ufw deny 22                    # Deny SSH
+ufw delete allow 22            # Remove rule
+ufw status                     # Show status</code></div>
+                        <p class="example-label">Real-Time Example - Secure Server Setup</p>
+                        <div class="code-box"><code>$ sudo ufw enable
+Firewall is active and enabled on system startup
+
+$ sudo ufw allow 22/tcp
+Rule added
+Rule added (v6)
+
+$ sudo ufw allow 80/tcp
+Rule added
+
+$ sudo ufw allow 443/tcp
+Rule added
+
+$ sudo ufw status
+Status: active
+To                   Action  From
+--                   ------  ----
+22/tcp               ALLOW   Anywhere
+80/tcp               ALLOW   Anywhere
+443/tcp              ALLOW   Anywhere
+22/tcp (v6)          ALLOW   Anywhere (v6)
+80/tcp (v6)          ALLOW   Anywhere (v6)
+443/tcp (v6)         ALLOW   Anywhere (v6)</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>fail2ban - Brute-Force Protection</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Protect against brute-force attacks by blocking repeated failed login attempts.</p>
+                        <div class="code-box"><code>sudo apt install fail2ban      # Install
+sudo systemctl start fail2ban   # Start service
+sudo systemctl enable fail2ban  # Enable at boot
+sudo fail2ban-client status     # Check status
+sudo fail2ban-client set sshd banip 192.168.1.100  # Ban IP</code></div>
+                        <p class="example-label">Real-Time Example - Monitoring Brute-Force Attacks</p>
+                        <div class="code-box"><code>$ sudo fail2ban-client status sshd
+Status for the jail: sshd
+|- Filter
+|  |- Currently failed: 2
+|  |- Total failed: 15
+|  `- Journal matches: 0
+`- Actions
+   |- Currently banned: 3
+   |- Total banned: 8
+   `- Banned IP list: 192.168.1.100 203.45.67.89 10.0.0.50</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 12: Docker -->
+            <div class="section" id="docker">
+                <h2>12. Docker - Container Management</h2>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>Docker Basic Commands</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Manage Docker containers and images.</p>
+                        <div class="code-box"><code>docker ps                      # List running containers
+docker ps -a                   # List all containers
+docker images                  # List images
+docker run -d -p 8080:80 nginx # Run container
+docker stop container_id       # Stop container
+docker rm container_id         # Remove container
+docker logs container_id       # Show container logs
+docker exec -it container_id bash  # Execute command in container</code></div>
+                        <p class="example-label">Real-Time Example - Run Web Server Container</p>
+                        <div class="code-box"><code>$ docker run -d -p 8080:80 --name mywebserver nginx
+a1b2c3d4e5f6g7h8i9j0k
+
+$ docker ps
+CONTAINER ID  IMAGE   COMMAND                STATUS      PORTS
+a1b2c3d4e5f6  nginx   "nginx -g daemon off"  Up 10 secs  0.0.0.0:8080->80/tcp
+
+$ curl localhost:8080
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Welcome to nginx!</h1>
+
+$ docker logs mywebserver
+192.168.1.100 - - [15/Jan/2024:10:25:30] "GET / HTTP/1.1" 200 612
+
+$ docker stop mywebserver
+$ docker rm mywebserver</code></div>
+                    </div>
+                </div>
+
+                <div class="command-block">
+                    <div class="command-header" onclick="toggleContent(this)">
+                        <span>Docker Image Management</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="command-content">
+                        <p><strong>Purpose:</strong> Build, tag, and push Docker images.</p>
+                        <div class="code-box"><code>docker build -t myapp:1.0 .    # Build image
+docker tag myapp:1.0 registry.com/myapp:1.0  # Tag image
+docker push registry.com/myapp:1.0  # Push to registry
+docker pull registry.com/myapp:1.0  # Pull from registry
+docker rmi myapp:1.0            # Remove image</code></div>
+                        <p class="example-label">Real-Time Example - Dockerfile & Build</p>
+                        <div class="code-box"><code># Dockerfile
+FROM python:3.9
+WORKDIR /app
+COPY app.py .
+RUN pip install flask
+EXPOSE 5000
+CMD ["python", "app.py"]
+
+$ docker build -t myflask:1.0 .
+Sending build context to Docker daemon
+Step 1/5 : FROM python:3.9
+Step 2/5 : WORKDIR /app
+Step 3/5 : COPY app.py .
+Step 4/5 : RUN pip install flask
+Step 5/5 : CMD ["python", "app.py"]
+Successfully tagged myflask:1.0
+
+$ docker run -d -p 5000:5000 myflask:1.0
+$ docker tag myflask:1.0 myregistry.com/myflask:1.0
+$ docker push myregistry.com/myflask:1.0</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 13: Tips and Tricks -->
+            <div class="section" id="tips">
+                <h2>13. Tips, Tricks & Best Practices</h2>
+
+                <h3 style="color: #667eea; margin: 30px 0 20px 0;">DevOps Engineer Tips</h3>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <h4>🔄 Automate Everything</h4>
+                        <p>Don't repeat manual tasks. Write scripts and use tools like Ansible, Terraform, or Jenkins to automate deployments and configurations.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>🔐 Master SSH and Bash</h4>
+                        <p>These are your primary tools. Invest time learning advanced features like key management, port forwarding, and bash scripting.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>📋 Understand Permissions</h4>
+                        <p>Linux permissions are fundamental. Misconfigurations can cause security issues or prevent services from running.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>📊 Monitor Logs Actively</h4>
+                        <p>Most issues leave traces in logs. Learn to read logs effectively using grep, tail, and journalctl to debug problems quickly.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>📝 Use Version Control</h4>
+                        <p>Track all configuration changes in Git. This enables rollbacks and provides an audit trail of changes.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>🧪 Test in Staging First</h4>
+                        <p>Always test configuration and deployment changes in a staging environment before deploying to production.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>📚 Document Runbooks</h4>
+                        <p>Create procedures for common tasks and troubleshooting steps. Document how to handle emergencies and failures.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>🚨 Set Up Monitoring</h4>
+                        <p>Don't rely on manual monitoring. Use tools like Prometheus, Grafana, and Alertmanager for automatic alerting.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>💾 Plan for Disasters</h4>
+                        <p>Implement regular backups and disaster recovery plans. Test restore procedures regularly to ensure they work.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>🔄 Stay Current</h4>
+                        <p>Keep systems updated with security patches. Stay informed about new tools, techniques, and best practices in DevOps.</p>
+                    </div>
+                </div>
+
+                <h3 style="color: #667eea; margin: 40px 0 20px 0;">Useful Keyboard Shortcuts</h3>
+                <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shortcut</th>
+                                <th>Action</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="shortcut">Ctrl+A</span></td>
+                                <td>Go to beginning of line</td>
+                                <td>Quickly position cursor at start</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">Ctrl+E</span></td>
+                                <td>Go to end of line</td>
+                                <td>Jump to end of command</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">Ctrl+U</span></td>
+                                <td>Clear from cursor to beginning</td>
+                                <td>Delete typed command parts</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">Ctrl+K</span></td>
+                                <td>Clear from cursor to end</td>
+                                <td>Remove text after cursor</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">Ctrl+R</span></td>
+                                <td>Search command history</td>
+                                <td>Find previously used commands</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">Ctrl+Z</span></td>
+                                <td>Suspend current process</td>
+                                <td>Pause and background running app</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">Ctrl+C</span></td>
+                                <td>Interrupt/kill process</td>
+                                <td>Stop running command</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">Ctrl+D</span></td>
+                                <td>Exit shell</td>
+                                <td>Logout or exit terminal</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">Tab</span></td>
+                                <td>Auto-complete</td>
+                                <td>Complete filenames, commands</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">!!</span></td>
+                                <td>Last command</td>
+                                <td>Re-run previous command</td>
+                            </tr>
+                            <tr>
+                                <td><span class="shortcut">!$</span></td>
+                                <td>Last argument</td>
+                                <td>Use last word from previous command</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="color: #667eea; margin: 40px 0 20px 0;">Common Scenarios & Solutions</h3>
+
+                <div class="highlight-box" style="background: #e8f4f8; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">Scenario: Find Large Files Taking Disk Space</h4>
+                    <div class="code-box"><code>find / -type f -size +100M -exec ls -lh {} \; | awk '{print $5, $9}' | sort -hr</code></div>
+                </div>
+
+                <div class="highlight-box" style="background: #e8f4f8; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">Scenario: Monitor Real-Time CPU Usage Per Process</h4>
+                    <div class="code-box"><code>watch -n 1 'ps aux --sort=-%cpu | head -10'</code></div>
+                </div>
+
+                <div class="highlight-box" style="background: #e8f4f8; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">Scenario: Kill All Processes of a User</h4>
+                    <div class="code-box"><code>killall -u username</code></div>
+                </div>
+
+                <div class="highlight-box" style="background: #e8f4f8; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">Scenario: Find Recently Modified Files</h4>
+                    <div class="code-box"><code>find /path -type f -mtime -7 -ls  # Last 7 days</code></div>
+                </div>
+
+                <div class="highlight-box" style="background: #e8f4f8; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">Scenario: Backup Before Making Changes</h4>
+                    <div class="code-box"><code>cp -i /etc/nginx/nginx.conf /etc/nginx/nginx.conf.$(date +%Y%m%d)</code></div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="text-align: center; margin-top: 60px; padding: 40px; background: #f0f0f0; border-radius: 8px;">
+                <p style="color: #666; margin: 0;">
+                    <strong>Linux for DevOps Complete Guide</strong><br>
+                    Version 2.0 | Last Updated: January 2024 | Difficulty: Beginner to Advanced
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</div>
+
+    <script>
+        // Toggle command content
+        function toggleContent(element) {
+            const content = element.nextElementSibling;
+            content.classList.toggle('active');
+
+            const icon = element.querySelector('.toggle-icon');
+            if (content.classList.contains('active')) {
+                icon.textContent = '▲';
+            } else {
+                icon.textContent = '▼';
+            }
+        }
+
+        // Set active navigation link
+        function setActive(element) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // Smooth scroll
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show/hide back to top button
+        window.addEventListener('scroll', function() {
+            const btn = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        });
+
+        // Smooth scroll for sidebar links
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                const element = document.querySelector(href);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                    setActive(this);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

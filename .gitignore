@@ -1,2 +1,9 @@
 CorePlus-current.iso
 New folder/
+
+# SSH / AWS private keys
+*.pem
+*.ppk
+
+# SSH keys
+*.key

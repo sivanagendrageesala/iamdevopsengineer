@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EC2 Project 1: Deploy a Web Server</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { background: #ff9900; color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        h1 { margin-bottom: 10px; }
+        .breadcrumb { opacity: 0.9; font-size: 14px; }
+        section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border-left: 4px solid #ff9900; }
+        h2 { color: #ff9900; margin-bottom: 15px; font-size: 22px; }
+        h3 { color: #232f3e; margin-top: 15px; margin-bottom: 10px; font-size: 16px; }
+        .step { background: #f9f9f9; padding: 15px; margin: 15px 0; border-radius: 6px; border-left: 3px solid #0066cc; }
+        .step-number { display: inline-block; background: #0066cc; color: white; width: 30px; height: 30px; border-radius: 50%; text-align: center; line-height: 30px; font-weight: bold; margin-right: 10px; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #d63384; }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0; border-radius: 4px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 12px; margin: 15px 0; border-radius: 4px; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 12px; margin: 15px 0; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f0f0f0; font-weight: bold; }
+        .cost-section { background: #e8f4f8; padding: 15px; border-radius: 6px; margin: 15px 0; }
+        ul { margin-left: 20px; margin-bottom: 10px; }
+        li { margin-bottom: 8px; }
+        .highlight { background: #fffacd; padding: 2px 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 EC2 Project 1: Deploy a Web Server</h1>
+            <div class="breadcrumb">AWS EC2 Fundamentals → Step-by-Step Project</div>
+        </header>
+
+        <section>
+            <h2>Project Overview</h2>
+            <p>In this project, you'll launch an EC2 instance, configure it as a web server, and make it accessible from the internet. This covers the fundamental workflow of working with EC2.</p>
+            <div class="info">
+                <strong>Duration:</strong> 30-45 minutes | <strong>Difficulty:</strong> Beginner | <strong>Cost:</strong> ~$0.01 (t2.micro free tier eligible)
+            </div>
+            <h3>What You'll Learn:</h3>
+            <ul>
+                <li>Launch an EC2 instance from the AWS Console</li>
+                <li>Create and manage security groups</li>
+                <li>Connect to your instance via SSH</li>
+                <li>Install and configure a web server (Nginx)</li>
+                <li>Access your web server from a browser</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Prerequisites</h2>
+            <ul>
+                <li>AWS Account with free tier access</li>
+                <li>SSH client installed (built-in on macOS/Linux, PuTTY or Windows Terminal for Windows)</li>
+                <li>Basic understanding of Linux commands</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Step 1: Launch an EC2 Instance</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Open EC2 Dashboard</h3>
+                <p>Go to AWS Console → Services → EC2 → Instances → <code>Launch Instances</code></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Choose an AMI (Amazon Machine Image)</h3>
+                <p>Select <code>Amazon Linux 2</code> - it's free tier eligible and great for beginners</p>
+                <p><strong>Details:</strong> Amazon Linux 2 is optimized for EC2, includes AWS tools, and is free tier eligible.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Choose Instance Type</h3>
+                <p>Select <code>t2.micro</code> - this is free tier eligible</p>
+                <table>
+                    <tr>
+                        <th>Instance Type</th>
+                        <th>vCPU</th>
+                        <th>Memory</th>
+                        <th>Use Case</th>
+                    </tr>
+                    <tr>
+                        <td>t2.micro</td>
+                        <td>1</td>
+                        <td>1 GB</td>
+                        <td>Low-traffic apps, testing, learning</td>
+                    </tr>
+                    <tr>
+                        <td>t2.small</td>
+                        <td>1</td>
+                        <td>2 GB</td>
+                        <td>Small web applications</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Configure Instance Details</h3>
+                <ul>
+                    <li><strong>Number of instances:</strong> 1</li>
+                    <li><strong>Network:</strong> Default VPC</li>
+                    <li><strong>Subnet:</strong> Default subnet</li>
+                    <li><strong>Auto-assign IPv4:</strong> Enable</li>
+                    <li>Click <code>Next</code></li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Add Storage</h3>
+                <ul>
+                    <li><strong>Root volume size:</strong> 8 GB (free tier allows up to 30 GB)</li>
+                    <li><strong>Volume type:</strong> gp2 or gp3</li>
+                    <li><strong>Delete on termination:</strong> Yes</li>
+                    <li>Click <code>Next</code></li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">6</span>
+                <h3>Add Tags</h3>
+                <p>Tags help you organize and identify your instances.</p>
+                <table>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>MyWebServer</td>
+                    </tr>
+                    <tr>
+                        <td>Environment</td>
+                        <td>Learning</td>
+                    </tr>
+                    <tr>
+                        <td>Project</td>
+                        <td>EC2Fundamentals</td>
+                    </tr>
+                </table>
+                <p>Click <code>Next</code></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">7</span>
+                <h3>Configure Security Group (Critical Step!)</h3>
+                <p><span class="highlight">This controls who can access your instance</span></p>
+                <ul>
+                    <li><strong>Name:</strong> WebServerSecurityGroup</li>
+                    <li><strong>Description:</strong> Allow HTTP and HTTPS traffic</li>
+                    <li>Add these inbound rules:</li>
+                </ul>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Protocol</th>
+                        <th>Port Range</th>
+                        <th>Source</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td>SSH</td>
+                        <td>TCP</td>
+                        <td>22</td>
+                        <td>0.0.0.0/0 (or your IP)</td>
+                        <td>Admin access via SSH</td>
+                    </tr>
+                    <tr>
+                        <td>HTTP</td>
+                        <td>TCP</td>
+                        <td>80</td>
+                        <td>0.0.0.0/0</td>
+                        <td>Web traffic</td>
+                    </tr>
+                    <tr>
+                        <td>HTTPS</td>
+                        <td>TCP</td>
+                        <td>443</td>
+                        <td>0.0.0.0/0</td>
+                        <td>Secure web traffic</td>
+                    </tr>
+                </table>
+                <div class="warning">
+                    <strong>⚠️ Security Note:</strong> For production, restrict SSH to your IP address (not 0.0.0.0/0)
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">8</span>
+                <h3>Review and Launch</h3>
+                <ul>
+                    <li>Review all settings</li>
+                    <li>Click <code>Launch</code></li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">9</span>
+                <h3>Create/Select Key Pair</h3>
+                <ul>
+                    <li><strong>Create a new key pair</strong> or select existing</li>
+                    <li><strong>Key pair name:</strong> MyEC2KeyPair</li>
+                    <li><strong>Download</strong> the .pem file (save it somewhere safe)</li>
+                    <li>Click <code>Launch Instances</code></li>
+                </ul>
+                <div class="success">
+                    ✅ Your instance is now launching! It will be in "running" state in 30-60 seconds.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Step 2: Connect to Your Instance</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Wait for Instance to Run</h3>
+                <ul>
+                    <li>Go to EC2 → Instances</li>
+                    <li>Wait until your instance shows "running" status</li>
+                    <li>Note down the <strong>Public IPv4 address</strong> (e.g., 54.123.45.67)</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Set Permissions on Key File (macOS/Linux)</h3>
+                <pre>chmod 400 ~/Downloads/MyEC2KeyPair.pem</pre>
+                <p><strong>Why?</strong> SSH requires the key file to have restricted permissions for security.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>SSH into Your Instance</h3>
+                <p><strong>Replace PUBLIC_IP with your actual public IPv4 address</strong></p>
+                <pre>ssh -i ~/Downloads/MyEC2KeyPair.pem ec2-user@PUBLIC_IP</pre>
+                <p><strong>Example:</strong></p>
+                <pre>ssh -i ~/Downloads/MyEC2KeyPair.pem ec2-user@54.123.45.67</pre>
+                <p>Type <code>yes</code> when prompted to accept the host key.</p>
+                <div class="success">
+                    ✅ You're now connected to your EC2 instance!
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Verify Connection</h3>
+                <pre>whoami
+uname -a
+df -h</pre>
+                <p>These commands verify you're logged in and show system info.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Step 3: Install and Configure Nginx Web Server</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Update System Packages</h3>
+                <pre>sudo yum update -y</pre>
+                <p><strong>Why?</strong> Ensures you have the latest security patches and software versions.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Install Nginx</h3>
+                <pre>sudo yum install -y nginx</pre>
+                <p>This installs Nginx, a lightweight and efficient web server.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Start Nginx Service</h3>
+                <pre>sudo systemctl start nginx
+sudo systemctl enable nginx</pre>
+                <p><strong>start:</strong> Begins the service now<br>
+                <strong>enable:</strong> Ensures it starts automatically after reboot</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Verify Nginx is Running</h3>
+                <pre>sudo systemctl status nginx</pre>
+                <p>Should show <span class="highlight">active (running)</span></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Create a Custom Web Page</h3>
+                <pre>sudo bash -c 'cat > /usr/share/nginx/html/index.html << EOF
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;My EC2 Web Server&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial; margin: 50px; background: #f0f0f0; }
+        h1 { color: #ff9900; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;🎉 Welcome to My EC2 Web Server!&lt;/h1&gt;
+    &lt;p&gt;This page is being served from an EC2 instance.&lt;/p&gt;
+    &lt;p&gt;Instance ID: $(ec2-metadata --instance-id | cut -d " " -f 2)&lt;/p&gt;
+    &lt;p&gt;Availability Zone: $(ec2-metadata --availability-zone | cut -d " " -f 2)&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF'</pre>
+            </div>
+
+            <div class="step">
+                <span class="step-number">6</span>
+                <h3>Access Your Web Server</h3>
+                <ul>
+                    <li>Open your browser</li>
+                    <li>Navigate to: <code>http://YOUR_PUBLIC_IP</code></li>
+                    <li>You should see your custom web page!</li>
+                </ul>
+                <div class="success">
+                    ✅ Your web server is live on the internet!
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Step 4: Monitor and Manage</h2>
+
+            <h3>View Nginx Logs</h3>
+            <pre>sudo tail -f /var/log/nginx/access.log</pre>
+            <p>Shows incoming web requests in real-time.</p>
+
+            <h3>Check Instance Resource Usage</h3>
+            <pre>free -h          # Memory usage
+df -h             # Disk usage
+top               # CPU and process info (press q to exit)</pre>
+
+            <h3>Useful AWS CLI Commands (from your local machine)</h3>
+            <pre># List running instances
+aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"
+
+# Get instance details
+aws ec2 describe-instances --instance-ids i-0123456789abcdef0
+
+# Reboot instance
+aws ec2 reboot-instances --instance-ids i-0123456789abcdef0
+
+# Stop instance (keeps data, charges storage)
+aws ec2 stop-instances --instance-ids i-0123456789abcdef0
+
+# Terminate instance (deletes everything, no charges)
+aws ec2 terminate-instances --instance-ids i-0123456789abcdef0</pre>
+        </section>
+
+        <section>
+            <h2>Step 5: Cleanup (Important for Cost!)</h2>
+            <p>When you're done learning, terminate your instance to avoid charges.</p>
+
+            <div class="cost-section">
+                <strong>💰 Cost Impact:</strong>
+                <ul>
+                    <li>t2.micro running 24/7: ~$7/month (outside free tier)</li>
+                    <li>Stopping the instance: Still pays for storage (~$1/month)</li>
+                    <li>Terminating the instance: No charges (except storage if retained)</li>
+                </ul>
+            </div>
+
+            <h3>Terminate Your Instance</h3>
+            <ol>
+                <li>Go to EC2 → Instances</li>
+                <li>Right-click your instance → Instance State → Terminate</li>
+                <li>Confirm termination</li>
+            </ol>
+
+            <div class="warning">
+                <strong>⚠️ Warning:</strong> Terminating deletes the instance and all its data. Make sure you've saved anything important.
+            </div>
+        </section>
+
+        <section>
+            <h2>Troubleshooting</h2>
+            <table>
+                <tr>
+                    <th>Problem</th>
+                    <th>Solution</th>
+                </tr>
+                <tr>
+                    <td>Can't SSH to instance</td>
+                    <td>Check security group allows port 22, key file has 400 permissions, correct IP address used</td>
+                </tr>
+                <tr>
+                    <td>Web page not accessible</td>
+                    <td>Verify security group allows port 80, Nginx is running (sudo systemctl status nginx)</td>
+                </tr>
+                <tr>
+                    <td>Instance stuck in "pending"</td>
+                    <td>Wait 2-3 minutes, or check for errors in launch details</td>
+                </tr>
+                <tr>
+                    <td>Permission denied with key file</td>
+                    <td>Run: chmod 400 MyEC2KeyPair.pem</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>Key Concepts Summary</h2>
+            <ul>
+                <li><strong>AMI:</strong> Template that defines the OS and software</li>
+                <li><strong>Instance Type:</strong> Virtual hardware specs (vCPU, RAM)</li>
+                <li><strong>Key Pair:</strong> Authentication credentials for SSH access</li>
+                <li><strong>Security Group:</strong> Virtual firewall controlling inbound/outbound traffic</li>
+                <li><strong>Public IP:</strong> Internet-accessible address (changes on stop/start)</li>
+                <li><strong>Elastic IP:</strong> Static IP that persists across stop/start (paid feature)</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Next Steps</h2>
+            <ul>
+                <li>Explore Project 2: Auto-scaling web applications</li>
+                <li>Explore Project 3: Docker containers on EC2</li>
+                <li>Learn about Load Balancers to distribute traffic</li>
+                <li>Setup monitoring with CloudWatch</li>
+            </ul>
+        </section>
+    </div>
+</body>
+</html>
