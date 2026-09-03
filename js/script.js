@@ -100,6 +100,33 @@ const projects = [
     tags: "AWS • S3"
 },
 
+{
+    title: "S3 Complete Guide",
+    category: "aws",
+    icon: "🪣",
+    description:
+        "AWS S3 Complete Notes.",
+    file: "projects/AWS_S3_Complete_Guide.html",
+    tags: "AWS • S3"
+},
+
+{
+    title: "EC2 Project 1 - Web Server",
+    category: "aws",
+    icon: "🖥️",
+    description: "Deploy and configure a web server on an AWS EC2 instance.",
+    file: "EC2_Project_1_Web_Server.html",
+    tags: "AWS • EC2 • Web Server"
+},
+
+{
+    title: "EC2 Project 2 - Auto Scaling",
+    category: "aws",
+    icon: "📈",
+    description: "Configure EC2 Auto Scaling to automatically adjust compute capacity based on demand.",
+    file: "EC2_Project_2_Auto_Scaling.html",
+    tags: "AWS • EC2 • Auto Scaling"
+}
 
 /* =====================================
    DEVOPS PROJECTS
@@ -249,6 +276,16 @@ const projects = [
         "Practical shell scripting concepts and command examples.",
     file: "projects/shell_scripting_guide.html",
     tags: "Linux • Shell"
+},
+
+{
+    title: "Linux Complete Guide",
+    category: "linux",
+    icon: "🐧",
+    description:
+        "Linux_DevOps_Complete_Guide.",
+    file: "projects/Linux_DevOps_Complete_Guide.html",
+    tags: "Linux "
 },
 
 
